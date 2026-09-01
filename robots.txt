@@ -29,7 +29,7 @@ Allow: /
 Disallow: /css/
 Disallow: /js/
 Disallow: /images/
-Disallow: /font/
+Disallow: /fonts/
 Disallow: /assets/
 
 User-agent: Googlebot
