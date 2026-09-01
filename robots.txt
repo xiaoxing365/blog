@@ -31,6 +31,9 @@ Disallow: /js/
 Disallow: /images/
 Disallow: /fonts/
 Disallow: /assets/
+Disallow: /archives/
+Disallow: /tags/
+Disallow: /categories/
 
 User-agent: Googlebot
 Allow: /
@@ -39,6 +42,9 @@ Disallow: /js/
 Disallow: /images/
 Disallow: /fonts/
 Disallow: /assets/
+Disallow: /archives/
+Disallow: /tags/
+Disallow: /categories/
 
 User-agent: Amazonbot
 Disallow: /
