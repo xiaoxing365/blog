@@ -1,9 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /css/
-Disallow: /js/
-Disallow: /images/
-Disallow: /fonts/
-Disallow: /assets/
-Disallow: /404.html
-Sitemap: https://blog.xiaoxing365.top/sitemap.xml
