@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>关于 - 小兴365</title>
+<meta name="description" content="关于小兴365，一个记录建站折腾和放小工具的个人站点。">
+<style>
+  :root {
+    --bg: #fff; --fg: #1a1a1a; --muted: #6b7280; --border: #e5e7eb;
+    --hover-bg: #f9fafb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111; --fg: #e5e5e5; --muted: #8a8a8a; --border: #262626;
+      --hover-bg: #1a1a1a;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--fg); line-height: 1.7;
+    font-size: 15px; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 0 20px; }
+  header { padding: 40px 0 28px; border-bottom: 1px solid var(--border); }
+  header a { color: var(--muted); text-decoration: none; font-size: 13px; }
+  header a:hover { color: var(--fg); }
+  header h1 { font-size: 20px; font-weight: 600; margin-top: 14px; letter-spacing: -0.3px; }
+  main { padding: 28px 0 40px; }
+  main p { margin-bottom: 18px; }
+  main p:last-child { margin-bottom: 0; }
+  main a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--border); }
+  main a:hover { border-bottom-color: var(--fg); }
+  .section-title {
+    font-size: 13px; font-weight: 500; color: var(--muted);
+    margin-top: 32px; margin-bottom: 10px;
+  }
+  .social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .social-links a {
+    font-size: 13px;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--fg);
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .social-links a:hover {
+    background: var(--hover-bg);
+    border-color: var(--fg);
+  }
+  .contact {
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 13px; background: #fafafa;
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 12px 14px; word-break: break-all;
+  }
+  @media (prefers-color-scheme: dark) {
+    .contact { background: #1a1a1a; }
+  }
+  footer {
+    padding: 20px 0 60px; font-size: 13px; color: var(--muted);
+    border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--border); }
+  footer a:hover { color: var(--fg); }
+  @media (max-width: 480px) {
+    header { padding: 32px 0 24px; }
+    header h1 { font-size: 19px; }
+    main { padding: 24px 0 32px; }
+    footer { padding: 18px 0 48px; }
+    .social-links a { padding: 8px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a href="https://xiaoxing365.com/">← 回博客</a>
+    <h1>关于小兴365</h1>
+  </header>
+
+  <main>
+    <p>小兴365 是一个个人站点，分成两块：博客和工具站。</p>
+
+    <p>博客就是你现在在的 <a href="https://xiaoxing365.com/">xiaoxing365.com</a>，主要写建站过程中遇到的问题和折腾记录——Cloudflare 规则、Hexo 主题、DNS、SSL、硬件验证这些。不是教程站，更多是踩坑之后整理出来的笔记，自己以后翻也方便。</p>
+
+    <p>工具站在 <a href="https://xiaoxing365.top/">xiaoxing365.top</a>，放一些做站时顺手写的小工具。都是纯前端，打开就能用，不用注册，不收集数据。</p>
+
+    <div class="section-title">关于我</div>
+    <p>一个普通的技术爱好者，平时折腾服务器、域名、静态站点，偶尔写点东西记录一下。主攻 Java 后端，也碰一点前端和 C++，编程启蒙是 Minecraft。</p>
+
+    <div class="section-title">社交链接</div>
+    <div class="social-links">
+      <a href="https://github.com/xiaoxing365" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://space.bilibili.com/2024358517" target="_blank" rel="noopener">B站</a>
+      <a href="https://www.cnblogs.com/xiaoxing365" target="_blank" rel="noopener">博客园</a>
+    </div>
+
+    <div class="section-title">联系方式</div>
+    <div class="contact">mcxiaoxing365@163.com</div>
+  </main>
+
+  <footer>
+    <a href="https://xiaoxing365.com/">博客</a> · <a href="https://xiaoxing365.top/">工具站</a>
+  </footer>
+</div>
+</body>
+</html>
