@@ -10,15 +10,15 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
-  <meta name="description" content="CC2530 串口通信是物联网设备与电脑、模组交换数据的基础通道。本文从并行通信与串行通信的差异讲起，说明 USART0 与 USART1 在两种引脚位置下的映射关系，逐项解析 UxCSR、UxUCR、UxGCR、UxDBUF、UxBAUD 五个寄存器的作用，给出波特率计算公式与常用组合以及可运行的收发例程。后半部分按功能模块整理常用寄存器的中英文对照速查表，保留英文原名，方便对照芯片数据手册查阅，是 CC2530 开发过程中的实用参考。">
+  <meta name="description" content="CC2530 的通用 IO 端口是物联网开发最基础的外设。本文从输出和输入两条主线出发，先演示如何用宏定义把 LED 和按键与引脚绑定，再用对照表讲清按位与、按位或、按位取反在寄存器配置中的作用，随后深入 P1INP 与 P2INP 的上拉、下拉、三态配置差异。最后给出一个完整的按键检测例程，包含机械按键防抖和 LED 状态取反闪烁技巧，帮助读者把 GPIO 基础真正用起来。">
 
 
     
-  <meta name="keywords" content="CC2530,串口通信,USART,UART,PERCFG,波特率,UxDBUF,寄存器速查">
+  <meta name="keywords" content="CC2530,GPIO,位运算,上拉电阻,按键防抖,LED闪烁,P1INP,宏定义">
 
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
-    <title>cc2530串口通信与寄存器速查</title>
+    <title>cc2530灯光与按键gpio实战</title>
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -73,21 +73,21 @@
                         <a class="tag" href="/tags/#CC2530"
                            title="CC2530">CC2530</a>
                         
-                        <a class="tag" href="/tags/#串口通信"
-                           title="串口通信">串口通信</a>
+                        <a class="tag" href="/tags/#GPIO"
+                           title="GPIO">GPIO</a>
                         
-                        <a class="tag" href="/tags/#USART"
-                           title="USART">USART</a>
+                        <a class="tag" href="/tags/#按键防抖"
+                           title="按键防抖">按键防抖</a>
                         
-                        <a class="tag" href="/tags/#寄存器"
-                           title="寄存器">寄存器</a>
+                        <a class="tag" href="/tags/#LED"
+                           title="LED">LED</a>
                         
                     </div>
-                    <h1>cc2530串口通信与寄存器速查</h1>
+                    <h1>cc2530灯光与按键gpio实战</h1>
                     <h2 class="subheading"></h2>
                     <span class="meta">
                             Posted by 小兴365 on
-                        2025-07-19
+                        2025-07-11
                         </span>
                 </div>
                 <!-- 非文章 -->
@@ -153,426 +153,87 @@
             <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
             <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
 
-            <p>设备采集到温湿度、按键状态之后，怎么把数据送到电脑上查看？最常用、也最容易上手的方式就是串口。一根 USB 转 TTL 线，加上几行初始化代码，就能让开发板和电脑”对话”。这一章先把串口通信的原理和配置讲清楚，再把开发中经常要查的寄存器整理成速查表，写程序时随时翻一翻能省不少事。</p>
-<h2 id="并行通信与串行通信"><a href="#并行通信与串行通信" class="headerlink" title="并行通信与串行通信"></a>并行通信与串行通信</h2><p>微控制器和外设之间交换数据，按连线方式分为并行通信和串行通信两种。</p>
-<table>
-<thead>
-<tr>
-<th>对比项</th>
-<th>并行通信</th>
-<th>串行通信</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>传送方式</td>
-<td>数据的多位同时发送或接收，每位一根线</td>
-<td>数据一位接一位顺序传送</td>
-</tr>
-<tr>
-<td>传输速度</td>
-<td>快、效率高</td>
-<td>相对慢</td>
-</tr>
-<tr>
-<td>所需线缆</td>
-<td>多，成本高</td>
-<td>少，成本低</td>
-</tr>
-<tr>
-<td>典型场景</td>
-<td>早期打印机并口、芯片内部总线</td>
-<td>串口、USB、网络通信</td>
-</tr>
-</tbody></table>
-<p>CC2530 对外通信主要靠串行接口，内部则大量使用并行总线，两者各司其职。</p>
-<h2 id="CC2530-的-USART-模块与引脚映射"><a href="#CC2530-的-USART-模块与引脚映射" class="headerlink" title="CC2530 的 USART 模块与引脚映射"></a>CC2530 的 USART 模块与引脚映射</h2><p>CC2530 有两个串行通信接口 USART0 和 USART1，它们都能工作在异步 <strong>UART</strong> 模式或同步 <strong>SPI</strong> 模式。异步 UART 靠双方约定好的波特率来同步，只需要两根线（TX 发送、RX 接收）；同步 SPI 则额外有一根时钟线。物联网开发中最常用的就是 UART 模式。</p>
-<p>同一个 USART 可以接到不同的引脚组合上，这由 PERCFG 寄存器决定：</p>
-<table>
-<thead>
-<tr>
-<th>引脚位置</th>
-<th>USART0</th>
-<th>USART1</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>位置 1</td>
-<td>RX0 → P0_2，TX0 → P0_3</td>
-<td>RX1 → P0_5，TX1 → P0_4</td>
-</tr>
-<tr>
-<td>位置 2</td>
-<td>RX0 → P1_4，TX0 → P1_5</td>
-<td>RX1 → P1_7，TX1 → P1_6</td>
-</tr>
-</tbody></table>
-<p>选好位置后，还要通过 PxSEL 把对应引脚设为<strong>外设功能</strong>（SEL 置 1），并按需用 P2DIR 设定 USART 的端口优先级。例如用 USART0 的位置 1，就要让 P0_2、P0_3 处于外设功能状态。</p>
-<h2 id="五个核心寄存器"><a href="#五个核心寄存器" class="headerlink" title="五个核心寄存器"></a>五个核心寄存器</h2><p>对 USART 编程，本质就是配置下面五个寄存器（x 为 0 或 1，分别对应 USART0 和 USART1）：</p>
-<table>
-<thead>
-<tr>
-<th>寄存器</th>
-<th>英文全称</th>
-<th>中文名称</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>UxCSR</td>
-<td>USARTx Control and Status Register</td>
-<td>控制和状态寄存器</td>
-<td>选择 UART 或 SPI 模式、使能接收、查看收发状态</td>
-</tr>
-<tr>
-<td>UxUCR</td>
-<td>USARTx UART Control Register</td>
-<td>UART 控制寄存器</td>
-<td>设置数据位、停止位、校验位和硬件流控</td>
-</tr>
-<tr>
-<td>UxGCR</td>
-<td>USARTx Generic Control Register</td>
-<td>通用控制寄存器</td>
-<td>设置波特率指数，也用于 SPI 时钟极性</td>
-</tr>
-<tr>
-<td>UxDBUF</td>
-<td>USARTx Receive&#x2F;Transmit Data Buffer</td>
-<td>收发数据缓冲寄存器</td>
-<td>写入即发送，收到的数据从这里读出</td>
-</tr>
-<tr>
-<td>UxBAUD</td>
-<td>USARTx Baud Rate Control</td>
-<td>波特率控制寄存器</td>
-<td>设置波特率尾数，与 UxGCR 共同决定波特率</td>
-</tr>
-</tbody></table>
-<p>UxCSR 的几个常用位：MODE（第 7 位）为 1 选 UART、为 0 选 SPI；RE（第 6 位）为 1 使能接收；RX_BYTE（第 0 位）为 1 表示收到一个字节。UxDBUF 是双缓冲结构，写入一个字节后硬件立即开始发送，同时允许把下一个字节装入缓冲，因此连续发送时效率较高。</p>
-<h2 id="TTL-与-RS232-电平及波特率"><a href="#TTL-与-RS232-电平及波特率" class="headerlink" title="TTL 与 RS232 电平及波特率"></a>TTL 与 RS232 电平及波特率</h2><p>电脑的串口遵循 RS-232 标准，而 CC2530 的 UART 引脚输出的是 TTL 电平，两者电气规范不同，直接相连会损坏芯片，必须经过电平转换，常用 MAX232 这类芯片完成转换。两种电平的定义如下：</p>
-<table>
-<thead>
-<tr>
-<th>电平标准</th>
-<th>逻辑 0</th>
-<th>逻辑 1</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>TTL</td>
-<td>低于 0.8V</td>
-<td>高于 2.4V</td>
-</tr>
-<tr>
-<td>RS232</td>
-<td>+5V 至 +15V</td>
-<td>-5V 至 -15V</td>
-</tr>
-</tbody></table>
-<p>另外要注意 DB9 接口的公头和母头引脚排列顺序不同，接线时别接反。</p>
-<p>波特率指每秒传送的码元数，通信双方必须设成一致。CC2530 的波特率由 UxBAUD（尾数 BAUD_M）和 UxGCR 的低 5 位（指数 BAUD_E）共同决定，计算关系为：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">波特率 = (256 + BAUD_M) × 2^BAUD_E × 系统时钟频率 / 2^28</span><br></pre></td></tr></table></figure>
+            <p>让一盏灯亮起来，是接触任何一块开发板时最让人有成就感的瞬间；而按一下按键就能切换灯的状态，才算真正实现了”人机对话”。这两件事分别对应数字 IO 的两种基本能力——输出和输入。下面就用 CC2530 把这两个能力串起来，顺便把背后绕不开的位运算和寄存器配置讲清楚。</p>
+<h2 id="用宏定义把引脚和器件绑定"><a href="#用宏定义把引脚和器件绑定" class="headerlink" title="用宏定义把引脚和器件绑定"></a>用宏定义把引脚和器件绑定</h2><p>程序里如果到处写 P1_0、P1_3 这样的名字，读起来很费劲，改电路时也容易漏改。C 语言提供了 <code>#define</code> 宏定义，可以给引脚起一个见名知意的名字，之后整个程序都用这个名字操作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> LED3 P1_0       <span class="comment">/* 3 号灯接在 P1_0 */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED4 P1_1       <span class="comment">/* 4 号灯接在 P1_1 */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED5 P1_3       <span class="comment">/* 5 号灯接在 P1_3 */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED6 P1_4       <span class="comment">/* 6 号灯接在 P1_4 */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SW1  P1_2       <span class="comment">/* 1 号按键接在 P1_2 */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SW2  P0_1       <span class="comment">/* 2 号按键接在 P0_1 */</span></span></span><br></pre></td></tr></table></figure>
 
-<p>以 32MHz 系统时钟为例，两组常用配置是：9600 波特率取 BAUD_M&#x3D;59、BAUD_E&#x3D;8；115200 波特率取 BAUD_M&#x3D;216、BAUD_E&#x3D;11。换用其他主频时要重新计算或查数据手册的波特率表。</p>
-<h2 id="串口收发例程"><a href="#串口收发例程" class="headerlink" title="串口收发例程"></a>串口收发例程</h2><p>要解决什么：让 USART0 工作在 UART 模式，以 115200 波特率接收电脑发来的数据，收到后立即回传，形成一个简单的回显测试。这里用接收中断，避免主程序一直轮询。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;ioCC2530.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> rxFlag = <span class="number">0</span>;     <span class="comment">/* 接收完成标志 */</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> rxData = <span class="number">0</span>;     <span class="comment">/* 暂存收到的字节 */</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Init_UART0</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    PERCFG &amp;= ~<span class="number">0x01</span>;          <span class="comment">/* USART0 选用位置 1：RX0-P0_2，TX0-P0_3 */</span></span><br><span class="line">    P0SEL |= <span class="number">0x0C</span>;            <span class="comment">/* 0000 1100：P0_2、P0_3 设为外设功能 */</span></span><br><span class="line">    P2DIR &amp;= ~<span class="number">0xC0</span>;           <span class="comment">/* 端口优先级：USART0 优先 */</span></span><br><span class="line"></span><br><span class="line">    U0CSR |= <span class="number">0x80</span>;            <span class="comment">/* MODE=1，选择 UART 模式 */</span></span><br><span class="line">    U0CSR |= <span class="number">0x40</span>;            <span class="comment">/* RE=1，使能接收 */</span></span><br><span class="line">    U0UCR = <span class="number">0x00</span>;             <span class="comment">/* 8 数据位、1 停止位、无校验、无流控 */</span></span><br><span class="line"></span><br><span class="line">    U0BAUD = <span class="number">216</span>;             <span class="comment">/* 波特率尾数 BAUD_M */</span></span><br><span class="line">    U0GCR  = (U0GCR &amp; <span class="number">0xE0</span>) | <span class="number">11</span>;  <span class="comment">/* 低 5 位写指数 BAUD_E，合起来 115200 */</span></span><br><span class="line"></span><br><span class="line">    URX0IF = <span class="number">0</span>;               <span class="comment">/* 先清接收中断标志 */</span></span><br><span class="line">    URX0IE = <span class="number">1</span>;               <span class="comment">/* 使能 USART0 接收中断 */</span></span><br><span class="line">    EA = <span class="number">1</span>;                   <span class="comment">/* 打开总中断 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* USART0 接收完成中断服务函数，向量 URX0_VECTOR = 0x13 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> vector = URX0_VECTOR</span></span><br><span class="line">__interrupt <span class="type">void</span> <span class="title function_">UART0_RX_ISR</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    URX0IF = <span class="number">0</span>;               <span class="comment">/* 必须手动清除接收中断标志 */</span></span><br><span class="line">    rxData = U0DBUF;          <span class="comment">/* 从缓冲寄存器读走数据 */</span></span><br><span class="line">    rxFlag = <span class="number">1</span>;               <span class="comment">/* 通知主函数已收到数据 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 发送单个字节 */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">SendByte</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> dat)</span></span><br><span class="line">&#123;</span><br><span class="line">    U0DBUF = dat;             <span class="comment">/* 写入缓冲即启动发送 */</span></span><br><span class="line">    <span class="keyword">while</span> (!UTX0IF);          <span class="comment">/* 等待发送完成标志置位 */</span></span><br><span class="line">    UTX0IF = <span class="number">0</span>;               <span class="comment">/* 清除发送完成标志 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 发送字符串 */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">SendString</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> *str)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> (*str != <span class="string">&#x27;\0&#x27;</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        SendByte(*str++);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Init_UART0();</span><br><span class="line">    SendString(<span class="string">&quot;UART0 ready\r\n&quot;</span>);   <span class="comment">/* 上电后发一句提示 */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (rxFlag)                  <span class="comment">/* 收到数据 */</span></span><br><span class="line">        &#123;</span><br><span class="line">            rxFlag = <span class="number">0</span>;</span><br><span class="line">            SendByte(rxData);        <span class="comment">/* 原样回传 */</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意，具体的引脚编号必须对照开发板的电路原理图来定，不同板子接法可能不同。宏定义本身不占用内存，它在编译前由预处理器直接替换成对应的引脚名。另外有一点要纠正：决定引脚是输入还是输出的寄存器是 <strong>DIR</strong>（0 为输入，1 为输出），SEL 只决定引脚是普通 IO 还是外设功能，这两个寄存器千万别搞混。</p>
+<h2 id="位运算：配置寄存器的基本功"><a href="#位运算：配置寄存器的基本功" class="headerlink" title="位运算：配置寄存器的基本功"></a>位运算：配置寄存器的基本功</h2><p>CC2530 的寄存器是 8 位的，每一位控制一个对象，比如 P1DIR 的 8 位分别对应 P1_0 到 P1_7。实际编程时，我们往往只想修改其中几位，而不能影响其他位，这就要靠位运算。</p>
+<table>
+<thead>
+<tr>
+<th>运算符</th>
+<th>名称</th>
+<th>运算规则</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&amp;</code></td>
+<td>按位与</td>
+<td>两位都为 1 时才得 1，见 0 则 0</td>
+<td>把指定位清零，其余位保持不变</td>
+</tr>
+<tr>
+<td><code>|</code></td>
+<td>按位或</td>
+<td>有一位为 1 就得 1，见 1 则 1</td>
+<td>把指定位置 1，其余位保持不变</td>
+</tr>
+<tr>
+<td><code>~</code></td>
+<td>按位取反</td>
+<td>0 变 1，1 变 0</td>
+<td>配合 <code>&amp;</code> 生成”清除掩码”</td>
+</tr>
+</tbody></table>
+<p>以 <code>0x1B</code> 为例，它的二进制是 <code>0001 1011</code>，对应 P1_0、P1_1、P1_3、P1_4 四个位。要把这四位设成普通 IO 并设为输出，通常写成：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">P1SEL &amp;= ~<span class="number">0x1B</span>;    <span class="comment">/* ~0x1B = 1110 0100，&amp; 运算把相关位清零 */</span></span><br><span class="line">P1DIR |=  <span class="number">0x1B</span>;    <span class="comment">/* | 运算把相关位置 1 */</span></span><br></pre></td></tr></table></figure>
 
-<p>这里补充一个容易混淆的点：<strong>URX0_VECTOR（0x13）是接收完成中断向量，UTX0_VECTOR（0x3B）才是发送完成中断向量</strong>，接收服务函数要对应 URX0_VECTOR，并在函数里清除 URX0IF。预期效果：打开串口助手，设置 115200、8 数据位、1 停止位、无校验，发送任意字符，电脑都能收到同样的字符回显。</p>
-<h2 id="常用寄存器速查表"><a href="#常用寄存器速查表" class="headerlink" title="常用寄存器速查表"></a>常用寄存器速查表</h2><p>下面按功能模块整理开发中常用的寄存器，保留英文原名，方便对照数据手册。修改寄存器时优先使用位操作 <code>|=</code> 或 <code>&amp;= ~</code>，避免覆盖其他配置位。</p>
-<h3 id="端口与中断寄存器"><a href="#端口与中断寄存器" class="headerlink" title="端口与中断寄存器"></a>端口与中断寄存器</h3><table>
+<p><code>&amp;= ~掩码</code> 是”清零某几位”的固定写法，<code>|= 掩码</code> 是”置 1 某几位”的固定写法。十六进制和二进制的转换可以借助系统计算器，记住 0x1B、0x04、0x40 这几个常用值对应的二进制，配置起来会快很多。还要提醒一句：<code>signed</code> 和 <code>unsigned</code> 的区别在于能否表示负数，<code>unsigned int</code> 的取值范围更大，延时函数的形参通常用 <code>unsigned int</code>。</p>
+<h2 id="输出实战：让-LED-依次亮灭"><a href="#输出实战：让-LED-依次亮灭" class="headerlink" title="输出实战：让 LED 依次亮灭"></a>输出实战：让 LED 依次亮灭</h2><p>要解决什么：让接在 P1 端口的四盏 LED 按节奏轮流点亮，形成流水灯效果。思路是先初始化端口方向为输出，再用一个空循环函数消耗时间，制造肉眼能分辨的停顿。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;ioCC2530.h&quot;</span>        <span class="comment">/* 芯片寄存器定义 */</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED3 P1_0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED4 P1_1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED5 P1_3</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED6 P1_4</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Delay</span><span class="params">(<span class="type">unsigned</span> <span class="type">int</span> t)</span>;  <span class="comment">/* 函数声明：main 写在前面时需要 */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">initPort</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">run</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    initPort();</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        run();               <span class="comment">/* 主循环反复执行流水灯逻辑 */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 延时函数：形参 t 递减到 0 时退出，用来放慢灯的变化速度 */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Delay</span><span class="params">(<span class="type">unsigned</span> <span class="type">int</span> t)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> (t--);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">initPort</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    P1SEL &amp;= ~<span class="number">0x1B</span>;          <span class="comment">/* 0001 1011：相关引脚设为普通 IO */</span></span><br><span class="line">    P1DIR |=  <span class="number">0x1B</span>;          <span class="comment">/* 相关引脚设为输出，用来点灯 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">run</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    LED3 = <span class="number">1</span>; Delay(<span class="number">60000</span>);  <span class="comment">/* 点亮，停一会儿 */</span></span><br><span class="line">    LED4 = <span class="number">1</span>; Delay(<span class="number">60000</span>);</span><br><span class="line">    LED5 = <span class="number">1</span>; Delay(<span class="number">60000</span>);</span><br><span class="line">    LED6 = <span class="number">1</span>; Delay(<span class="number">60000</span>);</span><br><span class="line"></span><br><span class="line">    LED3 = <span class="number">0</span>; Delay(<span class="number">60000</span>);  <span class="comment">/* 熄灭，停一会儿 */</span></span><br><span class="line">    LED4 = <span class="number">0</span>; Delay(<span class="number">60000</span>);</span><br><span class="line">    LED5 = <span class="number">0</span>; Delay(<span class="number">60000</span>);</span><br><span class="line">    LED6 = <span class="number">0</span>; Delay(<span class="number">60000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为 main 函数写在了文件开头，编译器读到它时还不知道下面有哪些自定义函数，所以前面必须有函数声明，否则会报找不到函数的错误。预期效果：四盏 LED 依次点亮、再依次熄灭，循环往复；延时参数越短，流水速度越快。</p>
+<h2 id="输入实战：上拉、下拉与三态的选择"><a href="#输入实战：上拉、下拉与三态的选择" class="headerlink" title="输入实战：上拉、下拉与三态的选择"></a>输入实战：上拉、下拉与三态的选择</h2><p>要点亮 LED，把 DIR 设为输出、写 1 即可；要读按键，则要把 DIR 设为输入，还要进一步决定引脚的电气模式。CC2530 用 P0INP、P1INP、P2INP 来配置输入模式，三者的关系如下：</p>
+<table>
 <thead>
 <tr>
-<th>缩写</th>
-<th>英文全称</th>
-<th>中文名称</th>
-<th>作用</th>
+<th>模式</th>
+<th>配置方式</th>
+<th>引脚状态</th>
+<th>适用场景</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>P0 &#x2F; P1 &#x2F; P2</td>
-<td>Port 0&#x2F;1&#x2F;2</td>
-<td>端口数据寄存器</td>
-<td>读取或设置各端口引脚电平</td>
+<td>上拉输入</td>
+<td>对应 INP 位清 0，P2INP 中该端口的位置 0</td>
+<td>内部接上拉电阻，默认高电平，按键按下接地变低</td>
+<td>按键检测，最常用</td>
 </tr>
 <tr>
-<td>P0SEL &#x2F; P1SEL &#x2F; P2SEL</td>
-<td>Port Function Select</td>
-<td>端口功能选择</td>
-<td>0&#x3D;通用 IO，1&#x3D;外设功能</td>
+<td>下拉输入</td>
+<td>对应 INP 位清 0，P2INP 中该端口的位置 1</td>
+<td>内部接下拉电阻，默认低电平</td>
+<td>需要默认低电平的输入</td>
 </tr>
 <tr>
-<td>P0DIR &#x2F; P1DIR &#x2F; P2DIR</td>
-<td>Port Direction</td>
-<td>端口方向寄存器</td>
-<td>0&#x3D;输入，1&#x3D;输出</td>
-</tr>
-<tr>
-<td>P0INP &#x2F; P1INP &#x2F; P2INP</td>
-<td>Port Input Mode</td>
-<td>端口输入模式</td>
-<td>设置上拉、下拉或三态</td>
-</tr>
-<tr>
-<td>PICTL</td>
-<td>Port Interrupt Control</td>
-<td>端口中断控制</td>
-<td>设置各端口中断触发沿，0&#x3D;上升沿，1&#x3D;下降沿</td>
-</tr>
-<tr>
-<td>P0IEN &#x2F; P1IEN &#x2F; P2IEN</td>
-<td>Port Interrupt Mask</td>
-<td>引脚中断使能</td>
-<td>使能端口内具体引脚的中断</td>
-</tr>
-<tr>
-<td>P0IE &#x2F; P1IE &#x2F; P2IE</td>
-<td>Port Interrupt Enable</td>
-<td>端口中断使能位</td>
-<td>使能整个端口的中断</td>
-</tr>
-<tr>
-<td>P0IFG &#x2F; P1IFG &#x2F; P2IFG</td>
-<td>Port Interrupt Flag</td>
-<td>引脚中断标志</td>
-<td>标记哪个引脚触发了中断，需手动清除</td>
-</tr>
-<tr>
-<td>P0IF &#x2F; P1IF &#x2F; P2IF</td>
-<td>Port Interrupt Flag Bit</td>
-<td>端口中断标志位</td>
-<td>端口级中断标志，需手动清除</td>
-</tr>
-<tr>
-<td>IEN0 &#x2F; IEN1 &#x2F; IEN2</td>
-<td>Interrupt Enable Register</td>
-<td>中断使能寄存器</td>
-<td>各中断源使能开关，EA 在 IEN0 中</td>
-</tr>
-<tr>
-<td>IRCON &#x2F; IRCON2</td>
-<td>Interrupt Request Control</td>
-<td>中断请求控制寄存器</td>
-<td>保存定时器、端口、USART 等中断标志</td>
-</tr>
-<tr>
-<td>IP0 &#x2F; IP1</td>
-<td>Interrupt Priority</td>
-<td>中断优先级寄存器</td>
-<td>设置中断优先级</td>
-</tr>
-<tr>
-<td>EA</td>
-<td>Enable All Interrupt</td>
-<td>总中断使能位</td>
-<td>全局中断总开关</td>
+<td>三态输入</td>
+<td>对应 INP 位置 1</td>
+<td>高阻态，既不拉高也不拉低</td>
+<td>总线复用等特殊场合</td>
 </tr>
 </tbody></table>
-<p>说明：中断触发边沿由 PICTL 统一配置，部分资料中出现的 PxIES 并非 CC2530 的独立寄存器，查阅时以 PICTL 为准。</p>
-<h3 id="定时器寄存器"><a href="#定时器寄存器" class="headerlink" title="定时器寄存器"></a>定时器寄存器</h3><table>
-<thead>
-<tr>
-<th>缩写</th>
-<th>英文全称</th>
-<th>中文名称</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>T1CTL</td>
-<td>Timer 1 Control</td>
-<td>定时器 1 控制</td>
-<td>工作模式、时钟源、分频与启停</td>
-</tr>
-<tr>
-<td>T1STAT</td>
-<td>Timer 1 Status</td>
-<td>定时器 1 状态</td>
-<td>各通道中断标志，需手动清除</td>
-</tr>
-<tr>
-<td>T1CCTL0&#x2F;1&#x2F;2</td>
-<td>Timer 1 Channel Control</td>
-<td>定时器 1 通道控制</td>
-<td>设置通道的比较&#x2F;捕获模式与中断</td>
-</tr>
-<tr>
-<td>T1CCxH &#x2F; T1CCxL</td>
-<td>Timer 1 Capture&#x2F;Compare</td>
-<td>定时器 1 捕获比较值</td>
-<td>存放最大计数值或比较值的高低字节</td>
-</tr>
-<tr>
-<td>T1CNTH &#x2F; T1CNTL</td>
-<td>Timer 1 Counter</td>
-<td>定时器 1 计数器</td>
-<td>读取当前计数值</td>
-</tr>
-<tr>
-<td>T2CTL</td>
-<td>Timer 2 Control</td>
-<td>定时器 2 控制</td>
-<td>MAC 定时器的分频、模式与中断</td>
-</tr>
-<tr>
-<td>T3CTL &#x2F; T4CTL</td>
-<td>Timer 3&#x2F;4 Control</td>
-<td>定时器 3&#x2F;4 控制</td>
-<td>8 位定时器的运行、溢出中断与分频</td>
-</tr>
-<tr>
-<td>T3CCTL0 &#x2F; T4CCTL0</td>
-<td>Timer 3&#x2F;4 Channel Control</td>
-<td>定时器通道控制</td>
-<td>8 位定时器通道工作模式与中断</td>
-</tr>
-<tr>
-<td>TIMIF</td>
-<td>Timer Interrupt Flag</td>
-<td>定时器中断标志</td>
-<td>定时器 1&#x2F;3&#x2F;4 的中断使能与标志</td>
-</tr>
-</tbody></table>
-<h3 id="ADC-与射频寄存器"><a href="#ADC-与射频寄存器" class="headerlink" title="ADC 与射频寄存器"></a>ADC 与射频寄存器</h3><table>
-<thead>
-<tr>
-<th>缩写</th>
-<th>英文全称</th>
-<th>中文名称</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>ADCCON1&#x2F;2&#x2F;3</td>
-<td>ADC Control</td>
-<td>ADC 控制寄存器</td>
-<td>启动转换、选择通道、设置参考电压</td>
-</tr>
-<tr>
-<td>ADCL &#x2F; ADCH</td>
-<td>ADC Data Low&#x2F;High</td>
-<td>ADC 数据寄存器</td>
-<td>存放 12 位转换结果的低 8 位与高 4 位</td>
-</tr>
-<tr>
-<td>APCFG</td>
-<td>Analog Peripheral Config</td>
-<td>模拟外设配置</td>
-<td>选择哪些引脚作为模拟输入</td>
-</tr>
-<tr>
-<td>RFIRQF0 &#x2F; RFIRQF1</td>
-<td>RF Interrupt Flag</td>
-<td>射频中断标志</td>
-<td>标记发送完成、接收完成、错误等事件</td>
-</tr>
-<tr>
-<td>RFIM</td>
-<td>RF Interrupt Mask</td>
-<td>射频中断屏蔽</td>
-<td>使能或禁用射频中断源</td>
-</tr>
-<tr>
-<td>RFST</td>
-<td>RF Command Strobe</td>
-<td>射频命令寄存器</td>
-<td>发送 IDLE、TX、RX、FLUSH 等命令</td>
-</tr>
-<tr>
-<td>FSMSTAT0 &#x2F; FSMSTAT1</td>
-<td>Finite State Machine Status</td>
-<td>状态机状态</td>
-<td>查看射频状态机当前状态</td>
-</tr>
-<tr>
-<td>RSSI</td>
-<td>Received Signal Strength</td>
-<td>接收信号强度</td>
-<td>读取当前信号强度指示</td>
-</tr>
-</tbody></table>
-<h3 id="时钟、电源与-USART-寄存器"><a href="#时钟、电源与-USART-寄存器" class="headerlink" title="时钟、电源与 USART 寄存器"></a>时钟、电源与 USART 寄存器</h3><table>
-<thead>
-<tr>
-<th>缩写</th>
-<th>英文全称</th>
-<th>中文名称</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>CLKCONCMD</td>
-<td>Clock Control Command</td>
-<td>时钟控制命令</td>
-<td>切换时钟源、设置分频</td>
-</tr>
-<tr>
-<td>CLKCONSTA</td>
-<td>Clock Control Status</td>
-<td>时钟控制状态</td>
-<td>查看当前时钟系统状态</td>
-</tr>
-<tr>
-<td>SLEEPCMD &#x2F; SLEEPSTA</td>
-<td>Sleep Command&#x2F;Status</td>
-<td>睡眠控制与状态</td>
-<td>控制进入 PM1 至 PM3 低功耗模式</td>
-</tr>
-<tr>
-<td>PCON</td>
-<td>Power Control</td>
-<td>电源控制</td>
-<td>控制掉电模式</td>
-</tr>
-<tr>
-<td>WDCTL</td>
-<td>WatchDog Control</td>
-<td>看门狗控制</td>
-<td>设置看门狗间隔、复位或中断模式</td>
-</tr>
-<tr>
-<td>MEMCTR</td>
-<td>Memory Control</td>
-<td>内存控制</td>
-<td>控制 XDATA 访问时序</td>
-</tr>
-<tr>
-<td>U0CSR &#x2F; U1CSR</td>
-<td>USART Control and Status</td>
-<td>USART 控制状态</td>
-<td>设置模式、接收使能与状态查询</td>
-</tr>
-<tr>
-<td>U0UCR &#x2F; U1UCR</td>
-<td>USART UART Control</td>
-<td>USART UART 控制</td>
-<td>设置数据位、停止位、校验与流控</td>
-</tr>
-<tr>
-<td>U0GCR &#x2F; U1GCR</td>
-<td>USART Generic Control</td>
-<td>USART 通用控制</td>
-<td>设置波特率指数与 SPI 参数</td>
-</tr>
-<tr>
-<td>U0BAUD &#x2F; U1BAUD</td>
-<td>USART Baud Rate</td>
-<td>USART 波特率</td>
-<td>设置波特率尾数</td>
-</tr>
-<tr>
-<td>U0DBUF &#x2F; U1DBUF</td>
-<td>USART Data Buffer</td>
-<td>USART 数据缓冲</td>
-<td>收发数据的缓冲寄存器</td>
-</tr>
-<tr>
-<td>PERCFG</td>
-<td>Peripheral I&#x2F;O Control</td>
-<td>外设 IO 控制</td>
-<td>设置外设引脚映射位置</td>
-</tr>
-</tbody></table>
-<p>把这几张表打印出来贴在桌边，调试寄存器时按”先选功能、再定方向、后设参数、最后清标志”的顺序操作，绝大多数串口和端口问题都能快速定位。串口打通之后，设备就能和电脑、NB-IoT 模组乃至云平台交换数据了；下一章以 NB-IoT 模组为例，完整走一遍通过 AT 指令联网拨号的过程。</p>
+<p>这里有个容易踩坑的地方：<strong>不管是 P0 还是 P1，最终的上拉&#x2F;下拉选择都要通过 P2INP 来确认</strong>。P2INP 的第 7、6、5 位分别对应 P0、P1、P2 端口，置 0 表示上拉，置 1 表示下拉。例如把 P1_2 配成上拉输入，需要先把 P1INP 的对应位清 0，再把 P2INP 的第 6 位清 0：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">P1DIR &amp;= ~<span class="number">0x04</span>;          <span class="comment">/* 0000 0100：把 P1_2 设为输入 */</span></span><br><span class="line">P1INP &amp;= ~<span class="number">0x04</span>;          <span class="comment">/* 使用上拉或下拉模式 */</span></span><br><span class="line">P2INP &amp;= ~<span class="number">0x40</span>;          <span class="comment">/* 0100 0000 第 6 位清 0：P1 端口选择上拉 */</span></span><br></pre></td></tr></table></figure>
+
+<p>至于三态模式，基础开发中很少用到，它让引脚处于高阻抗状态，相当于断开连接，多用于多路复用的总线系统，避免多个设备同时驱动同一根信号线造成冲突。</p>
+<h2 id="按键防抖与-LED-状态取反"><a href="#按键防抖与-LED-状态取反" class="headerlink" title="按键防抖与 LED 状态取反"></a>按键防抖与 LED 状态取反</h2><p>要解决什么：按键按下时切换 LED 的亮灭状态。机械按键在闭合和断开的瞬间会产生快速抖动，如果只判断一次，可能被误判成多次按下；同时还要保证按住按键时只切换一次。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;ioCC2530.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED3 P1_0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED4 P1_1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED5 P1_3</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED6 P1_4</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SW1  P1_2</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SW2  P0_1</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Delay</span><span class="params">(<span class="type">unsigned</span> <span class="type">int</span> t)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">initPort</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">run</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    initPort();</span><br><span class="line">    run();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Delay</span><span class="params">(<span class="type">unsigned</span> <span class="type">int</span> t)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> (t--);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">initPort</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">/* LED 部分：设为普通 IO、输出 */</span></span><br><span class="line">    P1SEL &amp;= ~<span class="number">0x1B</span>;         <span class="comment">/* 0001 1011：P1_0/1/3/4 设为普通 IO */</span></span><br><span class="line">    P1DIR |=  <span class="number">0x1B</span>;         <span class="comment">/* 设为输出 */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* SW1（P1_2）部分：输入 + 上拉 */</span></span><br><span class="line">    P1DIR &amp;= ~<span class="number">0x04</span>;         <span class="comment">/* 0000 0100：P1_2 设为输入 */</span></span><br><span class="line">    P1INP &amp;= ~<span class="number">0x04</span>;         <span class="comment">/* 使用上拉/下拉模式 */</span></span><br><span class="line">    P2INP &amp;= ~<span class="number">0x40</span>;         <span class="comment">/* P1 端口选择上拉 */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* SW2（P0_1）部分：输入 + 上拉 */</span></span><br><span class="line">    P0DIR &amp;= ~<span class="number">0x02</span>;         <span class="comment">/* 0000 0010：P0_1 对应第 1 位，设为输入 */</span></span><br><span class="line">    P0INP &amp;= ~<span class="number">0x02</span>;         <span class="comment">/* 使用上拉/下拉模式 */</span></span><br><span class="line">    P2INP &amp;= ~<span class="number">0x80</span>;         <span class="comment">/* 第 7 位清 0：P0 端口选择上拉 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">run</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    LED3 = <span class="number">0</span>; LED4 = <span class="number">0</span>; LED5 = <span class="number">0</span>; LED6 = <span class="number">0</span>;   <span class="comment">/* 先全部熄灭 */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (SW1 == <span class="number">0</span>)                 <span class="comment">/* 上拉时按下为低电平 */</span></span><br><span class="line">        &#123;</span><br><span class="line">            Delay(<span class="number">100</span>);               <span class="comment">/* 延时躲过抖动期 */</span></span><br><span class="line">            <span class="keyword">if</span> (SW1 == <span class="number">0</span>)             <span class="comment">/* 二次确认，确实被按下 */</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">while</span> (SW1 == <span class="number">0</span>);     <span class="comment">/* 等待按键松开，避免连触发 */</span></span><br><span class="line">                LED4 = ~LED4;         <span class="comment">/* 取反：亮变灭，灭变亮 */</span></span><br><span class="line">                LED3 = ~LED3;</span><br><span class="line">                LED5 = ~LED5;</span><br><span class="line">                LED6 = ~LED6;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码有三个关键点。第一，<code>Delay(100)</code> 加二次判断构成软件防抖：第一次检测到低电平后先等一小段时间，避开机械触点的抖动窗口，再判断一次，仍然为低才认为是有效按下。第二，<code>while (SW1 == 0);</code> 让程序一直等到按键松开，这样按住按键时不会反复触发。第三，<code>LED4 = ~LED4</code> 用取反运算符直接翻转引脚状态，一行就代替了”先亮后灭”的两行代码，这是做状态切换时非常好用的技巧。</p>
+<p>预期效果：每按一次 SW1，四盏 LED 的亮灭状态同时翻转；快速抖动或按住不放都不会造成误触发。</p>
+<p>从”写 1 点灯”到”读按键翻转灯”，GPIO 的输出与输入两条主线就走通了。接下来如果把”按键事件”换成”时间到了”或”信号变化了”这类外部事件，就自然进入中断的世界——那是下一章要解决的问题。</p>
 
 
             <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
@@ -581,12 +242,12 @@
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/cc2530%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%80%9F%E6%9F%A5/" >&larr; Previous Post</a>
+                    <a href="/posts/cc2530%E4%B8%AD%E6%96%AD%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD/" >&larr; Previous Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/nbiot%E6%A8%A1%E7%BB%84at%E6%8C%87%E4%BB%A4%E8%81%94%E7%BD%91/" >Next Post &rarr;</a>
+                    <a href="/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/" >Next Post &rarr;</a>
                 </li>
                 
             </ul>
