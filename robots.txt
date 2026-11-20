@@ -6,4 +6,14 @@ Disallow: /images/
 Disallow: /fonts/
 Disallow: /assets/
 Disallow: /404.html
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-User
+Disallow: /
+
+User-agent: Claude-SearchBot
+Disallow: /
+
 Sitemap:https://xiaoxing365.com/sitemap.xml
