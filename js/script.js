@@ -106,19 +106,15 @@ jQuery(document).ready(function ($) {
         });
 
 
-        setTimeout(function () {
-            var b = a(".bs-docs-sidebar");
-            b.affix({
-                offset: {
-                    top: function () {
-                        var c = b.offset().top, d = parseInt(b.children(0).css("margin-top"), 10), e = a(".bs-docs-nav").height();
-                        return this.top = c - e - d
-                    }, bottom: function () {
-                        return this.bottom = a(".bs-docs-footer").outerHeight(!0)
-                    }
-                }
-            })
-        }, 100);
+        // 侧边栏改用 CSS position:sticky + 独立滚动（见 style.css），
+        // 不再用 affix 固定，避免内容超高时 Tags 被裁掉无法滚动查看
+        // 移除 affix 可能遗留的状态类与内联样式
+        a(".bs-docs-sidebar").removeClass("affix affix-top affix-bottom").css({
+            position: "",
+            top: "",
+            bottom: "",
+            width: ""
+        });
 
         setTimeout(function () {
             a(".bs-top").affix()
@@ -197,3 +193,24 @@ jQuery(document).ready(function ($) {
 
 
 
+
+// 头图：异步加载 Bing 每日一图，成功后淡入覆盖渐变底图；失败/超时保持渐变
+jQuery(function ($) {
+    var header = document.querySelector('header.intro-header[data-bing-image]');
+    if (!header) return;
+    var src = header.getAttribute('data-bing-image');
+    if (!src) return;
+
+    var img = new Image();
+    var timer = setTimeout(function () { img.onload = null; }, 12000); // 12s 超时，放弃加载
+
+    img.onload = function () {
+        clearTimeout(timer);
+        header.style.backgroundImage = 'url("' + src + '")';
+        header.classList.add('bing-loaded');
+    };
+    img.onerror = function () {
+        clearTimeout(timer); // 失败静默，保留 CSS 渐变
+    };
+    img.src = src;
+});

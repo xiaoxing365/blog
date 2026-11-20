@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="中断是单片机响应外部事件的核心机制。本文用生活化的例子说明轮询和中断的差异，随后系统梳理 CC2530 的 18 个中断向量及其中断入口地址，讲解 pragma vector 与 interrupt 关键字组成的中断服务函数写法。文章逐项说明 IEN0、IEN2、P1IEN、PICTL、P1IFG、P1IF、EA 的职责，用表格还原外部中断信号从引脚边沿到 CPU 响应的完整链路，并特别强调先清引脚标志 PxIFG、再清端口标志 PxIF 的清除顺序，最后给出可直接使用的按键外部中断代码。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>cc2530中断系统与外部中断</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/cc2530%E4%B8%AD%E6%96%AD%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -72,12 +59,6 @@
                         
                         <a class="tag" href="/tags/#CC2530"
                            title="CC2530">CC2530</a>
-                        
-                        <a class="tag" href="/tags/#中断系统"
-                           title="中断系统">中断系统</a>
-                        
-                        <a class="tag" href="/tags/#外部中断"
-                           title="外部中断">外部中断</a>
                         
                         <a class="tag" href="/tags/#单片机"
                            title="单片机">单片机</a>
@@ -315,7 +296,7 @@
 <p>至此，按键事件已经能主动”叫醒”CPU 了。如果把触发源从引脚电平变化换成定时器溢出，就是下一章要讲的定时器中断——两者的寄存器思路一脉相承，只是中断向量和标志位换成了定时器那一套。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

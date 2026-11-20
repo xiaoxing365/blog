@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="CC2530 串口通信是物联网设备与电脑、模组交换数据的基础通道。本文从并行通信与串行通信的差异讲起，说明 USART0 与 USART1 在两种引脚位置下的映射关系，逐项解析 UxCSR、UxUCR、UxGCR、UxDBUF、UxBAUD 五个寄存器的作用，给出波特率计算公式与常用组合以及可运行的收发例程。后半部分按功能模块整理常用寄存器的中英文对照速查表，保留英文原名，方便对照芯片数据手册查阅，是 CC2530 开发过程中的实用参考。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>cc2530串口通信与寄存器速查</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/cc2530%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%80%9F%E6%9F%A5/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -73,14 +60,8 @@
                         <a class="tag" href="/tags/#CC2530"
                            title="CC2530">CC2530</a>
                         
-                        <a class="tag" href="/tags/#串口通信"
-                           title="串口通信">串口通信</a>
-                        
-                        <a class="tag" href="/tags/#USART"
-                           title="USART">USART</a>
-                        
-                        <a class="tag" href="/tags/#寄存器"
-                           title="寄存器">寄存器</a>
+                        <a class="tag" href="/tags/#单片机"
+                           title="单片机">单片机</a>
                         
                     </div>
                     <h1>cc2530串口通信与寄存器速查</h1>
@@ -575,7 +556,7 @@
 <p>把这几张表打印出来贴在桌边，调试寄存器时按”先选功能、再定方向、后设参数、最后清标志”的顺序操作，绝大多数串口和端口问题都能快速定位。串口打通之后，设备就能和电脑、NB-IoT 模组乃至云平台交换数据了；下一章以 NB-IoT 模组为例，完整走一遍通过 AT 指令联网拨号的过程。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

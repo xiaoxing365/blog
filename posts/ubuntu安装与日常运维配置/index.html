@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="Ubuntu安装与日常运维配置是Linux入门的必经之路。本文从VirtualBox创建虚拟机、挂载ISO镜像、安装系统讲到宿主机与虚拟机文件夹共享，接着整理tzselect设置时区、命令行与图形界面修改静态IP、ufw防火墙放行规则、密码有效期配置等基础操作，再用表格对比APT与Snap在依赖、更新、体积和适用场景上的差异，并解释s、t、i、a特殊权限和vi与vim的区别，最后按系统管理、磁盘、文档、网络等类别整理高频命令，适合新手系统上手。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>ubuntu安装与日常运维配置</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/ubuntu%E5%AE%89%E8%A3%85%E4%B8%8E%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E9%85%8D%E7%BD%AE/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -70,17 +57,11 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#Ubuntu"
-                           title="Ubuntu">Ubuntu</a>
-                        
                         <a class="tag" href="/tags/#Linux"
                            title="Linux">Linux</a>
                         
-                        <a class="tag" href="/tags/#系统运维"
-                           title="系统运维">系统运维</a>
-                        
-                        <a class="tag" href="/tags/#包管理"
-                           title="包管理">包管理</a>
+                        <a class="tag" href="/tags/#运维"
+                           title="运维">运维</a>
                         
                     </div>
                     <h1>ubuntu安装与日常运维配置</h1>
@@ -388,7 +369,7 @@
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Ubuntu 上手的关键路径是：先用 VirtualBox 装好系统并打通共享文件夹，再用 <code>tzselect</code>、静态 IP、<code>ufw</code> 完成基础配置，然后理解 APT 与 Snap 各自的适用场景，最后按类别积累常用命令。权限部分重点记住 <code>s</code>（提权执行）、<code>t</code>（防误删）、<code>i</code>（不可改）、<code>a</code>（只追加）这四个特殊标记，排查文件”改不了、删不掉”时就能想到它们。命令不用死记，按分类建份自己的速查表，用得多了自然熟练。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">
@@ -399,7 +380,7 @@
                 
                 
                 <li class="next">
-                    <a href="/posts/tcpip%E5%8D%8F%E8%AE%AE%E4%B8%8E%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" >Next Post &rarr;</a>
+                    <a href="/posts/windows%E7%BD%91%E7%BB%9C%E5%91%BD%E4%BB%A4%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/" >Next Post &rarr;</a>
                 </li>
                 
             </ul>

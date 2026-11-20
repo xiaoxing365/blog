@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="CC2530 是物联网 Zigbee 开发中最常用的无线主控芯片之一。本文面向零基础读者，先用生活化例子说明芯片端口的作用，再逐条讲解 P0、P1、P2 端口中哪些引脚可以正常使用，随后完整演示 IAR Embedded Workbench for 8051 中工作区、工程的建立流程以及 eww、ewp、dep、ewd 文件的含义。文章重点纠正 SEL 寄存器的常见误解：SEL 只负责选择普通 IO 还是外设功能，真正决定输入方向的寄存器是 DIR。最后给出可直接运行的点灯例程，帮助读者快速上手 CC2530 开发。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>cc2530开发入门与iar工程搭建</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -73,14 +60,8 @@
                         <a class="tag" href="/tags/#CC2530"
                            title="CC2530">CC2530</a>
                         
-                        <a class="tag" href="/tags/#Zigbee"
-                           title="Zigbee">Zigbee</a>
-                        
-                        <a class="tag" href="/tags/#IAR8051"
-                           title="IAR8051">IAR8051</a>
-                        
-                        <a class="tag" href="/tags/#单片机入门"
-                           title="单片机入门">单片机入门</a>
+                        <a class="tag" href="/tags/#单片机"
+                           title="单片机">单片机</a>
                         
                     </div>
                     <h1>cc2530开发入门与iar工程搭建</h1>
@@ -259,7 +240,7 @@
 <p>把”选功能、定方向、写电平”这三步走通，就已经掌握了 CC2530 端口编程的核心套路。后面的点灯闪烁、按键检测、外部中断，本质上都是在这三步之上叠加延时、读取和中断逻辑，并没有新的难点。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

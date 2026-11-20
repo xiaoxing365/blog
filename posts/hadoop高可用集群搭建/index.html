@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="Hadoop HA高可用集群搭建教程：先搭三台ZooKeeper并理解过半存活机制，再配nameservice ns1、双NameNode、JournalNode共享编辑日志、ZKFC自动切换与sshfence隔离，随后开启YARN双RM高可用，按ZooKeeper、JournalNode、格式化、元数据同步、初始化ZKFC、start-all顺序启动，并用文字讲清故障转移流程。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>hadoop高可用集群搭建</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/hadoop%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -73,14 +60,8 @@
                         <a class="tag" href="/tags/#Hadoop"
                            title="Hadoop">Hadoop</a>
                         
-                        <a class="tag" href="/tags/#HA高可用"
-                           title="HA高可用">HA高可用</a>
-                        
-                        <a class="tag" href="/tags/#ZooKeeper"
-                           title="ZooKeeper">ZooKeeper</a>
-                        
-                        <a class="tag" href="/tags/#HDFS"
-                           title="HDFS">HDFS</a>
+                        <a class="tag" href="/tags/#集群"
+                           title="集群">集群</a>
                         
                     </div>
                     <h1>hadoop高可用集群搭建</h1>
@@ -222,7 +203,7 @@
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>HA 是在基础集群之上叠加了”冗余 + 协调 + 自动切换”三件事：ZooKeeper 负责协调与选主，JournalNode 保证两个 NameNode 元数据一致，ZKFC 配合 sshfence 完成安全的故障转移，YARN 的双 ResourceManager 让计算调度同样不中断。搭建时最需要记住的是两句话：ZooKeeper 要先于 Hadoop 启动；格式化 NameNode 之后、启动集群之前，一定要把元数据同步给另一个 NameNode。做到这些，你的集群就真正具备了对抗单点故障的能力。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

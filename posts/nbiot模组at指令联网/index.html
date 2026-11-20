@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="NB-IoT 模组是低功耗广域物联网的常见选择，而 AT 指令是主控 MCU 与模组对话的通用语言。本文按照实际拨号顺序，把 AT 指令划分为基础查询、网络注册、数据收发三组，逐条给出指令写法、作用说明和预期响应，涵盖测试串口链路、关闭回显、查询 IMEI、检测 SIM 卡、查询信号强度、网络附着、运营商识别、APN 设置、本地 IP 获取以及 socket 连接与数据收发等关键步骤，并整理移动、联通、电信三大运营商 APN 和主流厂商的指令差异。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>nbiot模组at指令联网</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/nbiot%E6%A8%A1%E7%BB%84at%E6%8C%87%E4%BB%A4%E8%81%94%E7%BD%91/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -70,17 +57,11 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#NB-IoT"
-                           title="NB-IoT">NB-IoT</a>
-                        
-                        <a class="tag" href="/tags/#AT指令"
-                           title="AT指令">AT指令</a>
+                        <a class="tag" href="/tags/#网络"
+                           title="网络">网络</a>
                         
                         <a class="tag" href="/tags/#物联网"
                            title="物联网">物联网</a>
-                        
-                        <a class="tag" href="/tags/#模组"
-                           title="模组">模组</a>
                         
                     </div>
                     <h1>nbiot模组at指令联网</h1>
@@ -351,7 +332,7 @@
 <p>把上面三个阶段串起来，NB-IoT 模组的完整拨号顺序是：测试串口链路 → 关闭回显 → 查询模组名称 → 获取 IMEI → 检测 SIM 卡 → 查询信号强度 → 设置网络附着 → 查询网络附着 → 查询运营商 → 设置 APN → 查询本地 IP → IMEI 认证 → 建立连接 → 打开 socket → 收发数据 → 关闭 socket。实际调试时建议逐条发送、逐条确认响应，哪一步卡住就重点排查那一步——比如拿不到 IP 先查 APN 和信号，连不上服务器先查 IP 和端口。等整条链路稳定跑通，设备数据就能顺利到达云端了。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

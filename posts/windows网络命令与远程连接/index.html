@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="Windows网络命令与远程连接是日常运维的基本功。本文先讲清端口与入站出站规则的概念，再用表格和实例整理ipconfig、netstat、netsh、nslookup、route、nbtstat、telnet等高频命令，接着介绍组策略常见配置、scp远程传文件、ssh-keygen与sshd_config密钥登录配置，最后围绕port22 refused、公钥拒绝、主机密钥变更等故障给出可操作的排查步骤，并补充路由器WAN口、LAN口与DHCP地址池的设置要点。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>windows网络命令与远程连接</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/windows%E7%BD%91%E7%BB%9C%E5%91%BD%E4%BB%A4%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -70,17 +57,11 @@
                 <div class="post-heading">
                     <div class="tags">
                         
+                        <a class="tag" href="/tags/#网络"
+                           title="网络">网络</a>
+                        
                         <a class="tag" href="/tags/#Windows"
                            title="Windows">Windows</a>
-                        
-                        <a class="tag" href="/tags/#网络命令"
-                           title="网络命令">网络命令</a>
-                        
-                        <a class="tag" href="/tags/#远程连接"
-                           title="远程连接">远程连接</a>
-                        
-                        <a class="tag" href="/tags/#SSH"
-                           title="SSH">SSH</a>
                         
                     </div>
                     <h1>windows网络命令与远程连接</h1>
@@ -382,13 +363,13 @@
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>网络排障的本质是层层缩小范围：<code>ipconfig</code> 看配置、<code>ping</code> 看连通、<code>nslookup</code> 看解析、<code>netstat</code> 看端口、<code>route</code> 看路径、<code>arp</code> 看映射，再配合组策略与防火墙规则做系统级管控。远程连接方面，记住 <code>scp</code> 的方向写法和 SSH 密钥的三件套——私钥、公钥、<code>authorized_keys</code>。遇到 <code>port 22 refused</code> 先查防火墙入站规则，遇到主机密钥变更先确认再清理 <code>known_hosts</code>。按这套清单走下来，大部分网络问题都能定位到根因。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/tcpip%E5%8D%8F%E8%AE%AE%E4%B8%8E%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" >&larr; Previous Post</a>
+                    <a href="/posts/ubuntu%E5%AE%89%E8%A3%85%E4%B8%8E%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E9%85%8D%E7%BD%AE/" >&larr; Previous Post</a>
                 </li>
                 
                 

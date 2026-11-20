@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="MySQL 安装与初始化新手指南，覆盖 Windows ZIP 包 my.ini 配置 basedir 与 datadir、mysqld --initialize-insecure 初始化、mysqld install 注册服务，以及 Linux apt 与二进制包部署、my.cnf 调整、首次登录修改 root 密码、Navicat 与 Workbench 等图形化工具选型，助你一次装好数据库。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>mysql安装与初始化</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/mysql%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -73,11 +60,8 @@
                         <a class="tag" href="/tags/#MySQL"
                            title="MySQL">MySQL</a>
                         
-                        <a class="tag" href="/tags/#安装配置"
-                           title="安装配置">安装配置</a>
-                        
-                        <a class="tag" href="/tags/#数据库入门"
-                           title="数据库入门">数据库入门</a>
+                        <a class="tag" href="/tags/#数据库"
+                           title="数据库">数据库</a>
                         
                     </div>
                     <h1>mysql安装与初始化</h1>
@@ -372,7 +356,7 @@
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>安装 MySQL 的关键不是”点下一步”，而是理解四个动作：写配置告诉它程序和数据各放哪里，初始化生成系统库与 root 账号，注册服务让它长期运行，登录后立刻改掉空密码。Windows 用 ZIP 包时盯紧 my.ini 里的 basedir 和 datadir，Linux 用二进制包时别忘了创建 mysql 用户并给 data 目录授权。版本上优先选 8.0，遇到老客户端再退回 mysql_native_password 插件。把这套流程走通，后面所有的查询、权限和优化才有落脚点。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

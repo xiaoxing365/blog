@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="正则表达式速查与Python re模块是文本处理的重要工具。本文先用表格系统整理点号、插字符、美元符号、星号、加号、问号、字符集、速写字符等元字符的含义，再讲量词、分组、分支、转义和定位符，通过对比示例说明贪婪匹配与非贪婪匹配的差异，用生活化场景解释正向先行、负向先行、正向后行、负向后行四种断言，最后为re模块的每个常用方法配上可运行的代码示例，帮助读者从零掌握正则匹配与替换。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>正则表达式速查与pythonre模块</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E9%80%9F%E6%9F%A5%E4%B8%8Epythonre%E6%A8%A1%E5%9D%97/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -73,14 +60,8 @@
                         <a class="tag" href="/tags/#Python"
                            title="Python">Python</a>
                         
-                        <a class="tag" href="/tags/#正则表达式"
-                           title="正则表达式">正则表达式</a>
-                        
-                        <a class="tag" href="/tags/#re模块"
-                           title="re模块">re模块</a>
-                        
-                        <a class="tag" href="/tags/#元字符"
-                           title="元字符">元字符</a>
+                        <a class="tag" href="/tags/#编程"
+                           title="编程">编程</a>
                         
                     </div>
                     <h1>正则表达式速查与pythonre模块</h1>
@@ -379,7 +360,7 @@
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>正则表达式的零件其实不多：元字符定义”匹配什么”，量词定义”匹配几次”，分组定义”把谁当整体”，定位符与断言定义”在哪儿匹配”。写复杂表达式时别急着一次成型，先用最简单的模式跑通，再逐步加条件。在 Python 里，查找用 <code>findall</code>&#x2F;<code>search</code>，替换用 <code>sub</code>&#x2F;<code>subn</code>，分割用 <code>split</code>，反复使用就 <code>compile</code>。记住多用原始字符串 <code>r&#39;...&#39;</code>，遇到贪婪问题先想想该不该加 <code>?</code>，正则就会从”天书”变成趁手的工具。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

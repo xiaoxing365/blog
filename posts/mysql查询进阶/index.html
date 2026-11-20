@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="从建表插入数据开始，系统梳理 MySQL 查询语句：WHERE 条件与 LIKE 模糊匹配的 % 通配符、UNION 合并、ORDER BY 排序、GROUP BY 与 WITH ROLLUP 汇总，再到 INNER/LEFT/RIGHT/FULL 四种 JOIN、主键与外键区别、NULL 判断、ALTER TABLE 修改结构以及六类约束的写法，适合想从会写 SQL 进阶到写对 SQL 的读者。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>mysql查询进阶</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/mysql%E6%9F%A5%E8%AF%A2%E8%BF%9B%E9%98%B6/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -73,14 +60,8 @@
                         <a class="tag" href="/tags/#MySQL"
                            title="MySQL">MySQL</a>
                         
-                        <a class="tag" href="/tags/#SQL查询"
-                           title="SQL查询">SQL查询</a>
-                        
-                        <a class="tag" href="/tags/#多表连接"
-                           title="多表连接">多表连接</a>
-                        
-                        <a class="tag" href="/tags/#数据库约束"
-                           title="数据库约束">数据库约束</a>
+                        <a class="tag" href="/tags/#数据库"
+                           title="数据库">数据库</a>
                         
                     </div>
                     <h1>mysql查询进阶</h1>
@@ -408,7 +389,7 @@
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>写 SQL 的能力可以分三层：第一层是单表 CRUD，配合 WHERE、LIKE、ORDER BY、GROUP BY 把一张表玩熟，尤其留意 NULL 要用 IS 判断、UPDATE&#x2F;DELETE 必须带 WHERE；第二层是多表 JOIN，理解 INNER 取交集、LEFT&#x2F;RIGHT 保单边，MySQL 没有原生 FULL JOIN 就用 UNION 拼；第三层是约束与表设计，用主键唯一标识、外键维护关系、六类约束兜底数据质量，再加上 utf8mb4 字符集避免乱码。三层都扎实了，查询的准确性和可维护性会有明显提升，后面学函数、视图和性能优化也会顺很多。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

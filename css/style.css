@@ -622,3 +622,225 @@ footer .copyright a:focus {
 .sidebar.affix {
     position: static
 }
+
+/* 移除鼠标点击链接时 Bootstrap 默认的 5px 焦点黑框；
+   键盘 Tab 导航仍保留清晰的焦点轮廓，兼顾无障碍。
+   不支持 :focus-visible 的旧浏览器保持原样，不误伤键盘导航 */
+@supports selector(:focus-visible) {
+    a:focus:not(:focus-visible),
+    button:focus:not(:focus-visible),
+    .navbar-toggle:focus:not(:focus-visible) {
+        outline: none;
+    }
+    a:focus-visible,
+    button:focus-visible,
+    .navbar-toggle:focus-visible {
+        outline: 2px solid rgb(230, 97, 140);
+        outline-offset: 2px;
+    }
+}
+
+/* =========================================================
+   美化增强（低风险，纯视觉，不影响布局与功能）
+   ========================================================= */
+
+/* 首页文章卡片 */
+.post-preview {
+    background: #fff;
+    border: 1px solid #f0f0f3;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(90, 70, 110, 0.05);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.post-preview:hover {
+    transform: translateY(-3px);
+    border-color: #f0c9d9;
+    box-shadow: 0 10px 28px rgba(230, 97, 140, 0.12);
+}
+
+/* 文章标题 hover */
+.post-title {
+    transition: color .2s ease;
+}
+.post-preview:hover .post-title {
+    color: rgb(230, 97, 140);
+}
+
+/* 标签 chip */
+.tags .tag,
+.post-container .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #f7f5fa;
+    color: #8a7f9c;
+    font-size: 12px;
+    line-height: 1.8;
+    transition: background .2s ease, color .2s ease;
+}
+.tags .tag:hover,
+.post-container .tag:hover {
+    background: #fdeaf1;
+    color: rgb(230, 97, 140);
+    text-decoration: none;
+}
+
+/* 头图渐变兜底：即使外部图加载失败也有主题色背景，不再发灰。
+   Bing 每日图由 script.js 预加载成功后设置内联 background-image 覆盖此渐变 */
+.intro-header {
+    background-color: #9b7fc4;
+    background-image: linear-gradient(135deg, #f6a5c0 0%, #d988b3 38%, #9b7fc4 72%, #6c7fd1 100%);
+}
+/* 每日图加载后加一层深色蒙版，保证白色标题文字可读 */
+.intro-header.bing-loaded {
+    position: relative;
+}
+.intro-header.bing-loaded::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(40, 30, 55, 0.28);
+    pointer-events: none;
+}
+.intro-header.bing-loaded .container {
+    position: relative;
+    z-index: 1;
+}
+
+/* 正文排版 */
+.post-container {
+    font-size: 16px;
+    line-height: 1.9;
+}
+.post-container p {
+    margin: 0 0 1.4em;
+}
+.post-container h2,
+.post-container h3,
+.post-container h4 {
+    margin-top: 1.8em;
+    margin-bottom: .7em;
+}
+.post-container h2 {
+    padding-left: 12px;
+    border-left: 4px solid rgb(230, 97, 140);
+}
+.post-container blockquote {
+    margin: 1.6em 0;
+    padding: 12px 18px;
+    border-left: 4px solid #e6a8c4;
+    background: #fdf7fa;
+    border-radius: 0 8px 8px 0;
+    color: #6b5f70;
+}
+.post-container blockquote p:last-child {
+    margin-bottom: 0;
+}
+.post-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.6em 0;
+    font-size: 14px;
+}
+.post-container table th,
+.post-container table td {
+    border: 1px solid #eee;
+    padding: 8px 12px;
+}
+.post-container table th {
+    background: #f9f6fb;
+}
+.post-container table tr:hover td {
+    background: #fdfafc;
+}
+
+/* 正文图片：圆角 + 轻阴影 */
+.post-container img {
+    border-radius: 8px;
+    box-shadow: 0 4px 18px rgba(60, 50, 70, 0.10);
+}
+
+/* 行内代码 */
+.post-container p code,
+.post-container li code {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #f6f2f7;
+    color: #c2185b;
+    font-size: .9em;
+}
+
+/* 代码块：圆角 + 更柔和 */
+.post-container pre,
+.post-container .highlight {
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(20, 20, 30, 0.12);
+}
+
+/* 上一篇/下一篇 pager */
+.pager li > a {
+    border-radius: 20px;
+    transition: background .2s ease, border-color .2s ease;
+}
+.pager li > a:hover {
+    background: #fdeaf1;
+    border-color: #f0c9d9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .post-preview,
+    .post-title,
+    .tags .tag,
+    .post-container .tag,
+    .pager li > a {
+        transition: none;
+    }
+    .post-preview:hover {
+        transform: none;
+    }
+}
+
+/* =========================================================
+   侧边栏：改为 sticky + 视口内独立滚动
+   修复 affix 固定后 Tags 超出视口无法滚动查看的问题
+   ========================================================= */
+
+/* 先清掉 Bootstrap affix 遗留的定位，避免与 sticky 冲突 */
+.bs-docs-sidebar.affix,
+.bs-docs-sidebar.affix-top,
+.bs-docs-sidebar.affix-bottom {
+    position: static !important;
+}
+
+@media (min-width: 992px) {
+    .bs-docs-sidebar {
+        position: sticky;
+        top: 70px;
+        max-height: calc(100vh - 90px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        /* 细滚动条，不破坏视觉 */
+        scrollbar-width: thin;
+        scrollbar-color: #e0d5e4 transparent;
+        padding-right: 6px;
+    }
+    .bs-docs-sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .bs-docs-sidebar::-webkit-scrollbar-thumb {
+        background: #e0d5e4;
+        border-radius: 3px;
+    }
+    .bs-docs-sidebar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+}
+
+/* 移动端：侧边栏自然排列，不限制高度 */
+@media (max-width: 991px) {
+    .bs-docs-sidebar {
+        position: static;
+        max-height: none;
+        overflow: visible;
+    }
+}

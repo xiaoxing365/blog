@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="设备接入网关常查寄存器起始地址、功能码、数据长度和采样公式。本文横向合并同类设备，先给出账号、IP、端口及云平台参数，再分类列出 IOT 采集器、百叶箱、多合一、二氧化碳、水浸、超声波、直流电机、北斗、RGB、RFID、4G 与 UWB 的寄存器及改址指令；最后整理 JY-DAM404D/0404 继电器映射、联动模式与闪开闪断，以及 ZigBee、多联继电器、四输入电流的组网与 485 接线。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>设备接入与寄存器配置速查</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%85%8D%E7%BD%AE%E9%80%9F%E6%9F%A5/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -70,17 +57,11 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#寄存器"
-                           title="寄存器">寄存器</a>
+                        <a class="tag" href="/tags/#网络"
+                           title="网络">网络</a>
                         
-                        <a class="tag" href="/tags/#物联网设备"
-                           title="物联网设备">物联网设备</a>
-                        
-                        <a class="tag" href="/tags/#Modbus"
-                           title="Modbus">Modbus</a>
-                        
-                        <a class="tag" href="/tags/#网关接入"
-                           title="网关接入">网关接入</a>
+                        <a class="tag" href="/tags/#物联网"
+                           title="物联网">物联网</a>
                         
                     </div>
                     <h1>设备接入与寄存器配置速查</h1>
@@ -817,7 +798,7 @@
 <p>实际配置以设备上电读取到的地址和波特率为准，表中默认值仅作初始参考。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

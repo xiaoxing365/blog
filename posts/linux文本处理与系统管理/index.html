@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="这份Linux文本处理与系统管理指南，先用场景+命令+结果三段式讲透vim、sed、awk、sort、uniq的用法，再覆盖systemctl服务管理、crontab五字段定时任务格式、/var/log与journalctl日志查看，最后梳理Shell环境变量、输入输出重定向和管道符，帮你把零散命令串成真正可用的自动化技能。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>linux文本处理与系统管理</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/linux%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%8E%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -70,17 +57,11 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#vim"
-                           title="vim">vim</a>
+                        <a class="tag" href="/tags/#Linux"
+                           title="Linux">Linux</a>
                         
-                        <a class="tag" href="/tags/#sed"
-                           title="sed">sed</a>
-                        
-                        <a class="tag" href="/tags/#awk"
-                           title="awk">awk</a>
-                        
-                        <a class="tag" href="/tags/#systemctl"
-                           title="systemctl">systemctl</a>
+                        <a class="tag" href="/tags/#系统"
+                           title="系统">系统</a>
                         
                     </div>
                     <h1>linux文本处理与系统管理</h1>
@@ -490,7 +471,7 @@
 <p>从 vim 改配置，到用 sed、awk 批处理文本，再到用 systemctl 管服务、crontab 定时、日志排查问题，最后用环境变量、重定向和管道把命令串起来——这些技能拼在一起，就是你从”会敲命令”走向”能自动化运维”的完整路径。剩下的，就是在真实场景里反复用、反复练。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

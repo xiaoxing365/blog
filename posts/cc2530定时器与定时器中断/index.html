@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="定时器是单片机实现精准时序的核心外设。本文从定时器与计数器的本质关系讲起，说明当计数脉冲来自周期时钟时计数器就成了定时器，随后介绍 CC2530 四个定时器的特点与定时器1的三种工作模式。文章给出最大计数值的计算公式和具体算例，解释 T1CC0H/L、T1CCTL0 输出比较模式和 T1STAT 标志位的配置要点，最后提供一份可直接运行的定时器中断代码，帮助读者实现精确到毫秒级的定时控制。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>cc2530定时器与定时器中断</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/cc2530%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%8E%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -75,12 +62,6 @@
                         
                         <a class="tag" href="/tags/#单片机"
                            title="单片机">单片机</a>
-                        
-                        <a class="tag" href="/tags/#定时器"
-                           title="定时器">定时器</a>
-                        
-                        <a class="tag" href="/tags/#定时器中断"
-                           title="定时器中断">定时器中断</a>
                         
                     </div>
                     <h1>cc2530定时器与定时器中断</h1>
@@ -231,7 +212,7 @@
 <p>有了定时器，设备就能”按时做事”；但如果还希望能和电脑或云平台”说话”，就得用上串口通信。下一章把 USART 的配置方法和常用寄存器整理成一份速查资料，方便写程序时随时对照。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

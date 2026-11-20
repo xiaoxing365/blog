@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="从统计报表最常用的 count、sum、max、min、avg 讲起，比较 GROUP BY 与 row_number() over() 窗口函数的差别，给出 ASCII、CHAR_LENGTH、CONCAT 等常用字符串函数的函数作用示例速查表，并解释视图作为虚拟表的简化查询、安全与逻辑独立价值，覆盖创建、替换、修改、删除视图的完整写法。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>mysql函数与视图</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/mysql%E5%87%BD%E6%95%B0%E4%B8%8E%E8%A7%86%E5%9B%BE/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -73,14 +60,8 @@
                         <a class="tag" href="/tags/#MySQL"
                            title="MySQL">MySQL</a>
                         
-                        <a class="tag" href="/tags/#SQL函数"
-                           title="SQL函数">SQL函数</a>
-                        
-                        <a class="tag" href="/tags/#窗口函数"
-                           title="窗口函数">窗口函数</a>
-                        
-                        <a class="tag" href="/tags/#数据库视图"
-                           title="数据库视图">数据库视图</a>
+                        <a class="tag" href="/tags/#数据库"
+                           title="数据库">数据库</a>
                         
                     </div>
                     <h1>mysql函数与视图</h1>
@@ -346,7 +327,7 @@
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>函数负责”加工数据”：COUNT、SUM、MAX、MIN、AVG 把多行聚成一行统计，row_number() over() 在不丢明细的前提下分组编号和排名，ASCII、CHAR_LENGTH、CONCAT 等字符串函数处理文本拼接与截取。视图负责”封装查询”：它只存定义不存数据，却能简化操作、隐藏敏感列、隔离基表变化。实际项目里两者常常搭配——把带聚合函数或窗口函数的复杂查询做成视图，上层应用只面对一张干净的”虚拟表”，既好维护也更安全。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

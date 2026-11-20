@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="CC2530 的通用 IO 端口是物联网开发最基础的外设。本文从输出和输入两条主线出发，先演示如何用宏定义把 LED 和按键与引脚绑定，再用对照表讲清按位与、按位或、按位取反在寄存器配置中的作用，随后深入 P1INP 与 P2INP 的上拉、下拉、三态配置差异。最后给出一个完整的按键检测例程，包含机械按键防抖和 LED 状态取反闪烁技巧，帮助读者把 GPIO 基础真正用起来。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>cc2530灯光与按键gpio实战</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/cc2530%E7%81%AF%E5%85%89%E4%B8%8E%E6%8C%89%E9%94%AEgpio%E5%AE%9E%E6%88%98/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -73,14 +60,8 @@
                         <a class="tag" href="/tags/#CC2530"
                            title="CC2530">CC2530</a>
                         
-                        <a class="tag" href="/tags/#GPIO"
-                           title="GPIO">GPIO</a>
-                        
-                        <a class="tag" href="/tags/#按键防抖"
-                           title="按键防抖">按键防抖</a>
-                        
-                        <a class="tag" href="/tags/#LED"
-                           title="LED">LED</a>
+                        <a class="tag" href="/tags/#单片机"
+                           title="单片机">单片机</a>
                         
                     </div>
                     <h1>cc2530灯光与按键gpio实战</h1>
@@ -236,7 +217,7 @@
 <p>从”写 1 点灯”到”读按键翻转灯”，GPIO 的输出与输入两条主线就走通了。接下来如果把”按键事件”换成”时间到了”或”信号变化了”这类外部事件，就自然进入中断的世界——那是下一章要解决的问题。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

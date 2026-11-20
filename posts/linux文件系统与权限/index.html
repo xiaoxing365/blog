@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="想彻底搞懂Linux文件系统与权限？本文从树形目录结构讲起，解释用户、用户组、UID/GID与root的关系，拆解rwx与755/644/777数字权限含义，给出chmod、chown、chgrp、useradd、usermod等命令的实用示例，并重点讲解Root与sudo、wheel/sudo组、visudo编辑和NOPASSWD风险，是Linux权限管理的完整指南。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>linux文件系统与权限</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E6%9D%83%E9%99%90/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -70,17 +57,11 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#Linux权限"
-                           title="Linux权限">Linux权限</a>
+                        <a class="tag" href="/tags/#Linux"
+                           title="Linux">Linux</a>
                         
-                        <a class="tag" href="/tags/#Linux文件系统"
-                           title="Linux文件系统">Linux文件系统</a>
-                        
-                        <a class="tag" href="/tags/#sudo"
-                           title="sudo">sudo</a>
-                        
-                        <a class="tag" href="/tags/#用户管理"
-                           title="用户管理">用户管理</a>
+                        <a class="tag" href="/tags/#系统"
+                           title="系统">系统</a>
                         
                     </div>
                     <h1>linux文件系统与权限</h1>
@@ -377,7 +358,7 @@
 <p>从目录结构到权限位，再到 root 与 sudo，这套机制的核心思想其实只有一句：让每个用户只拿到刚好够用的权限。把 755 和 644、把 <code>usermod -aG</code> 和 <code>visudo</code> 这几个知识点记牢，你就能在日常使用中既把事情办成，又不给系统埋下安全隐患。</p>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

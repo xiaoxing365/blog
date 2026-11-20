@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="面向运维与开发人员的 MySQL 权限备份与性能诊断指南，涵盖 CREATE USER 建用户与加密插件切换、8.0 角色批量授权、GRANT/REVOKE/FLUSH PRIVILEGES、核心权限精简说明，以及 mysqldump/source/LOAD DATA LOCAL INFILE 导入导出、忘记 root 密码重置、存储引擎对比和 sys Schema 快速定位慢 SQL 的方法。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>mysql权限备份与性能诊断</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/mysql%E6%9D%83%E9%99%90%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -73,14 +60,8 @@
                         <a class="tag" href="/tags/#MySQL"
                            title="MySQL">MySQL</a>
                         
-                        <a class="tag" href="/tags/#权限管理"
-                           title="权限管理">权限管理</a>
-                        
-                        <a class="tag" href="/tags/#数据备份"
-                           title="数据备份">数据备份</a>
-                        
-                        <a class="tag" href="/tags/#性能诊断"
-                           title="性能诊断">性能诊断</a>
+                        <a class="tag" href="/tags/#数据库"
+                           title="数据库">数据库</a>
                         
                     </div>
                     <h1>mysql权限备份与性能诊断</h1>
@@ -430,7 +411,7 @@
 </blockquote>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

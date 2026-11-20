@@ -1,15 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 
 <!-- Head -->
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
   <meta name="description" content="物联网平台部署涉及本机 IP、数据库账号、IIS 站点与云端参数。本文按平台部署、常见故障、术语速查三段组织：给出新零售门店与智能工厂的完整部署清单，包含 config 配置、SQL Server sa 账号、数据库附加、IIS 发布与店长登录，以及云平台域名和端口用法；针对连接错误 53、登录卡死闪退、组网失败给出排查命令；最后梳理 LoRa、LPWAN、网关连接器与串口波特率选型要点。">
 
 
@@ -19,6 +15,7 @@
     <link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
     <title>物联网平台部署与故障速查</title>
+    <link rel="canonical" href="https://xiaoxing365.com/posts/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%95%85%E9%9A%9C%E9%80%9F%E6%9F%A5/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
@@ -46,22 +43,12 @@
 
 
 <meta name="generator" content="Hexo 7.3.0"></head>
-<body></body>
-
 
 <body>
 
 <!-- Header -->
-<!-- Post Header -->
-<style type="text/css">
-    header.intro-header {
-     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
-        /*post*/
-    
-    }
-</style>
-
-<header class="intro-header">
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -70,17 +57,11 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#物联网平台"
-                           title="物联网平台">物联网平台</a>
+                        <a class="tag" href="/tags/#物联网"
+                           title="物联网">物联网</a>
                         
-                        <a class="tag" href="/tags/#部署运维"
-                           title="部署运维">部署运维</a>
-                        
-                        <a class="tag" href="/tags/#故障排查"
-                           title="故障排查">故障排查</a>
-                        
-                        <a class="tag" href="/tags/#SQL Server"
-                           title="SQL Server">SQL Server</a>
+                        <a class="tag" href="/tags/#运维"
+                           title="运维">运维</a>
                         
                     </div>
                     <h1>物联网平台部署与故障速查</h1>
@@ -608,7 +589,7 @@
 </tbody></table>
 
 
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">
