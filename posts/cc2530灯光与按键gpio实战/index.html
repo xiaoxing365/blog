@@ -41,6 +41,8 @@
 <link rel="stylesheet" href="/./css/toc.css">
 
 
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+     crossorigin="anonymous"></script>
 
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -131,9 +133,6 @@
                 post-container
             ">
 
-            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
-            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
-
             <p>让一盏灯亮起来，是接触任何一块开发板时最让人有成就感的瞬间；而按一下按键就能切换灯的状态，才算真正实现了”人机对话”。这两件事分别对应数字 IO 的两种基本能力——输出和输入。下面就用 CC2530 把这两个能力串起来，顺便把背后绕不开的位运算和寄存器配置讲清楚。</p>
 <h2 id="用宏定义把引脚和器件绑定"><a href="#用宏定义把引脚和器件绑定" class="headerlink" title="用宏定义把引脚和器件绑定"></a>用宏定义把引脚和器件绑定</h2><p>程序里如果到处写 P1_0、P1_3 这样的名字，读起来很费劲，改电路时也容易漏改。C 语言提供了 <code>#define</code> 宏定义，可以给引脚起一个见名知意的名字，之后整个程序都用这个名字操作。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> LED3 P1_0       <span class="comment">/* 3 号灯接在 P1_0 */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED4 P1_1       <span class="comment">/* 4 号灯接在 P1_1 */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED5 P1_3       <span class="comment">/* 5 号灯接在 P1_3 */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED6 P1_4       <span class="comment">/* 6 号灯接在 P1_4 */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SW1  P1_2       <span class="comment">/* 1 号按键接在 P1_2 */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SW2  P0_1       <span class="comment">/* 2 号按键接在 P0_1 */</span></span></span><br></pre></td></tr></table></figure>
@@ -216,8 +215,6 @@
 <p>预期效果：每按一次 SW1，四盏 LED 的亮灭状态同时翻转；快速抖动或按住不放都不会造成误触发。</p>
 <p>从”写 1 点灯”到”读按键翻转灯”，GPIO 的输出与输入两条主线就走通了。接下来如果把”按键事件”换成”时间到了”或”信号变化了”这类外部事件，就自然进入中断的世界——那是下一章要解决的问题。</p>
 
-
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

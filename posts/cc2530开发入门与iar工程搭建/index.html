@@ -41,6 +41,8 @@
 <link rel="stylesheet" href="/./css/toc.css">
 
 
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+     crossorigin="anonymous"></script>
 
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -130,9 +132,6 @@
                 col-xs-12
                 post-container
             ">
-
-            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
-            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
 
             <p>你家里可能有一个温湿度传感器，隔一会儿就把数据发给网关；也可能有一个无线开关，按一下就能控制灯。这些小设备里往往藏着一颗功耗极低的无线主控芯片，CC2530 就是其中最经典的一颗。它把 8051 处理器和 2.4GHz 无线收发器做在同一块硅片上，是 Zigbee 设备最常见的”大脑”。要把想法变成能跑的程序，第一步是认识它的引脚，第二步是把开发环境搭起来。</p>
 <h2 id="认识-CC2530-无线主控芯片"><a href="#认识-CC2530-无线主控芯片" class="headerlink" title="认识 CC2530 无线主控芯片"></a>认识 CC2530 无线主控芯片</h2><p>CC2530 由德州仪器（Texas Instruments，简称 TI）推出，内部是一颗增强型 8051 内核，外加一个符合 IEEE 802.15.4 标准的 2.4GHz 射频收发器。Zigbee 协议的物理层和媒体访问控制层就跑在这颗射频模块上，所以我们常把它叫作”Zigbee 芯片”。</p>
@@ -239,8 +238,6 @@
 <p>预期效果：把程序下载到开发板后，四盏 LED 同时点亮并一直保持。如果灯不亮，先确认宏定义的引脚编号和板子电路图是否一致，再检查芯片型号是否选成了 CC2530F256。</p>
 <p>把”选功能、定方向、写电平”这三步走通，就已经掌握了 CC2530 端口编程的核心套路。后面的点灯闪烁、按键检测、外部中断，本质上都是在这三步之上叠加延时、读取和中断逻辑，并没有新的难点。</p>
 
-
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

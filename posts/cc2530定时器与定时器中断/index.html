@@ -41,6 +41,8 @@
 <link rel="stylesheet" href="/./css/toc.css">
 
 
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+     crossorigin="anonymous"></script>
 
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -131,9 +133,6 @@
                 post-container
             ">
 
-            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
-            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
-
             <p>如果想让一盏灯精确地每秒闪烁一次，用前面学过的空循环延时也能凑合，但它有两个毛病：一是时间不准，循环次数受编译器和主频影响；二是 CPU 全程被占用，什么别的事都干不了。定时器就是芯片内部专门的”硬件闹钟”：设好时间它就自己数数，到点了主动提醒 CPU，期间 CPU 该干嘛干嘛。</p>
 <h2 id="定时器与计数器的关系"><a href="#定时器与计数器的关系" class="headerlink" title="定时器与计数器的关系"></a>定时器与计数器的关系</h2><p>先纠正一个常见的错误说法——“定时器是计数器的总特例”，这个表述并不准确。准确的说法是：<strong>定时器本质上是计数器，当计数脉冲来自周期性的时钟信号时，它就变成了定时器</strong>。两者是同一个硬件模块在不同使用场景下的叫法。</p>
 <p>可以这样理解：计数器负责”数脉冲”，来一个脉冲就加一。如果这些脉冲是规律的、每个间隔都一样，那么数了多少个脉冲就等于过了多少时间，计数器顺理成章地成了定时器。反过来，如果脉冲来自外部的随机事件（比如统计产品经过传感器的次数），那它就是纯粹的计数器。</p>
@@ -211,8 +210,6 @@
 <p>如果定时时间明显不对，优先检查三项：主频假设是否和实际时钟一致、分频系数是否设对、T1CC0H&#x2F;L 的高低字节有没有写反。把这三处核对清楚，定时器就能给出相当稳定的时序。</p>
 <p>有了定时器，设备就能”按时做事”；但如果还希望能和电脑或云平台”说话”，就得用上串口通信。下一章把 USART 的配置方法和常用寄存器整理成一份速查资料，方便写程序时随时对照。</p>
 
-
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

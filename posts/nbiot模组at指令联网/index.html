@@ -41,6 +41,8 @@
 <link rel="stylesheet" href="/./css/toc.css">
 
 
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+     crossorigin="anonymous"></script>
 
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -130,9 +132,6 @@
                 col-xs-12
                 post-container
             ">
-
-            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
-            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
 
             <p>智能水表、电表、烟感这些设备往往分布在地下室、管道井等信号不好的地方，还要靠电池工作好几年。NB-IoT（窄带物联网）正是为这类场景设计的：覆盖深、功耗低、连接多。主控芯片要让模组干活，靠的是一种非常古老却依然通用的语言——AT 指令。一条条文本命令通过串口发过去，模组就完成联网、连接服务器、收发数据等动作。</p>
 <h2 id="串口链路准备：先把话说明白"><a href="#串口链路准备：先把话说明白" class="headerlink" title="串口链路准备：先把话说明白"></a>串口链路准备：先把话说明白</h2><p>在发任何业务指令之前，得先确认串口通道是通的，并让模组进入一个”安静、可解析”的状态。模组厂商很多，比如利尔达、移远、SIMCOM、美格等，但下面这几条基础指令基本通用。</p>
@@ -331,8 +330,6 @@
 
 <p>把上面三个阶段串起来，NB-IoT 模组的完整拨号顺序是：测试串口链路 → 关闭回显 → 查询模组名称 → 获取 IMEI → 检测 SIM 卡 → 查询信号强度 → 设置网络附着 → 查询网络附着 → 查询运营商 → 设置 APN → 查询本地 IP → IMEI 认证 → 建立连接 → 打开 socket → 收发数据 → 关闭 socket。实际调试时建议逐条发送、逐条确认响应，哪一步卡住就重点排查那一步——比如拿不到 IP 先查 APN 和信号，连不上服务器先查 IP 和端口。等整条链路稳定跑通，设备数据就能顺利到达云端了。</p>
 
-
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

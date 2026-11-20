@@ -41,6 +41,8 @@
 <link rel="stylesheet" href="/./css/toc.css">
 
 
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+     crossorigin="anonymous"></script>
 
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -131,9 +133,6 @@
                 post-container
             ">
 
-            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
-            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
-
             <p>普通三节点 Hadoop 集群里，NameNode 和 ResourceManager 都只有一个，一旦这台机器宕机，整个集群就停止服务，这就是”单点故障”。HA（High Availability，高可用）的思路很简单：给关键角色各配一个”替补”，主角色出问题时替补自动顶上。基础环境搭建见《hadoop与mysql与hive三节点搭建》一文，本文只讲从普通集群升级到 HA 需要新增的部分。</p>
 <h2 id="HA-架构总览：谁在起作用"><a href="#HA-架构总览：谁在起作用" class="headerlink" title="HA 架构总览：谁在起作用"></a>HA 架构总览：谁在起作用</h2><p>先用文字把整套架构讲清楚，后面的配置就好理解了：</p>
 <ul>
@@ -202,8 +201,6 @@
 </ul>
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>HA 是在基础集群之上叠加了”冗余 + 协调 + 自动切换”三件事：ZooKeeper 负责协调与选主，JournalNode 保证两个 NameNode 元数据一致，ZKFC 配合 sshfence 完成安全的故障转移，YARN 的双 ResourceManager 让计算调度同样不中断。搭建时最需要记住的是两句话：ZooKeeper 要先于 Hadoop 启动；格式化 NameNode 之后、启动集群之前，一定要把元数据同步给另一个 NameNode。做到这些，你的集群就真正具备了对抗单点故障的能力。</p>
 
-
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">

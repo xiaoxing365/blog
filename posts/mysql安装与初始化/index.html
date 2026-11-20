@@ -41,6 +41,8 @@
 <link rel="stylesheet" href="/./css/toc.css">
 
 
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+     crossorigin="anonymous"></script>
 
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -130,9 +132,6 @@
                 col-xs-12
                 post-container
             ">
-
-            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
-            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
 
             <h2 id="一、先把安装这件事想明白：MySQL-到底要”装”什么"><a href="#一、先把安装这件事想明白：MySQL-到底要”装”什么" class="headerlink" title="一、先把安装这件事想明白：MySQL 到底要”装”什么"></a>一、先把安装这件事想明白：MySQL 到底要”装”什么</h2><p>很多人第一次装 MySQL，解压完双击就找登录窗口，结果到处找不到。其实 MySQL 的安装更像给家里装一套自来水系统：程序本体是水泵房，data 目录是储水罐，my.ini 或 my.cnf 是施工图纸，初始化是第一次通水前把罐子清空并放好管理员钥匙，而”注册服务”则是给它接上电、允许开机自动运行。把这五件事分开理解，安装失败时你才知道该去检查哪一环。</p>
 <p>另外要先选版本。新项目建议直接用 MySQL 8.0，老业务如果依赖旧客户端或旧插件，可能还得留在 5.7。两者在默认字符集、密码加密插件、角色支持、约束行为上差别不小，下面先给一张对照表。</p>
@@ -355,19 +354,17 @@
 
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>安装 MySQL 的关键不是”点下一步”，而是理解四个动作：写配置告诉它程序和数据各放哪里，初始化生成系统库与 root 账号，注册服务让它长期运行，登录后立刻改掉空密码。Windows 用 ZIP 包时盯紧 my.ini 里的 basedir 和 datadir，Linux 用二进制包时别忘了创建 mysql 用户并给 data 目录授权。版本上优先选 8.0，遇到老客户端再退回 mysql_native_password 插件。把这套流程走通，后面所有的查询、权限和优化才有落脚点。</p>
 
-
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/mysql%E5%87%BD%E6%95%B0%E4%B8%8E%E8%A7%86%E5%9B%BE/" >&larr; Previous Post</a>
+                    <a href="/posts/mysql%E6%9D%83%E9%99%90%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/" >&larr; Previous Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/mysql%E6%9D%83%E9%99%90%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/" >Next Post &rarr;</a>
+                    <a href="/posts/mysql%E6%9F%A5%E8%AF%A2%E8%BF%9B%E9%98%B6/" >Next Post &rarr;</a>
                 </li>
                 
             </ul>

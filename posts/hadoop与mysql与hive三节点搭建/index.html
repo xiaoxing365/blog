@@ -41,6 +41,8 @@
 <link rel="stylesheet" href="/./css/toc.css">
 
 
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+     crossorigin="anonymous"></script>
 
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -130,9 +132,6 @@
                 col-xs-12
                 post-container
             ">
-
-            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
-            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
 
             <p>搭一套大数据集群，听起来很复杂，其实可以把它想象成组建一个三人小团队：一个人负责调度（主节点 master），两个人负责干活（从节点 slave1、slave2）。三个人要互相认识（主机名与 hosts）、有统一的作息（时间同步）、能无障碍沟通（免密登录），还要各司其职（Hadoop 负责存储与计算，MySQL 负责保管元数据，Hive 负责把 SQL 翻译成计算任务，Flume 负责搬数据）。这篇文章就按真实的搭建顺序，把每一步的命令、配置和排错方法完整写下来，照着做就能得到一套可用的三节点环境。</p>
 <h2 id="动手之前的约定：vim-操作与本文符号说明"><a href="#动手之前的约定：vim-操作与本文符号说明" class="headerlink" title="动手之前的约定：vim 操作与本文符号说明"></a>动手之前的约定：vim 操作与本文符号说明</h2><h3 id="本文的”阅读约定”"><a href="#本文的”阅读约定”" class="headerlink" title="本文的”阅读约定”"></a>本文的”阅读约定”</h3><p>原始笔记为了便于现场操作，用了几套固定的分隔符号。这里先规范化成统一说明，后面看到就不会困惑：</p>
@@ -368,8 +367,6 @@
 
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到这里，一套完整的三节点大数据环境就搭起来了：三台机器通过主机名和免密登录连成整体，Hadoop 负责分布式存储与计算，MySQL 保管 Hive 元数据，Hive 提供类 SQL 查询，Flume 负责日志采集，几个文本命令完成了数据清洗。回顾整个过程，最容易出错的地方集中在三处——环境变量 PATH、Hadoop 核心配置文件的 XML 结构、以及 MySQL 初始化参数。遇到问题时按”先看进程（<code>jps</code>）、再看日志、最后核对配置”的顺序排查，绝大多数故障都能定位。基础环境准备好之后，想进一步了解如何让集群避免单点故障，可以继续阅读《hadoop高可用集群搭建》一文。</p>
 
-
-            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="sponsored nofollow noopener noreferrer" title="广告链接：点击后将在新窗口打开推广页面" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">广告 · 支持本站</a>
             
             <!-- Pager -->
             <ul class="pager">
