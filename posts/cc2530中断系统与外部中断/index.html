@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="中断是单片机响应外部事件的核心机制。本文用生活化的例子说明轮询和中断的差异，随后系统梳理 CC2530 的 18 个中断向量及其中断入口地址，讲解 pragma vector 与 interrupt 关键字组成的中断服务函数写法。文章逐项说明 IEN0、IEN2、P1IEN、PICTL、P1IFG、P1IF、EA 的职责，用表格还原外部中断信号从引脚边沿到 CPU 响应的完整链路，并特别强调先清引脚标志 PxIFG、再清端口标志 PxIF 的清除顺序，最后给出可直接使用的按键外部中断代码。">
+
+
+    
+  <meta name="keywords" content="CC2530,中断系统,外部中断,中断向量,PICTL,P1IFG,中断服务函数,下降沿触发">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>cc2530中断系统与外部中断</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#CC2530"
+                           title="CC2530">CC2530</a>
+                        
+                        <a class="tag" href="/tags/#中断系统"
+                           title="中断系统">中断系统</a>
+                        
+                        <a class="tag" href="/tags/#外部中断"
+                           title="外部中断">外部中断</a>
+                        
+                        <a class="tag" href="/tags/#单片机"
+                           title="单片机">单片机</a>
+                        
+                    </div>
+                    <h1>cc2530中断系统与外部中断</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-07-14
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>想象你正在看书，手机突然响了。你可以每读一页就抬头看一眼手机有没有消息——这叫轮询；也可以把手机调成响铃模式，来电话时它主动提醒你，你放下书去接，接完再回来接着看——这叫中断。CC2530 处理外部事件时，用的就是后一种思路：平时主程序按自己的节奏运行，一旦按键按下、数据到达或者定时时间到，硬件就”打断”它，让它先处理紧急事件，处理完再回来。</p>
+<h2 id="轮询与中断：两种方式谁更省心"><a href="#轮询与中断：两种方式谁更省心" class="headerlink" title="轮询与中断：两种方式谁更省心"></a>轮询与中断：两种方式谁更省心</h2><p>轮询的方式是主程序反复查询某个标志位，看看事件发生了没有。写法简单，但 CPU 得一直盯着，哪怕事件半天不发生也不能歇着，大量时间浪费在”查看”上。中断则相反：事件发生时由硬件自动置位标志并通知 CPU，CPU 暂停当前工作，跳到一段专门的函数去处理，处理完再回到原来的位置继续。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>轮询</th>
+<th>中断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CPU 占用</td>
+<td>一直查询，占用高</td>
+<td>事件驱动，空闲时可休眠</td>
+</tr>
+<tr>
+<td>响应速度</td>
+<td>取决于查询频率，可能延迟</td>
+<td>硬件响应，及时</td>
+</tr>
+<tr>
+<td>编写难度</td>
+<td>简单直观</td>
+<td>需要配置寄存器和中断函数</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>简单、事件不频繁的任务</td>
+<td>按键、通信、定时等实时性要求高的场合</td>
+</tr>
+</tbody></table>
+<p>对电池供电的物联网节点来说，中断还有个额外好处：CPU 可以在没事件时进入低功耗模式，靠中断唤醒，从而大幅延长续航。</p>
+<h2 id="中断向量与中断服务函数"><a href="#中断向量与中断服务函数" class="headerlink" title="中断向量与中断服务函数"></a>中断向量与中断服务函数</h2><p>CC2530 一共有 18 个中断源。每个中断源对应一个固定的入口地址，称为<strong>中断向量</strong>（也叫中断指针）。当某个中断被响应时，CPU 会自动跳到这个地址去执行相应的处理代码。这些向量名和地址都定义在 ioCC2530.h 头文件里，常用的一部分如下：</p>
+<table>
+<thead>
+<tr>
+<th>中断向量名</th>
+<th>入口地址</th>
+<th>触发事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RFERR_VECTOR</td>
+<td>0x03</td>
+<td>射频发送 FIFO 下溢、接收 FIFO 溢出</td>
+</tr>
+<tr>
+<td>ADC_VECTOR</td>
+<td>0x0B</td>
+<td>ADC 转换结束</td>
+</tr>
+<tr>
+<td>URX0_VECTOR</td>
+<td>0x13</td>
+<td>USART0 接收完成</td>
+</tr>
+<tr>
+<td>P2INT_VECTOR</td>
+<td>0x33</td>
+<td>端口 2 有引脚产生外部中断</td>
+</tr>
+<tr>
+<td>UTX0_VECTOR</td>
+<td>0x3B</td>
+<td>USART0 发送完成</td>
+</tr>
+<tr>
+<td>T1_VECTOR</td>
+<td>0x4B</td>
+<td>定时器 1 捕获、比较或溢出</td>
+</tr>
+<tr>
+<td>P0INT_VECTOR</td>
+<td>0x6B</td>
+<td>端口 0 有引脚产生外部中断</td>
+</tr>
+<tr>
+<td>P1INT_VECTOR</td>
+<td>0x7B</td>
+<td>端口 1 有引脚产生外部中断</td>
+</tr>
+<tr>
+<td>RF_VECTOR</td>
+<td>0x83</td>
+<td>射频通用中断</td>
+</tr>
+<tr>
+<td>WDT_VECTOR</td>
+<td>0x8B</td>
+<td>看门狗定时器模式溢出</td>
+</tr>
+</tbody></table>
+<p>向量名后面的数字代表优先级，数字越小优先级越高；入口地址则是固定的内存位置。实际编程时我们只管用向量名，不用直接写十六进制地址。</p>
+<p>中断服务函数（ISR）和普通函数不同，它有固定的书写格式：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> vector = P1INT_VECTOR      <span class="comment">/* 指定这个函数对应哪个中断向量 */</span></span></span><br><span class="line">__interrupt <span class="type">void</span> <span class="title function_">P1_ISR</span><span class="params">(<span class="type">void</span>)</span>      <span class="comment">/* interrupt 关键字声明这是中断服务函数 */</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">/* 中断发生后要执行的处理代码 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里有三个硬性要求：一是用 <code>#pragma vector</code> 指定向量，等号后面写向量名；二是用 <code>__interrupt</code> 修饰函数，告诉编译器这是中断服务函数；三是这个函数<strong>不能带参数，也不能有返回值</strong>，并且不需要在主程序里主动调用——它由硬件自动触发。</p>
+<h2 id="外部中断涉及的寄存器"><a href="#外部中断涉及的寄存器" class="headerlink" title="外部中断涉及的寄存器"></a>外部中断涉及的寄存器</h2><p>CC2530 的 P0、P1、P2 每个引脚都具备外部中断输入能力，但要真正用起来，需要好几组寄存器配合。它们可以分成”使能””触发方式””标志”三类：</p>
+<table>
+<thead>
+<tr>
+<th>寄存器</th>
+<th>中文含义</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IEN0、IEN1、IEN2</td>
+<td>中断使能寄存器 0&#x2F;1&#x2F;2</td>
+<td>各中断源的使能开关，总开关 EA 在 IEN0 的最高位</td>
+</tr>
+<tr>
+<td>P0IE、P1IE、P2IE</td>
+<td>端口中断使能位</td>
+<td>使能整个端口的中断，P1IE 位于 IEN2 的第 4 位</td>
+</tr>
+<tr>
+<td>P0IEN、P1IEN、P2IEN</td>
+<td>引脚中断使能寄存器</td>
+<td>选择端口里具体哪几个引脚可以产生中断</td>
+</tr>
+<tr>
+<td>PICTL</td>
+<td>端口中断控制寄存器</td>
+<td>设定中断触发沿为上升沿还是下降沿</td>
+</tr>
+<tr>
+<td>P0IFG、P1IFG、P2IFG</td>
+<td>引脚中断标志寄存器</td>
+<td>记录具体是哪个引脚触发了中断，需手动清除</td>
+</tr>
+<tr>
+<td>P0IF、P1IF、P2IF</td>
+<td>端口中断标志位</td>
+<td>端口级的汇总标志，需手动清除</td>
+</tr>
+<tr>
+<td>EA</td>
+<td>总中断使能位</td>
+<td>相当于整个中断系统的总开关，<code>EA = 1</code> 打开</td>
+</tr>
+</tbody></table>
+<p>外部中断的触发方式分两种：<strong>上升沿</strong>指信号从低电平跳到高电平的瞬间，例如按键松开时；<strong>下降沿</strong>指信号从高电平跳到低电平的瞬间，例如按键按下时。PICTL 负责选择这个边沿，其中第 0 位控制 P0 端口，第 1 位控制 P1 端口的低四位（P1_0 到 P1_3），第 2 位控制 P1 端口的高四位（P1_4 到 P1_7），第 3 位控制 P2 端口。统一规定 0 表示上升沿，1 表示下降沿。</p>
+<p>明白了这些寄存器，外部中断信号从产生到被响应的完整链路就可以用下面的顺序描述：</p>
+<ol>
+<li>引脚上出现上升沿或下降沿信号；</li>
+<li>硬件拿这个信号和 PICTL 中设定的触发沿比对，一致才继续；</li>
+<li>对应引脚在 PxIFG 中的标志位被自动置 1；</li>
+<li>信号经过 PxIEN 筛选，确认这个引脚确实开了中断；</li>
+<li>以上条件都满足后，端口标志 PxIF 被置 1，向 CPU 提出中断请求；</li>
+<li>CPU 响应中断，根据中断向量找到服务函数；</li>
+<li>服务函数查询 PxIFG，判断到底是哪个引脚触发的，然后执行对应处理。</li>
+</ol>
+<h2 id="标志位清除顺序：先-PxIFG，再-PxIF"><a href="#标志位清除顺序：先-PxIFG，再-PxIF" class="headerlink" title="标志位清除顺序：先 PxIFG，再 PxIF"></a>标志位清除顺序：先 PxIFG，再 PxIF</h2><p>这是外部中断里最容易出错、后果又最明显的一个细节。中断标志必须<strong>在中断服务函数里手动清除</strong>，否则 CPU 看到标志一直有效，就会反复进入中断，程序看起来像”卡死”了一样。</p>
+<p>清除时还有严格的先后要求：<strong>先清引脚标志 PxIFG，再清端口标志 PxIF</strong>。原因在于 PxIF 是端口级的汇总标志，只要 PxIFG 里还有任何一个引脚标志没清掉，硬件就认为该端口仍有未处理的中断，会重新把 PxIF 置起来。如果反过来先清 PxIF，等于白清一次，程序照样会反复进中断。记住一句话：<strong>先细后粗，先引脚后端口</strong>。</p>
+<h2 id="完整外部中断例程"><a href="#完整外部中断例程" class="headerlink" title="完整外部中断例程"></a>完整外部中断例程</h2><p>要解决什么：用 P1_2 上接的按键作为外部中断源，按下时翻转 LED 的状态。相比上一章的按键扫描，中断方式不需要主程序一直循环查询，CPU 可以更”悠闲”。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;ioCC2530.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED3 P1_0          <span class="comment">/* 用 LED3 指示中断是否发生 */</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 外部中断初始化 */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Init_ExtInt</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    P1SEL &amp;= ~<span class="number">0x04</span>;        <span class="comment">/* 0000 0100：P1_2 设为普通 IO */</span></span><br><span class="line">    P1DIR &amp;= ~<span class="number">0x04</span>;        <span class="comment">/* P1_2 设为输入 */</span></span><br><span class="line">    P1INP &amp;= ~<span class="number">0x04</span>;        <span class="comment">/* 使用上拉/下拉模式 */</span></span><br><span class="line">    P2INP &amp;= ~<span class="number">0x40</span>;        <span class="comment">/* P1 端口选择上拉，按键按下为低电平 */</span></span><br><span class="line"></span><br><span class="line">    PICTL |= <span class="number">0x02</span>;         <span class="comment">/* 第 1 位 P1CONL：P1_0~P1_3 设为下降沿触发 */</span></span><br><span class="line">    P1IEN |= <span class="number">0x04</span>;         <span class="comment">/* 0000 0100：使能 P1_2 引脚中断 */</span></span><br><span class="line">    IEN2  |= <span class="number">0x10</span>;         <span class="comment">/* 第 4 位 P1IE：使能 P1 端口中断 */</span></span><br><span class="line">    EA = <span class="number">1</span>;                <span class="comment">/* 打开总中断，最后一步 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* P1 端口中断服务函数 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> vector = P1INT_VECTOR</span></span><br><span class="line">__interrupt <span class="type">void</span> <span class="title function_">P1_ISR</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (P1IFG &amp; <span class="number">0x04</span>)      <span class="comment">/* 查询 P1IFG，确认是不是 P1_2 触发 */</span></span><br><span class="line">    &#123;</span><br><span class="line">        LED3 = ~LED3;      <span class="comment">/* 翻转 LED 状态 */</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    P1IFG = <span class="number">0</span>;             <span class="comment">/* 第一步：清除引脚标志 */</span></span><br><span class="line">    P1IF  = <span class="number">0</span>;             <span class="comment">/* 第二步：清除端口标志 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    P1SEL &amp;= ~<span class="number">0x01</span>;        <span class="comment">/* P1_0 设为普通 IO */</span></span><br><span class="line">    P1DIR |= <span class="number">0x01</span>;         <span class="comment">/* P1_0 设为输出，用于点灯 */</span></span><br><span class="line">    LED3 = <span class="number">0</span>;              <span class="comment">/* 初始熄灭 */</span></span><br><span class="line"></span><br><span class="line">    Init_ExtInt();         <span class="comment">/* 配置外部中断 */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>);             <span class="comment">/* 主程序空闲等待，事件由中断处理 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>预期效果：每次按下按键，LED3 的亮灭状态翻转一次，主循环不需要任何按键查询代码。如果按一次却连续翻转多次，多半是标志位清除顺序写反了，或者忘了清除标志；如果完全没反应，则按”总开关 EA → 端口使能 P1IE → 引脚使能 P1IEN → 触发沿 PICTL”的顺序逐项检查。</p>
+<p>至此，按键事件已经能主动”叫醒”CPU 了。如果把触发源从引脚电平变化换成定时器溢出，就是下一章要讲的定时器中断——两者的寄存器思路一脉相承，只是中断向量和标志位换成了定时器那一套。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/cc2530%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%8E%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

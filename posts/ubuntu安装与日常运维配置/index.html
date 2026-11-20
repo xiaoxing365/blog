@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="Ubuntu安装与日常运维配置是Linux入门的必经之路。本文从VirtualBox创建虚拟机、挂载ISO镜像、安装系统讲到宿主机与虚拟机文件夹共享，接着整理tzselect设置时区、命令行与图形界面修改静态IP、ufw防火墙放行规则、密码有效期配置等基础操作，再用表格对比APT与Snap在依赖、更新、体积和适用场景上的差异，并解释s、t、i、a特殊权限和vi与vim的区别，最后按系统管理、磁盘、文档、网络等类别整理高频命令，适合新手系统上手。">
+
+
+    
+  <meta name="keywords" content="Ubuntu安装,VirtualBox,Linux命令,tzselect,ufw,APT与Snap,文件权限,系统运维">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>ubuntu安装与日常运维配置</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Ubuntu"
+                           title="Ubuntu">Ubuntu</a>
+                        
+                        <a class="tag" href="/tags/#Linux"
+                           title="Linux">Linux</a>
+                        
+                        <a class="tag" href="/tags/#系统运维"
+                           title="系统运维">系统运维</a>
+                        
+                        <a class="tag" href="/tags/#包管理"
+                           title="包管理">包管理</a>
+                        
+                    </div>
+                    <h1>ubuntu安装与日常运维配置</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>想学 Linux，最省事的办法是在虚拟机里装一套 Ubuntu：不折腾分区、不影响现有系统，出问题删掉重建就行。本文按”安装 → 基础配置 → 包管理 → 常用命令”的顺序，把新手最常遇到的操作串成一条线。</p>
+<h2 id="一、用-VirtualBox-安装-Ubuntu"><a href="#一、用-VirtualBox-安装-Ubuntu" class="headerlink" title="一、用 VirtualBox 安装 Ubuntu"></a>一、用 VirtualBox 安装 Ubuntu</h2><p>VirtualBox 是 Oracle 开源的虚拟机软件，能在 Windows、Linux、macOS 上跨平台运行。Ubuntu 是流行的 GNU&#x2F;Linux 发行版，桌面版每两年发布一个 LTS 长期支持版本，例如 24.04 LTS，适合学习和日常使用。</p>
+<p>安装步骤：</p>
+<ol>
+<li>到官网下载 VirtualBox 和 Ubuntu 的 ISO 镜像。</li>
+<li>打开 VirtualBox，点击”新建”，自定义名称，选择类型为 Linux，版本选对应的 Ubuntu 位数。</li>
+<li>分配内存，一般 2~4 GB，视宿主机器配置而定。</li>
+<li>创建虚拟硬盘，选择 <strong>VDI（VirtualBox 磁盘映像）</strong>，分配方式选<strong>动态分配</strong>，容量给 60 GB 左右即可。</li>
+<li>在虚拟机设置里挂载 Ubuntu ISO 镜像，启动后进入安装界面。</li>
+<li>选择”中文（简体）”，点击安装，键盘布局用默认，填写用户名和密码后等待自动安装完成。</li>
+</ol>
+<blockquote>
+<p>ISO 是光盘镜像。网上还有 GHO 镜像，但这类多为第三方修改版，可能预装软件或精简功能，学习用途建议用官网原版 ISO。</p>
+</blockquote>
+<h3 id="1-1-宿主机与虚拟机共享文件夹"><a href="#1-1-宿主机与虚拟机共享文件夹" class="headerlink" title="1.1 宿主机与虚拟机共享文件夹"></a>1.1 宿主机与虚拟机共享文件夹</h3><p>要让 Windows 和 Ubuntu 之间传文件，常见做法是：</p>
+<ul>
+<li>先在 Windows 里把某个文件夹设为共享；</li>
+<li>在 VirtualBox 中开启该文件夹的共享功能，并安装<strong>增强功能插件（Guest Additions）</strong>；</li>
+<li>在 Ubuntu 中访问挂载点即可读写共享目录。</li>
+</ul>
+<p>如果用的是 VMware，通常可以直接把文件拖拽进虚拟机，更省事。前提都是两台机器处于同一网段。</p>
+<h2 id="二、基础配置：时区、IP、防火墙、密码策略"><a href="#二、基础配置：时区、IP、防火墙、密码策略" class="headerlink" title="二、基础配置：时区、IP、防火墙、密码策略"></a>二、基础配置：时区、IP、防火墙、密码策略</h2><h3 id="2-1-设置时区"><a href="#2-1-设置时区" class="headerlink" title="2.1 设置时区"></a>2.1 设置时区</h3><p>交互式设置用 <code>tzselect</code>，按提示选数字即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tzselect</span><br><span class="line"><span class="comment"># 依次输入：4（亚洲）→ 9（中国）→ 1（北京）→ 1（确认）</span></span><br></pre></td></tr></table></figure>
+
+<p>如果想直接指定，也可以复制时区文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/share/zoneinfo/Asia/Shanghai /etc/localtime   <span class="comment"># 设置为上海时区</span></span><br><span class="line"><span class="built_in">sudo</span> hwclock --systohc                                     <span class="comment"># 把系统时间写入硬件时钟</span></span><br><span class="line"><span class="built_in">date</span>                                                       <span class="comment"># 查看当前时间确认</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-修改-IP-地址"><a href="#2-2-修改-IP-地址" class="headerlink" title="2.2 修改 IP 地址"></a>2.2 修改 IP 地址</h3><p><strong>方法一：命令行修改</strong>。打开终端（<code>Ctrl + Alt + T</code>），编辑网络配置文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vim /etc/network/interfaces</span><br></pre></td></tr></table></figure>
+
+<p>把对应网卡改成静态地址，例如网卡名是 <code>enp0s3</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">auto enp0s3</span><br><span class="line">iface enp0s3 inet static</span><br><span class="line">address 192.168.1.17       # 想设置的静态 IP</span><br><span class="line">gateway 192.168.1.1        # 默认网关</span><br><span class="line">netmask 255.255.255.0      # 子网掩码</span><br></pre></td></tr></table></figure>
+
+<p>保存后重启系统，再用 <code>ifconfig</code> 或 <code>ip addr</code> 核对结果。</p>
+<p><strong>方法二：图形界面修改</strong>。点击右上角网络图标 → 有线设置 → 齿轮图标 → IPv4 → 选择”手动”，填入地址、网关和掩码，点击”应用”即可。两种方式设置的是同一份配置，按习惯选择就行。</p>
+<h3 id="2-3-ufw-防火墙"><a href="#2-3-ufw-防火墙" class="headerlink" title="2.3 ufw 防火墙"></a>2.3 ufw 防火墙</h3><p><code>ufw</code> 是 Ubuntu 上简化版的防火墙管理工具，命令很好记：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> ufw <span class="built_in">enable</span>                  <span class="comment"># 开启防火墙</span></span><br><span class="line"><span class="built_in">sudo</span> ufw <span class="built_in">disable</span>                 <span class="comment"># 关闭防火墙</span></span><br><span class="line"><span class="built_in">sudo</span> ufw status                  <span class="comment"># 查看状态与已放行的规则</span></span><br><span class="line"><span class="built_in">sudo</span> ufw allow from 127.0.0.1     <span class="comment"># 允许本机访问</span></span><br><span class="line"><span class="built_in">sudo</span> ufw allow from 192.168.0.200 <span class="comment"># 允许指定 IP 的主机访问</span></span><br><span class="line"><span class="built_in">sudo</span> ufw allow 3306/tcp          <span class="comment"># 放行 TCP 协议的 3306 端口</span></span><br></pre></td></tr></table></figure>
+
+<p>放行规则要遵循”最小必要”原则：只开确实要用的端口，避免把数据库端口直接暴露给所有人。</p>
+<h3 id="2-4-密码有效期与系统信息"><a href="#2-4-密码有效期与系统信息" class="headerlink" title="2.4 密码有效期与系统信息"></a>2.4 密码有效期与系统信息</h3><p>修改用户密码有效期，编辑 <code>/etc/login.defs</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> nano /etc/login.defs</span><br></pre></td></tr></table></figure>
+
+<p>关键参数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PASS_MAX_DAYS   30    # 密码最长使用天数</span><br><span class="line">PASS_MIN_DAYS   1     # 两次修改之间的最小间隔</span><br><span class="line">PASS_WARN_AGE   3     # 过期前多少天提醒</span><br></pre></td></tr></table></figure>
+
+<p>查看系统信息的几条命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">uname</span> -a          <span class="comment"># 查看内核版本与系统信息</span></span><br><span class="line"><span class="built_in">cat</span> /etc/lsb-release   <span class="comment"># 查看发行版版本</span></span><br><span class="line">apt-cache stats        <span class="comment"># 查看本机软件包统计信息</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="三、包管理：APT-与-Snap"><a href="#三、包管理：APT-与-Snap" class="headerlink" title="三、包管理：APT 与 Snap"></a>三、包管理：APT 与 Snap</h2><p>Ubuntu 上主要有两套包管理工具，设计理念差别很大：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>APT</th>
+<th>Snap</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>包格式</td>
+<td><code>.deb</code></td>
+<td><code>.snap</code></td>
+</tr>
+<tr>
+<td>依赖处理</td>
+<td>依赖系统共享库</td>
+<td>应用连同依赖一起打包</td>
+</tr>
+<tr>
+<td>安装速度 &#x2F; 体积</td>
+<td>快、占用小</td>
+<td>首次较慢、体积较大</td>
+</tr>
+<tr>
+<td>更新方式</td>
+<td>手动 <code>apt update</code> + <code>apt upgrade</code></td>
+<td>自动更新，可配置关闭</td>
+</tr>
+<tr>
+<td>跨发行版</td>
+<td>仅 Debian 系</td>
+<td>Ubuntu、Fedora、Arch 等</td>
+</tr>
+<tr>
+<td>隔离性</td>
+<td>低，与系统深度集成</td>
+<td>高，类似容器</td>
+</tr>
+<tr>
+<td>依赖冲突</td>
+<td>可能出现”依赖地狱”</td>
+<td>独立打包，基本避免</td>
+</tr>
+<tr>
+<td>版本回滚</td>
+<td>不方便</td>
+<td>支持快照回滚</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>系统组件、服务器软件</td>
+<td>桌面应用、开发工具</td>
+</tr>
+</tbody></table>
+<p><strong>APT 更适合管理系统级软件</strong>，例如 <code>sudo apt install nginx</code>；<strong>Snap 适合需要频繁更新的桌面应用</strong>，例如 <code>sudo snap install firefox</code>。</p>
+<p>一个常见现象：Ubuntu 22.04 默认用 Snap 安装 Firefox，即便你用 apt 命令安装，也只会装上一个指向官方 Snap 的空包，最终还是 Snap 版本。</p>
+<h3 id="3-1-apt-与-apt-get-的区别"><a href="#3-1-apt-与-apt-get-的区别" class="headerlink" title="3.1 apt 与 apt-get 的区别"></a>3.1 apt 与 apt-get 的区别</h3><p><code>apt</code> 是较新的命令，目的是取代 <code>apt-get</code> 和 <code>apt-cache</code>，交互更友好、输出更简洁；<code>apt-get</code> 更底层，能精细控制安装与卸载过程。实际上 <code>apt</code> 包含了 <code>apt-get</code>，日常交互式操作推荐用 <code>apt</code>，写脚本时 <code>apt-get</code> 的行为更稳定可预期。</p>
+<h3 id="3-2-包缓存与清理"><a href="#3-2-包缓存与清理" class="headerlink" title="3.2 包缓存与清理"></a>3.2 包缓存与清理</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> /var/cache/apt/archives/   <span class="comment"># 查看下载包的临时存放目录</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get autoclean        <span class="comment"># 清理过期缓存</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-Snap-卸载与快照"><a href="#3-3-Snap-卸载与快照" class="headerlink" title="3.3 Snap 卸载与快照"></a>3.3 Snap 卸载与快照</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> snap remove 包名              <span class="comment"># 卸载但保留快照</span></span><br><span class="line"><span class="built_in">sudo</span> snap remove 包名 --purge      <span class="comment"># 彻底卸载，连用户数据和配置一起删除</span></span><br></pre></td></tr></table></figure>
+
+<p><code>--purge</code> 的作用是卸载时不生成快照。不加这个参数时，Snap 会保存该包的用户数据和配置，日后重装能自动恢复到卸载前的状态。</p>
+<h2 id="四、特殊权限：s、t、i、a"><a href="#四、特殊权限：s、t、i、a" class="headerlink" title="四、特殊权限：s、t、i、a"></a>四、特殊权限：s、t、i、a</h2><p>除了常见的 <code>rwx</code>（读、写、执行），Linux 还有四种特殊权限，看到 <code>rwt</code>、<code>rws</code> 这类组合时别慌：</p>
+<table>
+<thead>
+<tr>
+<th>权限</th>
+<th>名称</th>
+<th>作用</th>
+<th>设置方法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>s</td>
+<td>setuid &#x2F; setgid</td>
+<td>以文件所有者（常为 root）身份执行</td>
+<td><code>chmod u+s 文件</code></td>
+</tr>
+<tr>
+<td>t</td>
+<td>粘滞位</td>
+<td>只有所有者或 root 能删除，即使权限是 777</td>
+<td><code>chmod +t 目录</code></td>
+</tr>
+<tr>
+<td>i</td>
+<td>不可修改</td>
+<td>连 root 都不能改，要先去掉才能修改</td>
+<td><code>chattr +i 文件</code></td>
+</tr>
+<tr>
+<td>a</td>
+<td>只追加</td>
+<td>只能往末尾追加，不能删除，适合日志</td>
+<td><code>chattr +a 文件</code></td>
+</tr>
+</tbody></table>
+<p>几个要点：</p>
+<ul>
+<li>设置 <code>s</code> 权限前必须先有 <code>x</code> 权限，否则不生效。未生效时显示为大写 <code>S</code>，生效时为小写 <code>s</code>。</li>
+<li><code>t</code> 一般出现在权限末尾（其他用户位），典型目录是 <code>/tmp</code>。</li>
+<li>查看 <code>i</code>、<code>a</code> 属性要用 <code>lsattr</code>，普通 <code>ls -l</code> 看不到。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> u+s /usr/bin/program     <span class="comment"># 给程序加 setuid</span></span><br><span class="line"><span class="built_in">chmod</span> +t /shared               <span class="comment"># 给共享目录加粘滞位</span></span><br><span class="line">chattr +i /etc/important.conf  <span class="comment"># 锁定文件不可修改</span></span><br><span class="line">lsattr /etc/important.conf     <span class="comment"># 查看特殊属性</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="五、vi-与-vim"><a href="#五、vi-与-vim" class="headerlink" title="五、vi 与 vim"></a>五、vi 与 vim</h2><p>vi 是 Linux 系统自带的轻量编辑器，vim 是它的增强版，通常需要额外安装。两者的主要差别：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>vi</th>
+<th>vim</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>获取方式</td>
+<td>系统自带</td>
+<td>需安装</td>
+</tr>
+<tr>
+<td>脚本扩展</td>
+<td>不支持 VimScript</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>外部命令交互</td>
+<td>不支持</td>
+<td>支持 <code>:!</code> 调用外部命令</td>
+</tr>
+<tr>
+<td>图形界面</td>
+<td>无</td>
+<td>有 gVim</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>资源受限、简单编辑</td>
+<td>复杂编辑、插件扩展</td>
+</tr>
+</tbody></table>
+<p>基本操作是一套：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">i         进入输入模式（insert）</span><br><span class="line">Esc       退出输入模式，回到命令模式</span><br><span class="line">:w        保存（write）</span><br><span class="line">:q        退出（quit）</span><br><span class="line">:wq       保存并退出</span><br><span class="line">:q!       强制退出且不保存</span><br></pre></td></tr></table></figure>
+
+<p>命令模式下的光标移动键是 <code>h</code>（左）、<code>j</code>（下）、<code>k</code>（上）、<code>l</code>（右），这也是 vim 的特色之一。记住”先 Esc 再输冒号命令”这个节奏，就不会被困在编辑器里出不来。</p>
+<h2 id="六、常用命令分类速查"><a href="#六、常用命令分类速查" class="headerlink" title="六、常用命令分类速查"></a>六、常用命令分类速查</h2><p>按用途把高频命令分个类，查起来更快：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>进程与系统</td>
+<td><code>ps</code>、<code>top</code>、<code>kill</code>、<code>free</code>、<code>date</code>、<code>w</code></td>
+</tr>
+<tr>
+<td>备份压缩</td>
+<td><code>tar</code>、<code>zip</code></td>
+</tr>
+<tr>
+<td>磁盘与目录</td>
+<td><code>ls</code>、<code>pwd</code>、<code>cd</code>、<code>mkdir</code>、<code>rmdir</code>、<code>df</code>、<code>du</code>、<code>tree</code></td>
+</tr>
+<tr>
+<td>文档处理</td>
+<td><code>grep</code>、<code>wc</code>、<code>touch</code>、<code>tail</code></td>
+</tr>
+<tr>
+<td>网络通信</td>
+<td><code>ping</code>、<code>ifconfig</code>、<code>netstat</code></td>
+</tr>
+<tr>
+<td>包查询</td>
+<td><code>dpkg</code>、<code>apt-cache</code></td>
+</tr>
+</tbody></table>
+<p>几个实用例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">tree /home/user &gt; dir.txt        <span class="comment"># 生成目录树并保存到文件</span></span><br><span class="line">find . -name <span class="string">&quot;*.log&quot;</span>             <span class="comment"># 递归查找日志文件</span></span><br><span class="line">tar -zxvf demo.tar.gz            <span class="comment"># 解压 tar.gz</span></span><br><span class="line">tar -zcvf demo.tar.gz aaa bbb    <span class="comment"># 把多个文件打包压缩</span></span><br><span class="line"><span class="built_in">du</span> -sh /var/log                  <span class="comment"># 查看目录总大小（-s 汇总，-h 易读格式）</span></span><br><span class="line"><span class="built_in">df</span> -h                            <span class="comment"># 查看磁盘使用情况</span></span><br><span class="line">dpkg -l                          <span class="comment"># 查询已安装的包</span></span><br><span class="line">ps aux --<span class="built_in">sort</span>=-%cpu              <span class="comment"># 按 CPU 使用率降序排列进程</span></span><br><span class="line">w                                <span class="comment"># 查看当前登录用户信息</span></span><br><span class="line">ethtool enp0s3                   <span class="comment"># 查看网卡详细状态（默认未安装）</span></span><br></pre></td></tr></table></figure>
+
+<p>如果需要按端口放行流量，也可以用更底层的 iptables：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> iptables -A INPUT -p tcp --dport 80 -j ACCEPT   <span class="comment"># 允许 TCP 80 端口入站</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Ubuntu 上手的关键路径是：先用 VirtualBox 装好系统并打通共享文件夹，再用 <code>tzselect</code>、静态 IP、<code>ufw</code> 完成基础配置，然后理解 APT 与 Snap 各自的适用场景，最后按类别积累常用命令。权限部分重点记住 <code>s</code>（提权执行）、<code>t</code>（防误删）、<code>i</code>（不可改）、<code>a</code>（只追加）这四个特殊标记，排查文件”改不了、删不掉”时就能想到它们。命令不用死记，按分类建份自己的速查表，用得多了自然熟练。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/tcpip%E5%8D%8F%E8%AE%AE%E4%B8%8E%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/windows%E7%BD%91%E7%BB%9C%E5%91%BD%E4%BB%A4%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

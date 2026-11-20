@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="CC2530 是物联网 Zigbee 开发中最常用的无线主控芯片之一。本文面向零基础读者，先用生活化例子说明芯片端口的作用，再逐条讲解 P0、P1、P2 端口中哪些引脚可以正常使用，随后完整演示 IAR Embedded Workbench for 8051 中工作区、工程的建立流程以及 eww、ewp、dep、ewd 文件的含义。文章重点纠正 SEL 寄存器的常见误解：SEL 只负责选择普通 IO 还是外设功能，真正决定输入方向的寄存器是 DIR。最后给出可直接运行的点灯例程，帮助读者快速上手 CC2530 开发。">
+
+
+    
+  <meta name="keywords" content="CC2530,Zigbee开发,IAR8051,SEL寄存器,DIR寄存器,INP寄存器,端口初始化,单片机入门">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>cc2530开发入门与iar工程搭建</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#CC2530"
+                           title="CC2530">CC2530</a>
+                        
+                        <a class="tag" href="/tags/#Zigbee"
+                           title="Zigbee">Zigbee</a>
+                        
+                        <a class="tag" href="/tags/#IAR8051"
+                           title="IAR8051">IAR8051</a>
+                        
+                        <a class="tag" href="/tags/#单片机入门"
+                           title="单片机入门">单片机入门</a>
+                        
+                    </div>
+                    <h1>cc2530开发入门与iar工程搭建</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-07-10
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>你家里可能有一个温湿度传感器，隔一会儿就把数据发给网关；也可能有一个无线开关，按一下就能控制灯。这些小设备里往往藏着一颗功耗极低的无线主控芯片，CC2530 就是其中最经典的一颗。它把 8051 处理器和 2.4GHz 无线收发器做在同一块硅片上，是 Zigbee 设备最常见的”大脑”。要把想法变成能跑的程序，第一步是认识它的引脚，第二步是把开发环境搭起来。</p>
+<h2 id="认识-CC2530-无线主控芯片"><a href="#认识-CC2530-无线主控芯片" class="headerlink" title="认识 CC2530 无线主控芯片"></a>认识 CC2530 无线主控芯片</h2><p>CC2530 由德州仪器（Texas Instruments，简称 TI）推出，内部是一颗增强型 8051 内核，外加一个符合 IEEE 802.15.4 标准的 2.4GHz 射频收发器。Zigbee 协议的物理层和媒体访问控制层就跑在这颗射频模块上，所以我们常把它叫作”Zigbee 芯片”。</p>
+<p>按片内 Flash 容量，CC2530 分为 F32、F64、F128、F256 几个版本，数字代表闪存大小。本系列开发使用的是 <strong>CC2530F256</strong>，也就是 256KB Flash 的版本，空间足够容纳 Zigbee 协议栈和应用程序。芯片运行时以 32MHz 晶振作为主时钟，并配有一颗 32.768kHz 的低频晶振用于休眠计时。</p>
+<p>初学阶段可以先把它当成一个”带无线功能的普通单片机”：写代码控制引脚高低电平、读按键、用定时器计时、通过串口打印信息，这些操作和学 51 单片机时基本一致。等基础打牢，再研究无线收发部分。</p>
+<h2 id="P0、P1、P2-三组通用-IO-端口"><a href="#P0、P1、P2-三组通用-IO-端口" class="headerlink" title="P0、P1、P2 三组通用 IO 端口"></a>P0、P1、P2 三组通用 IO 端口</h2><p>芯片与外部世界打交道，靠的是一个个引脚。CC2530 把引脚分成 P0、P1、P2 三组，每组最多 8 个，命名成 P0_0 到 P0_7 这样的形式。不过并不是所有引脚都能随意使用。</p>
+<table>
+<thead>
+<tr>
+<th>端口</th>
+<th>可用引脚</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0</td>
+<td>P0_0 至 P0_7，共 8 个</td>
+<td>全部可作通用 IO，其中个别引脚常与调试功能复用</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>P1_0 至 P1_7，共 8 个</td>
+<td>全部可作通用 IO，是点灯、读按键最常用的端口</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>P2_0 至 P2_4，共 5 个</td>
+<td>其中部分引脚默认用于仿真调试和晶振，实际可用的很少</td>
+</tr>
+</tbody></table>
+<p>P2 端口只有 5 个引脚，而且这 5 个里有 2 个被仿真调试占用、2 个用来接晶振，因此真正能腾出来给用户使用的通用 IO 大约只有 17 个。这也是为什么点灯和按键实验几乎都集中在 P0 和 P1 上。刚上手时不必纠结每一个引脚的去向，照着电路图给出的连接关系使用即可；等熟悉了芯片，再回头研究复用关系。</p>
+<blockquote>
+<p>说明：不同开发板把 LED、按键接到哪些引脚并不固定，编写程序前必须先查看板子的电路原理图，找到每个 LED 和按键对应的端口编号，这一步决定了后面宏定义怎么写。</p>
+</blockquote>
+<h2 id="用-IAR8051-搭建第一个-CC2530-工程"><a href="#用-IAR8051-搭建第一个-CC2530-工程" class="headerlink" title="用 IAR8051 搭建第一个 CC2530 工程"></a>用 IAR8051 搭建第一个 CC2530 工程</h2><p>CC2530 是 8051 内核，需要用支持 8051 的集成开发环境来编译，最常用的是 IAR Embedded Workbench for 8051（简称 IAR8051）。它和平时写桌面程序用的 IDE 有个明显区别：<strong>先建工作区，再在工程里添加源文件</strong>，新建的文件不会自动进入工程，需要手动添加。理解了这个逻辑，操作起来就顺了。</p>
+<h3 id="创建工作区与工程"><a href="#创建工作区与工程" class="headerlink" title="创建工作区与工程"></a>创建工作区与工程</h3><ol>
+<li>打开软件，在菜单栏选择 File → New → Workspace，先建立一个工作区。工作区只是一个”容器”，此时磁盘上还看不到明显变化。</li>
+<li>选择 Project → Create New Project，内核类型只能选 8051，模板选 Empty project（空工程），然后给工程起名字、指定保存路径。完成后，左侧工作区窗口会出现工程节点，磁盘上会多出一个 settings 文件夹。</li>
+<li>配置芯片型号：在工程选项里进入 General Options → Target → Device information，从 Texas Instruments 目录下选择 CC2530F256。这一步决定编译器按照哪颗芯片的资源来分配内存。</li>
+<li>配置仿真器：进入 Debugger → Setup → Driver，选择 Texas Instruments。这样下载程序时软件才能找到对应的调试驱动。</li>
+</ol>
+<h3 id="添加源文件并保存"><a href="#添加源文件并保存" class="headerlink" title="添加源文件并保存"></a>添加源文件并保存</h3><p>新建 C 源文件有两种方式：一种是在工程上右键选择 Add → Add Files，在弹出的对话框右下角把文件类型切换成”全部文件”，然后新建一个后缀为 .c 的文件并选中它，这相当于”创建并导入”一步完成；另一种是点工具栏的新建按钮写一个空文件，按 Ctrl+S 保存成 .c 文件——注意，这种方式<strong>还要再右键工程把它添加进来</strong>，否则它只是躺在磁盘上，不会参与编译。建议文件名用英文，避免编码问题引发奇怪的编译错误。添加成功后，工程目录里会出现一个 Debug 文件夹，用来存放编译生成的中间文件。</p>
+<p>最后选择 File → Save Workspace 保存工作区，会生成 .eww 文件。至此，磁盘上会出现四个后缀不同的文件，它们的分工如下：</p>
+<table>
+<thead>
+<tr>
+<th>文件后缀</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>.eww</td>
+<td>工作区文件，记录整个工作区包含哪些工程</td>
+</tr>
+<tr>
+<td>.ewp</td>
+<td>工程文件，保存编译选项、源文件列表等核心配置</td>
+</tr>
+<tr>
+<td>.dep</td>
+<td>依赖关系文件，记录源文件之间的依赖，供增量编译使用</td>
+</tr>
+<tr>
+<td>.ewd</td>
+<td>调试配置文件，保存断点、观察变量等调试信息</td>
+</tr>
+</tbody></table>
+<p>日常备份和迁移工程时，这几个文件要放在一起，只拷 .c 文件会导致配置全部丢失。</p>
+<h2 id="SEL、DIR、INP-三个寄存器怎么分工"><a href="#SEL、DIR、INP-三个寄存器怎么分工" class="headerlink" title="SEL、DIR、INP 三个寄存器怎么分工"></a>SEL、DIR、INP 三个寄存器怎么分工</h2><p>端口的行为由一组特殊功能寄存器控制，初学阶段最常打交道的三个是 SEL、DIR、INP。它们分别管”功能、方向、模式”，职责完全不同，一定要分清。</p>
+<table>
+<thead>
+<tr>
+<th>寄存器</th>
+<th>中文含义</th>
+<th>取值含义</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SEL</td>
+<td>功能选择</td>
+<td>0 &#x3D; 普通 IO，1 &#x3D; 外设功能</td>
+<td>决定引脚是当通用 IO 用，还是交给串口、定时器等外设</td>
+</tr>
+<tr>
+<td>DIR</td>
+<td>方向选择</td>
+<td>0 &#x3D; 输入，1 &#x3D; 输出</td>
+<td>决定引脚是往外输出电平，还是读取外部电平</td>
+</tr>
+<tr>
+<td>INP</td>
+<td>输入模式</td>
+<td>配合上拉、下拉、三态</td>
+<td>当引脚作输入时，决定它的电气连接方式</td>
+</tr>
+</tbody></table>
+<p>这里有一个非常常见的误解需要当面纠正：<strong>SEL 不负责输入或输出，它只决定引脚是普通 IO 还是外设功能；真正决定输入方向的寄存器是 DIR。</strong> 有些资料写成”SEL：0 为输入，1 为输出”，这是错误的，如果照着配置，引脚可能根本不会按预期工作。正确记法是：SEL 管”身份”，DIR 管”方向”，INP 管”输入时的电气模式”。</p>
+<p>所以要点亮一盏 LED，需要两步：先把对应引脚通过 SEL 设成普通 IO，再通过 DIR 设成输出，然后往引脚写 1 或 0 控制亮灭；而读取按键时，则要把 DIR 设成输入，并用 INP 配置上拉或下拉。</p>
+<h2 id="第一个-CC2530-点灯程序"><a href="#第一个-CC2530-点灯程序" class="headerlink" title="第一个 CC2530 点灯程序"></a>第一个 CC2530 点灯程序</h2><p>要解决什么：让接在 P1_0、P1_1、P1_3、P1_4 上的四盏 LED 全部点亮并保持。思路是先包含芯片头文件，给引脚起有意义的名字，再初始化端口方向，最后输出高电平。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;ioCC2530.h&quot;</span>        <span class="comment">/* 芯片寄存器定义，必须首先包含 */</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 用宏给引脚起一个见名知意的名字 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED3 P1_0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED4 P1_1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED5 P1_3</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED6 P1_4</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 端口初始化：先选功能，再定方向 */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">initPort</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    P1SEL &amp;= ~<span class="number">0x1B</span>;          <span class="comment">/* 0x1B=0001 1011，清位后把 4 个引脚设为普通 IO */</span></span><br><span class="line">    P1DIR |=  <span class="number">0x1B</span>;          <span class="comment">/* 对应位置 1，把这 4 个引脚设为输出 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    initPort();              <span class="comment">/* 初始化端口 */</span></span><br><span class="line"></span><br><span class="line">    LED3 = <span class="number">1</span>;                <span class="comment">/* 输出高电平，点亮 LED3 */</span></span><br><span class="line">    LED4 = <span class="number">1</span>;                <span class="comment">/* 点亮 LED4 */</span></span><br><span class="line">    LED5 = <span class="number">1</span>;                <span class="comment">/* 点亮 LED5 */</span></span><br><span class="line">    LED6 = <span class="number">1</span>;                <span class="comment">/* 点亮 LED6 */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>);               <span class="comment">/* 停在这里，保持当前状态 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码里 <code>0x1B</code> 的二进制是 <code>0001 1011</code>，正好对应 P1_0、P1_1、P1_3、P1_4 四个位。<code>&amp;= ~0x1B</code> 把这几位清成 0（设为普通 IO），<code>|= 0x1B</code> 把这几位置成 1（设为输出），其余位保持原样不受影响——这种”只动相关位”的写法是嵌入式开发的基本功。另外，标准 C 里 main 通常返回 int，而 8051 这里习惯写成 <code>void main(void)</code>，不带返回值。</p>
+<p>预期效果：把程序下载到开发板后，四盏 LED 同时点亮并一直保持。如果灯不亮，先确认宏定义的引脚编号和板子电路图是否一致，再检查芯片型号是否选成了 CC2530F256。</p>
+<p>把”选功能、定方向、写电平”这三步走通，就已经掌握了 CC2530 端口编程的核心套路。后面的点灯闪烁、按键检测、外部中断，本质上都是在这三步之上叠加延时、读取和中断逻辑，并没有新的难点。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/cc2530%E4%B8%AD%E6%96%AD%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/hadoop%E4%B8%8Emysql%E4%B8%8Ehive%E4%B8%89%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="MySQL 安装与初始化新手指南，覆盖 Windows ZIP 包 my.ini 配置 basedir 与 datadir、mysqld --initialize-insecure 初始化、mysqld install 注册服务，以及 Linux apt 与二进制包部署、my.cnf 调整、首次登录修改 root 密码、Navicat 与 Workbench 等图形化工具选型，助你一次装好数据库。">
+
+
+    
+  <meta name="keywords" content="MySQL安装教程,MySQL初始化,my.ini配置,basedir和datadir,mysqld --initialize-insecure,MySQL 5.7与8.0区别,MySQL图形化工具">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>mysql安装与初始化</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#MySQL"
+                           title="MySQL">MySQL</a>
+                        
+                        <a class="tag" href="/tags/#安装配置"
+                           title="安装配置">安装配置</a>
+                        
+                        <a class="tag" href="/tags/#数据库入门"
+                           title="数据库入门">数据库入门</a>
+                        
+                    </div>
+                    <h1>mysql安装与初始化</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <h2 id="一、先把安装这件事想明白：MySQL-到底要”装”什么"><a href="#一、先把安装这件事想明白：MySQL-到底要”装”什么" class="headerlink" title="一、先把安装这件事想明白：MySQL 到底要”装”什么"></a>一、先把安装这件事想明白：MySQL 到底要”装”什么</h2><p>很多人第一次装 MySQL，解压完双击就找登录窗口，结果到处找不到。其实 MySQL 的安装更像给家里装一套自来水系统：程序本体是水泵房，data 目录是储水罐，my.ini 或 my.cnf 是施工图纸，初始化是第一次通水前把罐子清空并放好管理员钥匙，而”注册服务”则是给它接上电、允许开机自动运行。把这五件事分开理解，安装失败时你才知道该去检查哪一环。</p>
+<p>另外要先选版本。新项目建议直接用 MySQL 8.0，老业务如果依赖旧客户端或旧插件，可能还得留在 5.7。两者在默认字符集、密码加密插件、角色支持、约束行为上差别不小，下面先给一张对照表。</p>
+<h2 id="二、MySQL-5-7-与-8-0-的关键差异（安装前必看）"><a href="#二、MySQL-5-7-与-8-0-的关键差异（安装前必看）" class="headerlink" title="二、MySQL 5.7 与 8.0 的关键差异（安装前必看）"></a>二、MySQL 5.7 与 8.0 的关键差异（安装前必看）</h2><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>MySQL 5.7</th>
+<th>MySQL 8.0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>默认字符集</td>
+<td>latin1，通常需要手动改成 utf8mb4</td>
+<td>utf8mb4，直接支持 emoji 等四字节字符</td>
+</tr>
+<tr>
+<td>默认密码加密插件</td>
+<td>mysql_native_password</td>
+<td>caching_sha2_password</td>
+</tr>
+<tr>
+<td>角色（Role）</td>
+<td>不支持</td>
+<td>支持，可批量管理权限</td>
+</tr>
+<tr>
+<td>CHECK 约束</td>
+<td>语法能写但实际被忽略</td>
+<td>8.0.16 起真正生效</td>
+</tr>
+<tr>
+<td>窗口函数</td>
+<td>不支持</td>
+<td>支持 row_number() over() 等</td>
+</tr>
+<tr>
+<td>数据字典</td>
+<td>依赖 .frm 等文件</td>
+<td>事务化数据字典，元数据更可靠</td>
+</tr>
+<tr>
+<td>初始化命令</td>
+<td>mysql_install_db 或 mysqld –initialize</td>
+<td>仅 mysqld –initialize</td>
+</tr>
+</tbody></table>
+<p>实践上有两个坑最常见：一是低版本客户端（比如老的 Navicat、老版本 Python 驱动）连 8.0 时报告找不到 <code>caching_sha2_password</code> 插件，这时把相应用户的加密插件切回 <code>mysql_native_password</code> 即可；二是 5.7 安装后如果不手动配置字符集，默认 latin1 会让中文和表情符号写入报错，所以无论哪个版本，都建议显式写成 utf8mb4。</p>
+<h2 id="三、Windows-下用-ZIP-包安装-MySQL（最干净的做法）"><a href="#三、Windows-下用-ZIP-包安装-MySQL（最干净的做法）" class="headerlink" title="三、Windows 下用 ZIP 包安装 MySQL（最干净的做法）"></a>三、Windows 下用 ZIP 包安装 MySQL（最干净的做法）</h2><p>官方提供 MSI 安装器和 ZIP 压缩包两种方式。MSI 一路点”下一步”也能装，但会把文件散落到 Program Files 和 ProgramData 两处，初学者排错反而更难。ZIP 包则把一切放在你自己指定的目录里，结构清晰，本节按 ZIP 包演示。</p>
+<h3 id="3-1-下载与解压"><a href="#3-1-下载与解压" class="headerlink" title="3.1 下载与解压"></a>3.1 下载与解压</h3><p>到 mysql.com 依次进入 Downloads → MySQL Community (GPL) Downloads → MySQL Community Server，需要旧版本就点 Archives，选择 ZIP Archive 下载。解压到一个<strong>不含中文、不含空格</strong>的路径，例如 <code>D:\mysql-8.0.40-winx64</code>。路径里带空格虽然也能用，但在命令行里必须加引号，容易出错，长痛不如短痛。</p>
+<h3 id="3-2-写配置文件-my-ini（要解决什么）"><a href="#3-2-写配置文件-my-ini（要解决什么）" class="headerlink" title="3.2 写配置文件 my.ini（要解决什么）"></a>3.2 写配置文件 my.ini（要解决什么）</h3><p><strong>要解决什么</strong>：MySQL 启动时并不知道程序本体放在哪、数据该往哪里写、用哪个端口监听、默认字符集是什么，这些信息不能靠猜，必须白纸黑字写进配置文件。Windows 下这个文件叫 <code>my.ini</code>，放在 MySQL 主目录；Linux 下叫 <code>my.cnf</code>，通常放在 <code>/etc</code> 下。</p>
+<p>在 MySQL 主目录新建 <code>my.ini</code>，内容如下：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="comment"># 服务监听端口，默认 3306</span></span><br><span class="line"><span class="attr">port</span>=<span class="number">3306</span></span><br><span class="line"><span class="comment"># MySQL 程序所在目录；用正斜杠可避免反斜杠转义问题</span></span><br><span class="line"><span class="attr">basedir</span>=D:/mysql-<span class="number">8.0</span>.<span class="number">40</span>-winx64</span><br><span class="line"><span class="comment"># 数据目录，需要提前手动建好，且初始化前必须为空</span></span><br><span class="line"><span class="attr">datadir</span>=D:/mysql-<span class="number">8.0</span>.<span class="number">40</span>-winx64/data</span><br><span class="line"><span class="comment"># 服务端默认字符集，8.0 默认就是 utf8mb4</span></span><br><span class="line"><span class="attr">character-set-server</span>=utf8mb4</span><br><span class="line"><span class="comment"># 表名大小写不敏感，Windows 环境常用</span></span><br><span class="line"><span class="attr">lower_case_table_names</span>=<span class="number">1</span></span><br><span class="line"><span class="comment"># 最大连接数，按机器内存量力而行</span></span><br><span class="line"><span class="attr">max_connections</span>=<span class="number">200</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：以后每次启动 mysqld 都会自动读取这份配置，业务库、系统库都会落到 <code>data</code> 目录，字符集不再出现乱码。注意 <code>basedir</code> 和 <code>datadir</code> 必须按你自己的真实路径改，路径写错是安装失败的第一大原因。</p>
+<h3 id="3-3-准备-data-目录并初始化"><a href="#3-3-准备-data-目录并初始化" class="headerlink" title="3.3 准备 data 目录并初始化"></a>3.3 准备 data 目录并初始化</h3><p>在主目录下新建一个空的 <code>data</code> 文件夹，然后打开命令行进入 <code>bin</code> 目录。这里要先分清两个程序：<code>mysql</code> 是客户端主程序，负责登录和发 SQL；<code>mysqld</code> 是服务端后台程序，真正干活的是它。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 进入 MySQL 的 bin 目录</span></span><br><span class="line"><span class="built_in">cd</span> D:\mysql-8.0.40-winx64\bin</span><br><span class="line"><span class="comment"># 初始化数据目录：--initialize-insecure 表示 root 初始密码为空</span></span><br><span class="line"><span class="comment"># --console 把初始化日志直接打印到屏幕，方便看报错</span></span><br><span class="line">mysqld --initialize-insecure --console</span><br></pre></td></tr></table></figure>
+
+<p><strong>要解决什么</strong>：刚建好的 <code>data</code> 是空的，里面没有 mysql、sys、performance_schema 这些系统库，MySQL 还”不认识”root 用户。初始化就是创建这套系统库并建好 root 账号。</p>
+<p><strong>预期效果</strong>：<code>data</code> 目录下自动生成系统库文件，控制台打印初始化日志。如果用 <code>--initialize</code>（不带 <code>-insecure</code>），控制台会给出一段临时密码，首次登录必须用它；用 <code>--initialize-insecure</code> 则 root 无密码，适合本地练习。二选一即可，不要对同一个 data 目录重复初始化。</p>
+<h3 id="3-4-注册为系统服务并启动"><a href="#3-4-注册为系统服务并启动" class="headerlink" title="3.4 注册为系统服务并启动"></a>3.4 注册为系统服务并启动</h3><p>每次手工敲 <code>mysqld</code> 太麻烦，把它注册成 Windows 服务就能开机自启。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 注册服务，服务名默认是 MySQL；重复注册前先执行 mysqld remove</span></span><br><span class="line">mysqld install</span><br><span class="line"><span class="comment"># 启动服务</span></span><br><span class="line">net start MySQL</span><br><span class="line"><span class="comment"># 停掉服务（维护时用）</span></span><br><span class="line">net stop MySQL</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：服务列表里出现 MySQL，<code>net start MySQL</code> 后进程常驻后台，3306 端口开始监听。如果提示”服务已存在”，先 <code>mysqld remove</code> 再重新安装。</p>
+<h3 id="3-5-首次登录并修改-root-密码"><a href="#3-5-首次登录并修改-root-密码" class="headerlink" title="3.5 首次登录并修改 root 密码"></a>3.5 首次登录并修改 root 密码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -u 指定用户，-p 表示接下来交互式输入密码</span></span><br><span class="line">mysql -uroot -p</span><br><span class="line"><span class="comment"># 因为用了 --initialize-insecure，提示密码时直接回车即可进入</span></span><br></pre></td></tr></table></figure>
+
+<p>进去之后第一件事就是改密码，空密码的 root 等于把大门敞开。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 8.0 与 5.7 通用；修改 root 本地登录的密码</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">USER</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">&#x27;MyNewPass@123&#x27;</span>;</span><br><span class="line"><span class="comment">-- 让权限变更立即生效（ALTER USER 通常已自动生效，写上更稳妥）</span></span><br><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：退出后用 <code>mysql -uroot -p</code> 重新登录，必须输入新密码才进得去。如果你的旧客户端连 8.0 报加密插件错误，改密时顺便指定老插件：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 把 root 的加密插件切回老版本，兼容旧客户端</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">USER</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span> IDENTIFIED <span class="keyword">WITH</span> mysql_native_password <span class="keyword">BY</span> <span class="string">&#x27;MyNewPass@123&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、Linux-下安装：包管理器与二进制包两条路线"><a href="#四、Linux-下安装：包管理器与二进制包两条路线" class="headerlink" title="四、Linux 下安装：包管理器与二进制包两条路线"></a>四、Linux 下安装：包管理器与二进制包两条路线</h2><h3 id="4-1-路线一：用-apt-或-yum-安装（最省事）"><a href="#4-1-路线一：用-apt-或-yum-安装（最省事）" class="headerlink" title="4.1 路线一：用 apt 或 yum 安装（最省事）"></a>4.1 路线一：用 apt 或 yum 安装（最省事）</h3><p>Ubuntu&#x2F;Debian 用 apt，CentOS&#x2F;RHEL 用 yum。包名拿不准时先搜一下，别盲目敲星号。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt search mysql                 <span class="comment"># 先搜，确认包名</span></span><br><span class="line"><span class="built_in">sudo</span> apt install mysql-server         <span class="comment"># 安装服务端；老资料写 apt install mysql* 也能装上</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl start mysql            <span class="comment"># 启动服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> mysql           <span class="comment"># 设置开机自启</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl status mysql           <span class="comment"># 查看运行状态</span></span><br></pre></td></tr></table></figure>
+
+<p>yum 环境下把安装命令换成：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum install mysql-server</span><br></pre></td></tr></table></figure>
+<p>（也可装 <code>mariadb-server</code>），启动命令通常是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl start mysqld</span><br></pre></td></tr></table></figure>
+
+<p>配置文件一般在 <code>/etc/mysql/</code> 目录下，全局设置写在 <code>my.cnf</code>，某个用户的个人设置写在 <code>~/.my.cnf</code>。如果 <code>/etc</code> 下找不到 my.cnf，可以去 <code>/usr/share/mysql/</code> 找一个 <code>*.cnf</code> 拷过去改名。首次安装会生成一个临时密码，可以去 <code>/var/log/mysql/error.log</code> 里找；随后执行安全向导，按提示回答问题即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mysql_secure_installation</span><br><span class="line"><span class="comment"># 向导会问是否设置密码强度校验、是否删除匿名用户、是否禁止 root 远程登录等，按需回答 y/n</span></span><br></pre></td></tr></table></figure>
+
+<p>启动、停止、重启、查看状态、设置自启，分别对应 <code>start</code>、<code>stop</code>、<code>restart</code>、<code>status</code>、<code>enable</code>，把上面命令里的动词换掉就行。</p>
+<h3 id="4-2-路线二：二进制包安装（可控性最强）"><a href="#4-2-路线二：二进制包安装（可控性最强）" class="headerlink" title="4.2 路线二：二进制包安装（可控性最强）"></a>4.2 路线二：二进制包安装（可控性最强）</h3><p>线上环境往往要指定版本、离线部署，这时用官方二进制包更合适。下面以 5.7 的典型流程为例。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 解压到 /usr/local</span></span><br><span class="line">tar -zxvf mysql-5.7.xx-linux-glibc2.12-x86_64.tar.gz -C /usr/local/</span><br><span class="line"><span class="comment"># 2. 改个短名字，方便后面配置</span></span><br><span class="line"><span class="built_in">cd</span> /usr/local</span><br><span class="line"><span class="built_in">mv</span> mysql-5.7.xx-linux-glibc2.12-x86_64 mysql</span><br><span class="line"><span class="comment"># 3. 创建专门的系统用户运行 MySQL，禁止其登录系统</span></span><br><span class="line">useradd -r -s /sbin/nologin mysql</span><br><span class="line"><span class="built_in">chown</span> -R root:mysql /usr/local/mysql</span><br><span class="line"><span class="comment"># 4. 安装依赖，创建并授权数据目录</span></span><br><span class="line">yum -y install numactl libaio</span><br><span class="line"><span class="built_in">mkdir</span> -p /usr/local/mysql/data</span><br><span class="line"><span class="built_in">chown</span> -R mysql:mysql /usr/local/mysql/data</span><br><span class="line"><span class="comment"># 5. 初始化：指定用户、安装目录、数据目录</span></span><br><span class="line">bin/mysqld --initialize-insecure --user=mysql \</span><br><span class="line">  --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data</span><br></pre></td></tr></table></figure>
+
+<p><strong>要解决什么</strong>：Linux 下不能用 root 直接跑数据库服务，必须建一个专门的 mysql 系统用户；同时 <code>data</code> 目录的属主要改成 mysql，否则服务启动时没有写权限。初始化命令里的三项参数分别告诉 MySQL”你是谁、程序在哪、数据放哪”。</p>
+<p><strong>预期效果</strong>：<code>data</code> 目录里出现系统库文件，且属主是 mysql。5.7 还可以额外执行一次 <code>bin/mysql_ssl_rsa_setup --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data</code> 生成 SSL&#x2F;RSA 文件；8.0 已不再需要这条命令，启动时会自动处理。</p>
+<p>接着编辑 <code>/etc/my.cnf</code>：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="attr">basedir</span>=/usr/local/mysql</span><br><span class="line"><span class="attr">datadir</span>=/usr/local/mysql/data</span><br><span class="line"><span class="attr">port</span>=<span class="number">3306</span></span><br><span class="line"><span class="comment"># 表名大小写不敏感；注意此参数必须在初始化之前设置好</span></span><br><span class="line"><span class="attr">lower_case_table_names</span>=<span class="number">1</span></span><br><span class="line"><span class="comment"># 建议直接写 utf8mb4，避免 5.7 默认的 utf8 只支持三字节字符</span></span><br><span class="line"><span class="attr">character-set-server</span>=utf8mb4</span><br><span class="line"><span class="attr">explicit_defaults_for_timestamp</span>=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>配置开机自启和环境变量，然后启动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 把启动脚本放进 init.d 并注册</span></span><br><span class="line"><span class="built_in">cp</span> /usr/local/mysql/support-files/mysql.server /etc/init.d/mysqld</span><br><span class="line">chkconfig --add mysqld</span><br><span class="line"><span class="comment"># 现代发行版也可以用 systemd：systemctl enable mysqld</span></span><br><span class="line"><span class="comment"># 把 bin 目录加进 PATH，以后直接敲 mysql 而不用写全路径</span></span><br><span class="line"><span class="built_in">export</span> MYSQL_HOME=/usr/local/mysql</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$MYSQL_HOME</span>/bin:<span class="variable">$MYSQL_HOME</span>/lib</span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br><span class="line"><span class="comment"># 启动服务</span></span><br><span class="line">service mysqld start</span><br></pre></td></tr></table></figure>
+
+<p>首次登录后如果想允许远程连接，按版本选写法：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 5.7 常见写法</span></span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">ALL</span> <span class="keyword">ON</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">TO</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">&#x27;root&#x27;</span>;</span><br><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 8.0 推荐写法：先建用户，再授权，GRANT 中不再带 IDENTIFIED BY</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">USER</span> IF <span class="keyword">NOT</span> <span class="keyword">EXISTS</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span> IDENTIFIED <span class="keyword">WITH</span> mysql_native_password <span class="keyword">BY</span> <span class="string">&#x27;YourPass@123&#x27;</span>;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">ALL</span> PRIVILEGES <span class="keyword">ON</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">TO</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span> <span class="keyword">WITH</span> <span class="keyword">GRANT</span> OPTION;</span><br><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：其他机器可以连进来：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -h 服务器IP -uroot -p</span><br></pre></td></tr></table></figure>
+<p>生产环境强烈建议不要开放 <code>&#39;%&#39;</code>，而是限定具体网段或 IP，并为应用单独建最小权限账号。</p>
+<h2 id="五、my-ini-与-my-cnf-常用参数速查"><a href="#五、my-ini-与-my-cnf-常用参数速查" class="headerlink" title="五、my.ini 与 my.cnf 常用参数速查"></a>五、my.ini 与 my.cnf 常用参数速查</h2><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+<th>常见取值</th>
+<th>注意事项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>basedir</td>
+<td>MySQL 程序安装目录</td>
+<td><code>D:/mysql-8.0.40-winx64</code> &#x2F; <code>/usr/local/mysql</code></td>
+<td>必须是真实路径，改完要重启服务</td>
+</tr>
+<tr>
+<td>datadir</td>
+<td>数据文件存放目录</td>
+<td><code>.../data</code></td>
+<td>初始化前必须为空，且运行用户要有写权限</td>
+</tr>
+<tr>
+<td>port</td>
+<td>TCP 监听端口</td>
+<td>3306</td>
+<td>改端口后客户端要同步指定 <code>-P</code></td>
+</tr>
+<tr>
+<td>character-set-server</td>
+<td>服务端默认字符集</td>
+<td>utf8mb4</td>
+<td>5.7 默认不是它，务必显式设置</td>
+</tr>
+<tr>
+<td>lower_case_table_names</td>
+<td>表名大小写规则</td>
+<td>1 表示不敏感</td>
+<td>必须在初始化前定好，中途修改可能启动失败</td>
+</tr>
+<tr>
+<td>max_connections</td>
+<td>最大并发连接数</td>
+<td>200</td>
+<td>设太大反而耗尽内存</td>
+</tr>
+<tr>
+<td>socket</td>
+<td>Linux 本地通信套接字</td>
+<td><code>/tmp/mysql.sock</code></td>
+<td>本地连接走它，不经过网络</td>
+</tr>
+<tr>
+<td>explicit_defaults_for_timestamp</td>
+<td>TIMESTAMP 默认值行为</td>
+<td>1</td>
+<td>5.7 建议开启，行为更可预期</td>
+</tr>
+<tr>
+<td>innodb_buffer_pool_size</td>
+<td>InnoDB 缓冲池大小</td>
+<td>物理内存的 50%~70%</td>
+<td>最重要的性能参数之一</td>
+</tr>
+</tbody></table>
+<p>排错时记住三板斧：看 data 目录是否为空、看 basedir&#x2F;datadir 路径是否正确、看 data 目录属主是否和运行用户一致。绝大多数”服务起不来”都出在这三点上。</p>
+<h2 id="六、图形化客户端（GUI）怎么选"><a href="#六、图形化客户端（GUI）怎么选" class="headerlink" title="六、图形化客户端（GUI）怎么选"></a>六、图形化客户端（GUI）怎么选</h2><p>命令行熟练之后效率很高，但日常浏览数据、设计表结构，图形化工具确实更直观。下面是常见选择：</p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>授权方式</th>
+<th>主要特点</th>
+<th>适合谁</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Navicat</td>
+<td>商业付费</td>
+<td>市占率高、功能强，兼容市面上大多数数据库</td>
+<td>企业开发、需要多数据库支持</td>
+</tr>
+<tr>
+<td>MySQL Workbench</td>
+<td>免费（官方）</td>
+<td>官方出品，带建模、SQL 开发等重型功能</td>
+<td>想要官方生态和建模能力</td>
+</tr>
+<tr>
+<td>DBeaver</td>
+<td>免费开源</td>
+<td>跨平台、多数据库、有中文版，功能大而全</td>
+<td>想省钱的通用数据库用户</td>
+</tr>
+<tr>
+<td>HeidiSQL</td>
+<td>开源免费</td>
+<td>Windows 下轻量小巧，由作者与社区维护</td>
+<td>Windows 日常管理</td>
+</tr>
+<tr>
+<td>Beekeeper Studio</td>
+<td>免费</td>
+<td>小巧、跨平台、多数据库支持</td>
+<td>喜欢简洁界面的开发者</td>
+</tr>
+<tr>
+<td>phpMyAdmin</td>
+<td>免费</td>
+<td>基于 Web，浏览器打开即用，上手最快</td>
+<td>临时维护、共享主机环境</td>
+</tr>
+</tbody></table>
+<p>连接时一般需要填主机地址、端口、用户名和密码；远端数据库建议走 SSH 隧道而不是直接暴露 3306。除了自己搭建，也可以直接用云厂商的托管 MySQL，例如阿里云 RDS、腾讯云 CDB、华为云和百度云的关系型数据库服务，省去安装维护的麻烦。顺带一提，SQLite、MariaDB、MongoDB 也是常见选择，其中 SQLite 是本地文件型数据库，以 <code>.db</code> 或 <code>.sqlite</code> 结尾，通常用 SQLite Studio 或 Navicat 这类工具管理。</p>
+<h2 id="七、装完以后做一次健康检查"><a href="#七、装完以后做一次健康检查" class="headerlink" title="七、装完以后做一次健康检查"></a>七、装完以后做一次健康检查</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 确认版本，看看是不是你要装的那一版</span></span><br><span class="line"><span class="keyword">SELECT</span> VERSION();</span><br><span class="line"><span class="comment">-- 确认字符集，应该是 utf8mb4</span></span><br><span class="line"><span class="keyword">SHOW</span> VARIABLES <span class="keyword">LIKE</span> <span class="string">&#x27;character_set_server&#x27;</span>;</span><br><span class="line"><span class="comment">-- 确认数据目录，和配置文件里写的一致</span></span><br><span class="line"><span class="keyword">SHOW</span> VARIABLES <span class="keyword">LIKE</span> <span class="string">&#x27;datadir&#x27;</span>;</span><br><span class="line"><span class="comment">-- 能列出系统库，说明初始化成功</span></span><br><span class="line"><span class="keyword">SHOW</span> DATABASES;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Linux 下确认 3306 端口确实在监听</span></span><br><span class="line">ss -lntp | grep 3306</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>安装 MySQL 的关键不是”点下一步”，而是理解四个动作：写配置告诉它程序和数据各放哪里，初始化生成系统库与 root 账号，注册服务让它长期运行，登录后立刻改掉空密码。Windows 用 ZIP 包时盯紧 my.ini 里的 basedir 和 datadir，Linux 用二进制包时别忘了创建 mysql 用户并给 data 目录授权。版本上优先选 8.0，遇到老客户端再退回 mysql_native_password 插件。把这套流程走通，后面所有的查询、权限和优化才有落脚点。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/mysql%E6%9D%83%E9%99%90%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/mysql%E6%9F%A5%E8%AF%A2%E8%BF%9B%E9%98%B6/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

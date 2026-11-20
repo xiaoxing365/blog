@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="想搞懂Linux入门与Windows区别？本文用通俗类比讲清Linux的诞生（1991年Linus Torvalds、类Unix）、Ubuntu/CentOS/RedHat/Debian/Fedora等主流发行版，并逐项对比Linux与Windows在文件系统、路径分隔符、权限体系、注册表和软件安装方式上的不同，适合零基础读者快速建立认知，也是学习Linux命令前的必读基础。">
+
+
+    
+  <meta name="keywords" content="Linux入门,Linux发行版,Linux与Windows区别,Linux文件系统,类Unix系统,Ubuntu,CentOS,Linux权限">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>linux入门与windows区别</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Linux入门"
+                           title="Linux入门">Linux入门</a>
+                        
+                        <a class="tag" href="/tags/#Linux发行版"
+                           title="Linux发行版">Linux发行版</a>
+                        
+                        <a class="tag" href="/tags/#Windows区别"
+                           title="Windows区别">Windows区别</a>
+                        
+                        <a class="tag" href="/tags/#操作系统"
+                           title="操作系统">操作系统</a>
+                        
+                    </div>
+                    <h1>linux入门与windows区别</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>如果你只用过 Windows，第一次打开 Linux 终端，可能会有点懵：为什么没有 C 盘？为什么路径用斜杠而不是反斜杠？为什么装个软件还要敲命令？这些疑问很正常，因为两者虽然都是操作系统，设计思路却来自不同的传统。这篇文章就从零开始，带你认识 Linux 的来历、常见版本，以及它和 Windows 最关键的区别。</p>
+<h2 id="Linux-是什么：从一间大学宿舍说起"><a href="#Linux-是什么：从一间大学宿舍说起" class="headerlink" title="Linux 是什么：从一间大学宿舍说起"></a>Linux 是什么：从一间大学宿舍说起</h2><p>操作系统可以想象成电脑的”总管家”。它负责管理硬件、安排程序运行、给你提供操作界面。Windows 是大多数人熟悉的管家，而 Linux 是另一位风格截然不同的管家。</p>
+<h3 id="Linux-的诞生：1991-年的一个学生项目"><a href="#Linux-的诞生：1991-年的一个学生项目" class="headerlink" title="Linux 的诞生：1991 年的一个学生项目"></a>Linux 的诞生：1991 年的一个学生项目</h3><p>1991 年，芬兰赫尔辛基大学的学生林纳斯·托瓦兹（Linus Torvalds）出于个人兴趣和学习目的，写了一个类 Unix 的操作系统的内核。当时他只是想让自己的电脑能更好地运行 Unix 那样的多任务环境，没想到这个项目后来会发展成影响全球的操作系统。</p>
+<p>Linux 有几个与生俱来的特点：</p>
+<ul>
+<li><strong>开源</strong>：源代码公开，任何人都能查看、修改和分发。</li>
+<li><strong>免费</strong>：绝大多数发行版可以免费使用和传播。</li>
+<li><strong>跨平台</strong>：能跑在个人电脑、服务器、手机、嵌入式设备上。</li>
+<li><strong>多用户、多任务</strong>：多个用户同时使用、多个程序同时运行，是它设计之初就具备的能力。</li>
+</ul>
+<p>一个常见的澄清：严格来说，Linus 写的是”内核”（kernel），也就是系统的核心部分。我们平时说的 Linux 操作系统，是内核加上各种工具、库和应用软件打包在一起的整体。正因为打包方式不同，才有了下面要讲的”发行版”。</p>
+<h3 id="类-Unix：站在巨人的肩膀上"><a href="#类-Unix：站在巨人的肩膀上" class="headerlink" title="类 Unix：站在巨人的肩膀上"></a>类 Unix：站在巨人的肩膀上</h3><p>Linux 属于”类 Unix”（Unix-like）系统。Unix 是更早出现的一套操作系统理念，强调简洁、可组合、一切皆文件。Linux 沿袭了这些思想，但实现完全独立、代码全部重写。理解”类 Unix”这三个字，就理解了大半个 Linux：它重视命令行、重视权限隔离、重视用一堆小工具配合完成复杂任务。</p>
+<h2 id="主流-Linux-发行版盘点"><a href="#主流-Linux-发行版盘点" class="headerlink" title="主流 Linux 发行版盘点"></a>主流 Linux 发行版盘点</h2><p>内核加上不同的软件组合，就构成了不同的”发行版”（distribution，简称 distro）。你可以把发行版理解成不同品牌的”套装”，内核是共同的发动机，但外壳、预装软件、更新策略各不相同。</p>
+<p>几个最常听到的名字：</p>
+<ul>
+<li><strong>Ubuntu</strong>：基于 Debian，界面友好、安装简单，非常适合初学者和桌面用户。</li>
+<li><strong>Debian</strong>：以稳定和自由软件理念著称，是很多其他发行版的”源头”。</li>
+<li><strong>CentOS</strong>：基于 Red Hat Enterprise Linux（RHEL）的社区版本，免费且以稳定性著称，过去在服务器上非常流行。</li>
+<li><strong>Red Hat Enterprise Linux（RHEL）</strong>：商业发行版，主打企业级支持与服务。</li>
+<li><strong>Fedora</strong>：Red Hat 赞助的社区版，追求新技术，更新快，适合尝鲜。</li>
+</ul>
+<p>为了让你一眼看清它们的定位，下面这张表做了对比：</p>
+<table>
+<thead>
+<tr>
+<th>发行版</th>
+<th>上游&#x2F;基于</th>
+<th>主要特点</th>
+<th>适合人群</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ubuntu</td>
+<td>Debian</td>
+<td>易用、社区大、资料多</td>
+<td>零基础、桌面用户</td>
+</tr>
+<tr>
+<td>Debian</td>
+<td>独立</td>
+<td>稳定、自由软件理念</td>
+<td>注重稳定的用户</td>
+</tr>
+<tr>
+<td>CentOS</td>
+<td>RHEL</td>
+<td>免费、稳定、生命周期长</td>
+<td>服务器运维</td>
+</tr>
+<tr>
+<td>RHEL</td>
+<td>独立（商业）</td>
+<td>企业支持、长期服务</td>
+<td>企业生产环境</td>
+</tr>
+<tr>
+<td>Fedora</td>
+<td>独立（Red Hat 赞助）</td>
+<td>新技术多、更新快</td>
+<td>喜欢尝鲜的用户</td>
+</tr>
+</tbody></table>
+<p>需要提醒的是，CentOS 传统版本已经停止维护，其后续由 CentOS Stream 接替。新项目选型时，很多人会转向 Rocky Linux、AlmaLinux 或 Ubuntu Server。但作为入门知识，理解 CentOS 与 RHEL 的关系仍然很有价值。</p>
+<p>想知道自己手上的系统到底是哪个发行版？有一个很实用的命令。</p>
+<p><strong>要解决什么</strong>：快速确认当前系统的发行版名称和版本号，避免装错软件包。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看发行版信息，适用于大多数现代 Linux</span></span><br><span class="line"><span class="built_in">cat</span> /etc/os-release</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只看系统内核版本</span></span><br><span class="line"><span class="built_in">uname</span> -r</span><br></pre></td></tr></table></figure>
+
+<p><code>/etc/os-release</code> 是一个纯文本文件，里面记录了系统名称、版本号等信息。<code>cat</code> 是”显示文件内容”的命令，<code>uname -r</code> 则只打印内核版本。<strong>预期效果</strong>：终端会输出类似 <code>NAME=&quot;Ubuntu&quot;</code>、<code>VERSION_ID=&quot;22.04&quot;</code> 的内容，你就能立刻知道自己面对的是哪套系统。</p>
+<h2 id="Linux-与-Windows-的核心区别"><a href="#Linux-与-Windows-的核心区别" class="headerlink" title="Linux 与 Windows 的核心区别"></a>Linux 与 Windows 的核心区别</h2><p>理解了发行版，接下来看两者在使用体验上的本质差异。这些差异不是”谁更好”，而是设计目标不同：Windows 追求开箱即用和大众友好，Linux 追求灵活、透明和可控。</p>
+<h3 id="文件系统：一棵大树-vs-多个盘符"><a href="#文件系统：一棵大树-vs-多个盘符" class="headerlink" title="文件系统：一棵大树 vs 多个盘符"></a>文件系统：一棵大树 vs 多个盘符</h3><p>这是最直观的区别。Windows 把磁盘分成 C 盘、D 盘等多个盘符，每个盘都有自己的根目录。Linux 则把所有磁盘、分区、设备统一挂到一棵以 <code>/</code> 为根的目录树下。无论是系统文件、你的文档，还是插入的 U 盘，都出现在这棵树里的某个位置，叫做”挂载点”。</p>
+<p>打个比方：Windows 像是城市里并排的几栋楼，每栋楼有自己的门牌体系；Linux 像是一棵大树，所有枝干都从同一个树根长出来，U 盘只是临时嫁接上来的一根枝条。</p>
+<p>Linux 常见目录的用途，先看一眼有个整体印象：</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/</code></td>
+<td>根目录，整棵树的起点</td>
+</tr>
+<tr>
+<td><code>/bin</code>、<code>/sbin</code></td>
+<td>基础命令和系统管理命令</td>
+</tr>
+<tr>
+<td><code>/etc</code></td>
+<td>系统配置文件</td>
+</tr>
+<tr>
+<td><code>/home</code></td>
+<td>普通用户的家目录</td>
+</tr>
+<tr>
+<td><code>/root</code></td>
+<td>管理员 root 的家目录</td>
+</tr>
+<tr>
+<td><code>/var</code></td>
+<td>经常变化的数据，如日志</td>
+</tr>
+<tr>
+<td><code>/tmp</code></td>
+<td>临时文件</td>
+</tr>
+<tr>
+<td><code>/dev</code></td>
+<td>设备文件</td>
+</tr>
+<tr>
+<td><code>/usr</code></td>
+<td>应用程序和库文件</td>
+</tr>
+</tbody></table>
+<h3 id="路径分隔符：斜杠的方向"><a href="#路径分隔符：斜杠的方向" class="headerlink" title="路径分隔符：斜杠的方向"></a>路径分隔符：斜杠的方向</h3><p>Windows 用反斜杠 <code>\</code> 分隔路径，比如 <code>C:\Users\test\file.txt</code>；Linux 用正斜杠 <code>/</code>，比如 <code>/home/test/file.txt</code>。所以你在 Windows 里写的路径，搬到 Linux 里要记得把反斜杠改成正斜杠。</p>
+<p>此外，Linux 路径严格区分大小写：<code>File.txt</code> 和 <code>file.txt</code> 是两个完全不同的文件，这一点和 Windows 不一样。</p>
+<h3 id="权限体系：谁能读、写、执行"><a href="#权限体系：谁能读、写、执行" class="headerlink" title="权限体系：谁能读、写、执行"></a>权限体系：谁能读、写、执行</h3><p>Linux 从设计之初就是多用户系统，每个文件和目录都带有三类权限：所有者、所属组、其他人，分别规定能否读（r）、写（w）、执行（x）。这种机制让系统能天然地隔离不同用户的数据。Windows 也有权限控制，但桌面场景中普通用户往往以管理员身份运行，感知没那么强。Linux 则鼓励你平时用普通账户，需要高权限时再临时提升。</p>
+<p>关于权限的完整细节，会在后面的文章专门展开，这里先建立”Linux 权限更严格、更细致”的印象即可。</p>
+<h3 id="注册表与配置文件"><a href="#注册表与配置文件" class="headerlink" title="注册表与配置文件"></a>注册表与配置文件</h3><p>Windows 有一个集中存放系统和软件设置的”注册表”，它是一个层次化的数据库。Linux 没有注册表，绝大多数配置以纯文本文件的形式分散存放在 <code>/etc</code> 等目录中，用文本编辑器就能查看和修改。</p>
+<p>这种差别带来一个显著好处：Linux 的配置是”看得见、可追踪”的文本，改了什么一目了然，也方便用命令批量处理；而注册表的结构相对封闭，排查问题往往要借助专门工具。</p>
+<h3 id="软件安装方式"><a href="#软件安装方式" class="headerlink" title="软件安装方式"></a>软件安装方式</h3><p>在 Windows 上，装软件通常是下载安装包、双击、一路点”下一步”。Linux 的主流做法是通过”包管理器”从软件仓库安装：一条命令，系统自动处理下载、依赖和安装。</p>
+<p>不同发行版的包管理器不同，这点后面会详细讲。这里只需记住：用包管理器安装软件，比手动下载安装包更省心，也更容易保持系统整洁和安全。</p>
+<h2 id="给-Windows-用户的一点心理准备"><a href="#给-Windows-用户的一点心理准备" class="headerlink" title="给 Windows 用户的一点心理准备"></a>给 Windows 用户的一点心理准备</h2><p>从 Windows 转向 Linux，最大的门槛往往不是技术本身，而是习惯。你要接受几件事：路径用正斜杠、大小写敏感、很多操作在终端里完成、装软件优先用包管理器、平时别用管理员账户。</p>
+<p>但换来的回报也很明确：系统更轻量、可控性更强、资源占用更低，尤其在服务器和开发场景中，Linux 几乎是绕不开的技能。把上面这些差异记在心里，再去看具体的命令和权限操作，就会顺畅得多。接下来的文章，我们就沿着”文件系统与权限””常用命令””文本处理与系统管理”这条线，一步步把 Linux 用起来。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/ip%E5%9C%B0%E5%9D%80%E4%B8%8E%E5%AD%90%E7%BD%91%E5%88%92%E5%88%86cidr/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

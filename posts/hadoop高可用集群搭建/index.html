@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="Hadoop HA高可用集群搭建教程：先搭三台ZooKeeper并理解过半存活机制，再配nameservice ns1、双NameNode、JournalNode共享编辑日志、ZKFC自动切换与sshfence隔离，随后开启YARN双RM高可用，按ZooKeeper、JournalNode、格式化、元数据同步、初始化ZKFC、start-all顺序启动，并用文字讲清故障转移流程。">
+
+
+    
+  <meta name="keywords" content="Hadoop HA高可用,ZooKeeper集群,HDFS HA,JournalNode,ZKFC故障切换,sshfence隔离,YARN HA,NameNode单点故障">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>hadoop高可用集群搭建</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Hadoop"
+                           title="Hadoop">Hadoop</a>
+                        
+                        <a class="tag" href="/tags/#HA高可用"
+                           title="HA高可用">HA高可用</a>
+                        
+                        <a class="tag" href="/tags/#ZooKeeper"
+                           title="ZooKeeper">ZooKeeper</a>
+                        
+                        <a class="tag" href="/tags/#HDFS"
+                           title="HDFS">HDFS</a>
+                        
+                    </div>
+                    <h1>hadoop高可用集群搭建</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>普通三节点 Hadoop 集群里，NameNode 和 ResourceManager 都只有一个，一旦这台机器宕机，整个集群就停止服务，这就是”单点故障”。HA（High Availability，高可用）的思路很简单：给关键角色各配一个”替补”，主角色出问题时替补自动顶上。基础环境搭建见《hadoop与mysql与hive三节点搭建》一文，本文只讲从普通集群升级到 HA 需要新增的部分。</p>
+<h2 id="HA-架构总览：谁在起作用"><a href="#HA-架构总览：谁在起作用" class="headerlink" title="HA 架构总览：谁在起作用"></a>HA 架构总览：谁在起作用</h2><p>先用文字把整套架构讲清楚，后面的配置就好理解了：</p>
+<ul>
+<li><strong>ZooKeeper 集群</strong>：三台机器组成一个”协调员小组”，负责感知节点生死、在主备之间选主。三台是奇数，允许坏一台仍可工作（过半存活）。</li>
+<li><strong>两个 NameNode</strong>：分别运行在 node1、node2，同一时刻只有一个是 Active（对外服务），另一个是 Standby（待命）。客户端访问的不是某台机器，而是一个逻辑名字 <code>ns1</code>。</li>
+<li><strong>JournalNode 集群</strong>：三台机器上各跑一个，专门保存 NameNode 的编辑日志（edits）。Active 写日志，Standby 读日志，从而保证两者元数据一致。</li>
+<li><strong>ZKFC</strong>：全称 ZooKeeperFailoverController，跟随每个 NameNode 的一个进程。它向 ZooKeeper 注册、monitor 健康状态，并在主节点挂掉时发起切换。</li>
+<li><strong>sshfence 隔离</strong>：切换前，新主会先通过 SSH 登录旧主把它的进程杀掉，防止”脑裂”——即两个 NameNode 都以为自己是主。</li>
+<li><strong>双 ResourceManager</strong>：YARN 同样配两个 RM，靠 ZooKeeper 决定谁是主，客户端自动重连到新的主 RM。</li>
+</ul>
+<h2 id="前置准备：系统环境与免密"><a href="#前置准备：系统环境与免密" class="headerlink" title="前置准备：系统环境与免密"></a>前置准备：系统环境与免密</h2><p>HA 对节点间通信要求更高，先把系统层面的障碍清掉。以下操作在三台 node1、node2、node3 上都要做：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld          <span class="comment"># 停止防火墙</span></span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld       <span class="comment"># 禁止开机自启，避免重启后又拦截通信</span></span><br><span class="line"></span><br><span class="line">vi /etc/selinux/config            <span class="comment"># 关闭 SELinux</span></span><br><span class="line"><span class="comment"># 把 SELINUX=enforcing 改成 SELINUX=disabled（注意拼写是 disabled）</span></span><br></pre></td></tr></table></figure>
+
+<p>主机名、IP 和 hosts 的规划如下（IP 换成你自己的实际地址）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl set-hostname node1    <span class="comment"># 在 node1 执行，其余两台对应改成 node2、node3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 用 nmcli 配置静态 IP（以 node1 的网卡 ens32 为例）</span></span><br><span class="line">nmcli connection modify ens32 ipv4.method manual ipv4.address &lt;node1的IP&gt;/24 ipv4.gateway &lt;网关IP&gt;</span><br><span class="line">nmcli connection up ens32</span><br><span class="line"></span><br><span class="line"><span class="comment"># 三台机器都要编辑 /etc/hosts，写入</span></span><br><span class="line"><span class="comment"># &lt;node1的IP&gt;  node1</span></span><br><span class="line"><span class="comment"># &lt;node2的IP&gt;  node2</span></span><br><span class="line"><span class="comment"># &lt;node3的IP&gt;  node3</span></span><br></pre></td></tr></table></figure>
+
+<p>JDK 安装可参考基础环境那篇文章，这里只列关键步骤：卸载自带 Java、安装 JDK 1.8、配置 <code>JAVA_HOME</code> 与 PATH，并用 <code>java -version</code> 验证。</p>
+<p>SSH 免密除了方便远程操作，更是 sshfence 隔离机制的前提——新主必须能免密 SSH 登录旧主才能把它”隔离”掉。所以三台之间要两两互信：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa                 <span class="comment"># 每台机器都生成密钥，一路回车</span></span><br><span class="line">ssh-copy-id root@node2            <span class="comment"># node1 的公钥复制到 node2、node3</span></span><br><span class="line">ssh-copy-id root@node3</span><br><span class="line"><span class="comment"># node2、node3 同样把自己的公钥复制到另外两台</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="搭建-ZooKeeper-集群"><a href="#搭建-ZooKeeper-集群" class="headerlink" title="搭建 ZooKeeper 集群"></a>搭建 ZooKeeper 集群</h2><h3 id="解压与配置-zoo-cfg"><a href="#解压与配置-zoo-cfg" class="headerlink" title="解压与配置 zoo.cfg"></a>解压与配置 zoo.cfg</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf /opt/software/zookeeper-&lt;版本号&gt;.tar.gz -C /opt/software/</span><br><span class="line"><span class="built_in">mv</span> /opt/software/zookeeper-&lt;版本号&gt; /opt/software/zookeeper</span><br><span class="line"><span class="built_in">cp</span> /opt/software/zookeeper/conf/zoo_sample.cfg /opt/software/zookeeper/conf/zoo.cfg</span><br><span class="line">vi /opt/software/zookeeper/conf/zoo.cfg</span><br></pre></td></tr></table></figure>
+
+<p>在 zoo.cfg 中设置数据目录、日志目录和集群成员：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">dataDir</span>=<span class="string">/opt/software/zookeeper/dataDir</span></span><br><span class="line"><span class="attr">dataLogDir</span>=<span class="string">/opt/software/zookeeper/dataLogDir</span></span><br><span class="line"><span class="attr">clientPort</span>=<span class="string">2181</span></span><br><span class="line"><span class="attr">server.1</span>=<span class="string">node1:2888:3888</span></span><br><span class="line"><span class="attr">server.2</span>=<span class="string">node2:2888:3888</span></span><br><span class="line"><span class="attr">server.3</span>=<span class="string">node3:2888:3888</span></span><br></pre></td></tr></table></figure>
+
+<p>每行 <code>server.N=主机:端口1:端口2</code> 的含义是：编号 N 的节点在哪台机器，2888 是节点间通信端口，3888 是选举端口。</p>
+<p>创建两个目录，并为每台机器写入自己的编号：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /opt/software/zookeeper/dataDir</span><br><span class="line"><span class="built_in">mkdir</span> /opt/software/zookeeper/dataLogDir</span><br><span class="line"></span><br><span class="line"><span class="comment"># node1 上写 1，node2 上写 2，node3 上写 3</span></span><br><span class="line">vi /opt/software/zookeeper/dataDir/myid</span><br></pre></td></tr></table></figure>
+
+<p>配置环境变量并把 ZooKeeper 复制到其他节点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/profile</span><br><span class="line"><span class="comment"># 加入</span></span><br><span class="line"><span class="built_in">export</span> ZK_HOME=/opt/software/zookeeper</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$ZK_HOME</span>/bin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 node1 上同步目录和配置，再分别修改各节点的 myid</span></span><br><span class="line">scp -r /opt/software/zookeeper node2:/opt/software/</span><br><span class="line">scp -r /opt/software/zookeeper node3:/opt/software/</span><br><span class="line">scp -r /etc/profile node2:/etc/profile</span><br></pre></td></tr></table></figure>
+
+<p>别忘了在 node2、node3 上执行 <code>source /etc/profile</code> 让配置生效，并确认各自的 myid 分别是 2 和 3。</p>
+<h3 id="启动与验证"><a href="#启动与验证" class="headerlink" title="启动与验证"></a>启动与验证</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">zkServer.sh start      <span class="comment"># 启动，三台都要执行</span></span><br><span class="line">zkServer.sh status     <span class="comment"># 查看状态，会显示 leader 或 follower</span></span><br><span class="line">zkServer.sh stop       <span class="comment"># 停止</span></span><br></pre></td></tr></table></figure>
+
+<p>正常现象是三台中选出一台 leader，另外两台是 follower。</p>
+<h2 id="配置-HDFS-HA"><a href="#配置-HDFS-HA" class="headerlink" title="配置 HDFS HA"></a>配置 HDFS HA</h2><h3 id="core-site-xml"><a href="#core-site-xml" class="headerlink" title="core-site.xml"></a>core-site.xml</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /opt/software/hadoop/etc/hadoop/core-site.xml</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 客户端访问的逻辑名字，不再是某台具体主机 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.defaultFS<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://ns1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- Hadoop 临时目录 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.tmp.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/hadoop-repo/tmp<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- ZooKeeper 集群地址，ZKFC 靠它协调 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>ha.zookeeper.quorum<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>node1:2181,node2:2181,node3:2181<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="hdfs-site-xml：HA-的核心配置"><a href="#hdfs-site-xml：HA-的核心配置" class="headerlink" title="hdfs-site.xml：HA 的核心配置"></a>hdfs-site.xml：HA 的核心配置</h3><p>这个文件是 HA 的关键，逐项说明其作用：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- nameservice 名字，必须和 core-site.xml 一致 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.nameservices<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>ns1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- ns1 下有两个 NameNode：nn1 和 nn2 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.namenodes.ns1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>nn1,nn2<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- nn1 的 RPC 与 HTTP 地址 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.rpc-address.ns1.nn1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>node1:9000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.http-address.ns1.nn1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>node1:50070<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- nn2 的 RPC 与 HTTP 地址 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.rpc-address.ns1.nn2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>node2:9000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.http-address.ns1.nn2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>node2:50070<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 编辑日志写到三台 JournalNode 上 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.shared.edits.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>qjournal://node1:8485;node2:8485;node3:8485/ns1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- JournalNode 本地存放目录 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.journalnode.edits.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/hadoop-repo/journal<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- NameNode 与 DataNode 的数据目录 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.name.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/hadoop-repo/name<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/hadoop-repo/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 开启故障自动切换 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.automatic-failover.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 客户端用这个类找到当前的 Active NameNode --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.client.failover.proxy.provider.ns1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 隔离机制：先用 sshfence 杀旧主，再用 shell 兜底 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.fencing.methods<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span></span><br><span class="line">sshfence</span><br><span class="line">shell(/bin/true)</span><br><span class="line"><span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- sshfence 用的私钥路径，对应前面配的免密 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.fencing.ssh.private-key-files<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/root/.ssh/id_rsa<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 隔离连接超时时间（毫秒） --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.fencing.ssh.connect-timeout<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>30000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 演示环境关闭权限校验 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.permissions<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>故障转移是怎样发生的？完整流程是这样的：Active 和 Standby 各自运行一个 ZKFC，它们向 ZooKeeper 抢一个”锁”节点，谁抢到谁就是 Active。ZKFC 同时持续监控 NameNode 的健康状况。当 Active 宕机时，它持有的锁会释放；Standby 的 ZKFC 发现后立刻抢占这把锁。抢到之后并不急着切换，而是先执行 <code>sshfence</code>——通过 SSH 登录旧 Active，确认进程仍在就把它杀掉，确保旧主不再对外服务；只有隔离成功（或 <code>shell(/bin/true)</code> 兜底返回成功），Standby 才把自己提升为 Active，客户端则通过 failover proxy provider 自动连到新主。整个过程无需人工干预。</p>
+<h2 id="配置-YARN-HA"><a href="#配置-YARN-HA" class="headerlink" title="配置 YARN HA"></a>配置 YARN HA</h2><p><code>yarn-site.xml</code> 中开启 ResourceManager 高可用：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 开启 RM 高可用 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.ha.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 集群 ID，同一套 HA 集群内保持一致 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.cluster-id<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>yrc<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 两个 RM 的逻辑名字 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.ha.rm-ids<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>rm1,rm2<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 分别指定两台 RM 所在的主机 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.hostname.rm1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>node1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.hostname.rm2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>node2<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 由 ZooKeeper 决定谁主谁备 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.zk-address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>node1:2181,node2:2181,node3:2181<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- MapReduce 的 shuffle 服务 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>mapreduce_shuffle<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="环境变量与从节点清单"><a href="#环境变量与从节点清单" class="headerlink" title="环境变量与从节点清单"></a>环境变量与从节点清单</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/profile</span><br><span class="line"><span class="comment"># 加入 Hadoop 相关配置</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_HOME=/opt/software/hadoop</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$ZK_HOME</span>/bin:<span class="variable">$HADOOP_HOME</span>/bin:<span class="variable">$HADOOP_HOME</span>/sbin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 同步到其他节点后，各节点 source /etc/profile 生效</span></span><br><span class="line">scp -r /opt/software/hadoop node2:/opt/software/</span><br><span class="line">scp -r /opt/software/hadoop node3:/opt/software/</span><br><span class="line">scp -r /etc/profile node2:/etc/</span><br></pre></td></tr></table></figure>
+
+<p>编辑从节点清单，把 DataNode 放在 node2、node3：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi /opt/software/hadoop/etc/hadoop/slaves</span><br><span class="line"><span class="comment"># 写入</span></span><br><span class="line">node2</span><br><span class="line">node3</span><br></pre></td></tr></table></figure>
+
+<h2 id="启动顺序：一步都不能乱"><a href="#启动顺序：一步都不能乱" class="headerlink" title="启动顺序：一步都不能乱"></a>启动顺序：一步都不能乱</h2><p>HA 集群对启动顺序有严格要求，请按下面编号依次执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 三台都启动 ZooKeeper</span></span><br><span class="line">zkServer.sh start</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 三台都启动 JournalNode</span></span><br><span class="line">hadoop-daemon.sh start journalnode</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 只在 node1 上格式化 NameNode</span></span><br><span class="line">hdfs namenode -format</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 把 node1 的 NameNode 元数据复制到 node2，保证两个 NameNode 起点一致</span></span><br><span class="line">scp -r /opt/hadoop-repo/name node2:/opt/hadoop-repo</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 只在 node1 上初始化 ZooKeeper 中的 HA 状态（只需执行一次）</span></span><br><span class="line">hdfs zkfc -formatZK</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 在 node1 上一键启动整个集群</span></span><br><span class="line">start-all.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 7. 各节点用 jps 检查进程</span></span><br><span class="line">jps</span><br></pre></td></tr></table></figure>
+
+<p>检查要点：node1、node2 上应各有一个 NameNode 和一个 ZKFC，三台都有 JournalNode 和 DataNode，node1、node2 上还有 ResourceManager。关闭集群用 <code>stop-all.sh</code>。</p>
+<blockquote>
+<p>注意：如果 ZooKeeper 里已经有旧的 HA 状态需要重来，再次执行 <code>hdfs zkfc -formatZK</code> 会清空原有信息，生产环境务必谨慎。</p>
+</blockquote>
+<h2 id="常见问题与排错"><a href="#常见问题与排错" class="headerlink" title="常见问题与排错"></a>常见问题与排错</h2><ul>
+<li><strong>ZKFC 进程起不来</strong>：先检查三台之间的 SSH 免密是否真的打通，尤其是从 node2 能否免密登录 node1；私钥路径要和 <code>dfs.ha.fencing.ssh.private-key-files</code> 配置一致。</li>
+<li><strong>两个 NameNode 都显示 Standby</strong>：说明谁都没抢到 ZooKeeper 的锁。用 <code>zkServer.sh status</code> 确认 ZooKeeper 集群正常（必须有 leader），再核对每台机器的 myid 是否唯一且正确。</li>
+<li><strong>切换时迟迟不生效</strong>：检查 <code>dfs.ha.fencing.methods</code> 和连接超时时间。sshfence 依赖免密与主机名解析，&#x2F;etc&#x2F;hosts 写错会导致登录失败。</li>
+<li><strong>JournalNode 数量</strong>：选举要求过半存活，所以通常部署 3 台或 5 台这样的奇数台，2 台时坏任意一台都无法形成多数。</li>
+<li><strong>一定要按顺序启动</strong>：ZooKeeper 和 JournalNode 必须先起来，再格式化 NameNode、同步元数据、初始化 ZKFC，最后 <code>start-all.sh</code>。顺序颠倒往往会出现格式化成功但集群起不来的怪现象。</li>
+</ul>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>HA 是在基础集群之上叠加了”冗余 + 协调 + 自动切换”三件事：ZooKeeper 负责协调与选主，JournalNode 保证两个 NameNode 元数据一致，ZKFC 配合 sshfence 完成安全的故障转移，YARN 的双 ResourceManager 让计算调度同样不中断。搭建时最需要记住的是两句话：ZooKeeper 要先于 Hadoop 启动；格式化 NameNode 之后、启动集群之前，一定要把元数据同步给另一个 NameNode。做到这些，你的集群就真正具备了对抗单点故障的能力。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/hadoop%E4%B8%8Emysql%E4%B8%8Ehive%E4%B8%89%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/ip%E5%9C%B0%E5%9D%80%E4%B8%8E%E5%AD%90%E7%BD%91%E5%88%92%E5%88%86cidr/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

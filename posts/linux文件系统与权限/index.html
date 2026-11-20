@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="想彻底搞懂Linux文件系统与权限？本文从树形目录结构讲起，解释用户、用户组、UID/GID与root的关系，拆解rwx与755/644/777数字权限含义，给出chmod、chown、chgrp、useradd、usermod等命令的实用示例，并重点讲解Root与sudo、wheel/sudo组、visudo编辑和NOPASSWD风险，是Linux权限管理的完整指南。">
+
+
+    
+  <meta name="keywords" content="Linux文件系统,Linux权限,chmod,sudo,用户组,Root权限,visudo,rwx">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>linux文件系统与权限</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Linux权限"
+                           title="Linux权限">Linux权限</a>
+                        
+                        <a class="tag" href="/tags/#Linux文件系统"
+                           title="Linux文件系统">Linux文件系统</a>
+                        
+                        <a class="tag" href="/tags/#sudo"
+                           title="sudo">sudo</a>
+                        
+                        <a class="tag" href="/tags/#用户管理"
+                           title="用户管理">用户管理</a>
+                        
+                    </div>
+                    <h1>linux文件系统与权限</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>如果说操作系统是一栋大楼，文件系统就是房间的布局，权限则是每扇门上的锁。理解 Linux 的目录结构，再理解”谁有钥匙、能开哪扇门”，你就掌握了这套系统最核心的秩序。这一篇就把这两件事讲清楚。</p>
+<h2 id="Linux-文件系统：一棵倒过来的树"><a href="#Linux-文件系统：一棵倒过来的树" class="headerlink" title="Linux 文件系统：一棵倒过来的树"></a>Linux 文件系统：一棵倒过来的树</h2><p>Linux 把所有文件组织成一棵树，树根是 <code>/</code>，称为根目录。之所以说是”倒过来的树”，是因为根在最上面，分支向下展开。Windows 有 C 盘、D 盘多个根，Linux 只有这一个根，其他分区和设备都要”挂”到这棵树的某个目录上才能访问，这个目录叫挂载点。</p>
+<h3 id="从根目录看常见的家目录"><a href="#从根目录看常见的家目录" class="headerlink" title="从根目录看常见的家目录"></a>从根目录看常见的家目录</h3><p>根目录下有一批约定俗成的子目录，各自承担固定职责：</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/bin</code></td>
+<td>所有用户都能用的基础命令</td>
+</tr>
+<tr>
+<td><code>/boot</code></td>
+<td>启动系统所需的文件</td>
+</tr>
+<tr>
+<td><code>/dev</code></td>
+<td>设备文件，比如硬盘、终端</td>
+</tr>
+<tr>
+<td><code>/etc</code></td>
+<td>系统配置文件</td>
+</tr>
+<tr>
+<td><code>/home</code></td>
+<td>普通用户的家目录</td>
+</tr>
+<tr>
+<td><code>/lib</code></td>
+<td>系统库文件</td>
+</tr>
+<tr>
+<td><code>/media</code>、<code>/mnt</code></td>
+<td>临时挂载点，U 盘、移动硬盘常出现在这里</td>
+</tr>
+<tr>
+<td><code>/opt</code></td>
+<td>额外安装的软件</td>
+</tr>
+<tr>
+<td><code>/proc</code></td>
+<td>进程与内核信息的虚拟目录</td>
+</tr>
+<tr>
+<td><code>/root</code></td>
+<td>管理员 root 的家目录</td>
+</tr>
+<tr>
+<td><code>/sbin</code></td>
+<td>系统管理专用命令</td>
+</tr>
+<tr>
+<td><code>/tmp</code></td>
+<td>临时文件，重启后常被清空</td>
+</tr>
+<tr>
+<td><code>/usr</code></td>
+<td>用户程序与文档</td>
+</tr>
+<tr>
+<td><code>/var</code></td>
+<td>经常变化的数据，如日志、缓存</td>
+</tr>
+</tbody></table>
+<p>路径的写法分两种。以 <code>/</code> 开头、从根目录一路写下来的叫绝对路径，比如 <code>/home/alice/notes.txt</code>；从当前目录开始写的叫相对路径，比如 <code>notes.txt</code> 或 <code>../notes.txt</code>。其中 <code>.</code> 表示当前目录，<code>..</code> 表示上一级目录，<code>~</code> 代表当前用户的家目录，这几个符号在命令里会频繁出现。</p>
+<h2 id="用户与用户组：权限体系的主角"><a href="#用户与用户组：权限体系的主角" class="headerlink" title="用户与用户组：权限体系的主角"></a>用户与用户组：权限体系的主角</h2><p>Linux 是天生的多用户系统。每个使用者都是一个”用户”，系统用数字 UID 来唯一标识；每个用户可以属于一个或多个”用户组”，组用 GID 标识。把用户分组，是为了批量分配权限更方便。</p>
+<p>有几类角色需要认识：</p>
+<ul>
+<li><strong>root 用户</strong>：UID 为 0 的超级管理员，拥有系统的最高权限，能读写任何文件、执行任何操作。</li>
+<li><strong>普通用户</strong>：UID 通常从 1000 开始，权限受限，只能操作自己的文件和被授权的内容。</li>
+<li><strong>系统用户</strong>：UID 一般在 1 到 999 之间，给系统服务使用，通常不允许登录，比如 <code>www-data</code>、<code>nobody</code>。</li>
+</ul>
+<p>用户信息主要存放在 <code>/etc/passwd</code>，组信息存放在 <code>/etc/group</code>，密码哈希存放在 <code>/etc/shadow</code>。这三个文件构成了账户体系的基础，后面讲用户管理命令时会反复用到。</p>
+<h2 id="rwx-权限到底代表什么"><a href="#rwx-权限到底代表什么" class="headerlink" title="rwx 权限到底代表什么"></a>rwx 权限到底代表什么</h2><p>每个文件和目录都有三组权限，分别对应三类对象：</p>
+<ul>
+<li><strong>u（user）</strong>：文件所有者。</li>
+<li><strong>g（group）</strong>：文件所属组里的用户。</li>
+<li><strong>o（others）</strong>：既不是所有者、也不在所属组的其他人。</li>
+</ul>
+<p>每组权限又由三个字符组成：</p>
+<ul>
+<li><strong>r（read，读）</strong>：对文件表示能查看内容；对目录表示能列出里面的文件名。</li>
+<li><strong>w（write，写）</strong>：对文件表示能修改内容；对目录表示能在其中创建、删除、改名。</li>
+<li><strong>x（execute，执行）</strong>：对文件表示能当作程序或脚本运行；对目录表示能进入该目录（比如 <code>cd</code> 进去）。</li>
+</ul>
+<p><strong>要解决什么</strong>：想看清某个文件当前的权限设置，判断自己能不能读、写、执行它。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以长格式列出文件详情，第一列就是权限位</span></span><br><span class="line"><span class="built_in">ls</span> -l notes.txt</span><br><span class="line"><span class="comment"># 输出示例：-rw-r--r-- 1 alice staff 1024 Jul 10 09:00 notes.txt</span></span><br></pre></td></tr></table></figure>
+
+<p>解读第一列 <code>-rw-r--r--</code>：开头的 <code>-</code> 表示这是普通文件（目录则是 <code>d</code>）；接下来三个字符 <code>rw-</code> 是所有者权限，表示可读可写不可执行；再三个 <code>r--</code> 是所属组权限，只读；最后三个 <code>r--</code> 是其他人权限，也是只读。<strong>预期效果</strong>：你能从这一列直接读出三类对象各自的权限，这是排查”为什么改不了文件”的第一步。</p>
+<h2 id="数字权限-755、644、777-速查"><a href="#数字权限-755、644、777-速查" class="headerlink" title="数字权限 755、644、777 速查"></a>数字权限 755、644、777 速查</h2><p>除了 <code>rwx</code> 这种字母写法，权限还常用三位八进制数字表示。规则很简单：r 记为 4，w 记为 2，x 记为 1，没有权限记为 0，把一组内的三个值相加就得到这一组的数字。</p>
+<ul>
+<li><code>rwx</code> &#x3D; 4+2+1 &#x3D; 7</li>
+<li><code>rw-</code> &#x3D; 4+2+0 &#x3D; 6</li>
+<li><code>r-x</code> &#x3D; 4+0+1 &#x3D; 5</li>
+<li><code>r--</code> &#x3D; 4 &#x3D; 4</li>
+<li><code>---</code> &#x3D; 0</li>
+</ul>
+<p>三组数字连起来，就是常见的权限码：</p>
+<table>
+<thead>
+<tr>
+<th>数字</th>
+<th>字母表示</th>
+<th>含义与典型用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>755</td>
+<td>rwxr-xr-x</td>
+<td>所有者可读写执行，其他人可读可执行；常用于程序、脚本、目录</td>
+</tr>
+<tr>
+<td>644</td>
+<td>rw-r–r–</td>
+<td>所有者可读写，其他人只读；常用于普通文档、配置文件</td>
+</tr>
+<tr>
+<td>777</td>
+<td>rwxrwxrwx</td>
+<td>所有人可读写执行；权限过宽，一般不建议随意使用</td>
+</tr>
+<tr>
+<td>600</td>
+<td>rw——-</td>
+<td>仅所有者可读写；适合存放敏感文件</td>
+</tr>
+<tr>
+<td>700</td>
+<td>rwx——</td>
+<td>仅所有者可读写执行；适合私有目录</td>
+</tr>
+</tbody></table>
+<p>记住 755 和 644 这两个就够应付大多数场景：程序、脚本、需要进入的目录用 755，普通文件用 644。看到有人图省事 <code>chmod 777</code>，要意识到它等于把门敞开给所有人。</p>
+<h2 id="用-chmod、chown、chgrp-修改权限"><a href="#用-chmod、chown、chgrp-修改权限" class="headerlink" title="用 chmod、chown、chgrp 修改权限"></a>用 chmod、chown、chgrp 修改权限</h2><p>搞清楚权限的含义，接下来看怎么改。三个命令各管一件事：<code>chmod</code> 改权限位，<code>chown</code> 改所有者，<code>chgrp</code> 改所属组。</p>
+<h3 id="chmod：修改读写执行权限"><a href="#chmod：修改读写执行权限" class="headerlink" title="chmod：修改读写执行权限"></a>chmod：修改读写执行权限</h3><p><strong>要解决什么</strong>：给脚本加上执行权限，或收回某些人多余的写权限。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 数字模式：设置成 755</span></span><br><span class="line"><span class="built_in">chmod</span> 755 script.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 字母模式：给所有者加执行权限</span></span><br><span class="line"><span class="built_in">chmod</span> u+x script.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 字母模式：移除所属组的写权限</span></span><br><span class="line"><span class="built_in">chmod</span> g-w file.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 字母模式：把其他人的权限设为只读</span></span><br><span class="line"><span class="built_in">chmod</span> o=r file.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 递归修改目录下所有内容</span></span><br><span class="line"><span class="built_in">chmod</span> -R 755 /home/alice/www</span><br></pre></td></tr></table></figure>
+
+<p>这里的 <code>u/g/o</code> 分别指所有者、所属组、其他人，<code>+</code>、<code>-</code>、<code>=</code> 表示增加、移除、设置为。<code>-R</code> 表示递归处理整个目录。<strong>预期效果</strong>：执行后再用 <code>ls -l</code> 查看，权限位会按你的设置变化；脚本有了 <code>x</code> 权限后就能用 <code>./script.sh</code> 直接运行。</p>
+<h3 id="chown-与-chgrp：修改归属"><a href="#chown-与-chgrp：修改归属" class="headerlink" title="chown 与 chgrp：修改归属"></a>chown 与 chgrp：修改归属</h3><p><strong>要解决什么</strong>：把文件的所有者或所属组改成正确的用户，常见于部署网站目录后。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 只改所有者</span></span><br><span class="line"><span class="built_in">chown</span> alice file.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 同时改所有者和所属组，用冒号分隔</span></span><br><span class="line"><span class="built_in">chown</span> alice:staff file.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 递归修改整个目录的归属</span></span><br><span class="line"><span class="built_in">chown</span> -R alice:staff /home/alice/www</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只改所属组</span></span><br><span class="line"><span class="built_in">chgrp</span> staff file.txt</span><br></pre></td></tr></table></figure>
+
+<p>注意普通用户通常只能改自己名下文件的所属组，且必须属于目标组；修改所有者一般需要 root 权限，所以要配合 <code>sudo</code>。<strong>预期效果</strong>：文件归属变更后，对应就能凭借所有者或组成员身份获得相应权限。</p>
+<h2 id="用户和组的管理命令"><a href="#用户和组的管理命令" class="headerlink" title="用户和组的管理命令"></a>用户和组的管理命令</h2><p>管理账户会用到下面这组命令，整理成表格方便速查：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>常用写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>useradd</code></td>
+<td>创建用户</td>
+<td><code>useradd -m alice</code></td>
+</tr>
+<tr>
+<td><code>passwd</code></td>
+<td>设置或修改密码</td>
+<td><code>passwd alice</code></td>
+</tr>
+<tr>
+<td><code>userdel</code></td>
+<td>删除用户</td>
+<td><code>userdel -r alice</code></td>
+</tr>
+<tr>
+<td><code>groupadd</code></td>
+<td>创建组</td>
+<td><code>groupadd devteam</code></td>
+</tr>
+<tr>
+<td><code>usermod</code></td>
+<td>修改用户属性</td>
+<td><code>usermod -aG devteam alice</code></td>
+</tr>
+</tbody></table>
+<p>几个常用的参数值得单独说明：</p>
+<ul>
+<li><code>useradd -m</code>：创建用户的同时建立家目录，不加这个参数新用户可能没有家目录。</li>
+<li><code>useradd -s /bin/bash</code>：指定用户登录后使用的 Shell。</li>
+<li><code>userdel -r</code>：删除用户的同时删除其家目录和邮件，避免留下残留数据。</li>
+<li><code>usermod -aG 组名 用户名</code>：把用户追加到某个附加组。这里的 <code>-a</code>（append）非常关键，省略它会把用户从其他附加组里移除，造成意外后果。</li>
+</ul>
+<p><strong>要解决什么</strong>：新建一个用户，给他家目录和登录 Shell，再把他加入开发组。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建用户并建立家目录，指定 bash 作为登录 Shell</span></span><br><span class="line"><span class="built_in">sudo</span> useradd -m -s /bin/bash alice</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置密码，执行后会提示交互式输入</span></span><br><span class="line"><span class="built_in">sudo</span> passwd alice</span><br><span class="line"></span><br><span class="line"><span class="comment"># 追加到 devteam 组</span></span><br><span class="line"><span class="built_in">sudo</span> usermod -aG devteam alice</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：用 <code>id alice</code> 查看，能看到她的 uid、gid 以及所属的所有组，确认配置生效。</p>
+<h2 id="Root-与-sudo：安全地获得管理员权限"><a href="#Root-与-sudo：安全地获得管理员权限" class="headerlink" title="Root 与 sudo：安全地获得管理员权限"></a>Root 与 sudo：安全地获得管理员权限</h2><p>root 是系统的超级管理员，拥有完全控制权。日常直接以 root 登录非常危险：一个误操作，比如敲错一个删除命令，就可能让系统无法启动。因此 Linux 世界有一条基本原则——<strong>最小权限原则</strong>：平时用普通账户，只在需要时临时提升权限。</p>
+<h3 id="sudo-是如何工作的"><a href="#sudo-是如何工作的" class="headerlink" title="sudo 是如何工作的"></a>sudo 是如何工作的</h3><p>sudo（superuser do）允许受信任的普通用户以 root 身份执行指定命令，且无需知道 root 密码。它的好处是可审计：每次 sudo 使用都会留下日志，便于追溯。给普通用户授权，推荐的做法是把他加入预设的管理组，而不是逐个用户去配置。</p>
+<p>不同发行版的管理组名字不同：</p>
+<ul>
+<li><strong>CentOS &#x2F; RHEL 系列</strong>：<code>wheel</code> 组。</li>
+<li><strong>Ubuntu &#x2F; Debian 系列</strong>：<code>sudo</code> 组。</li>
+</ul>
+<p><strong>要解决什么</strong>：让普通用户 alice 获得管理员权限，但不用把 root 密码告诉她。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># CentOS/RHEL：加入 wheel 组</span></span><br><span class="line"><span class="built_in">sudo</span> usermod -aG wheel alice</span><br><span class="line"></span><br><span class="line"><span class="comment"># Ubuntu/Debian：加入 sudo 组</span></span><br><span class="line"><span class="built_in">sudo</span> usermod -aG <span class="built_in">sudo</span> alice</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证 alice 是否已经进组</span></span><br><span class="line"><span class="built_in">id</span> alice</span><br></pre></td></tr></table></figure>
+
+<p><code>id</code> 命令会列出用户的 uid、gid 和所属组。<strong>预期效果</strong>：输出中出现 <code>wheel</code> 或 <code>sudo</code> 字样，就说明加组成功。注意用户需要重新登录，新的组关系才会生效。</p>
+<h3 id="用-visudo-安全地编辑-sudoers"><a href="#用-visudo-安全地编辑-sudoers" class="headerlink" title="用 visudo 安全地编辑 sudoers"></a>用 visudo 安全地编辑 sudoers</h3><p>sudo 的权限规则写在 <code>/etc/sudoers</code> 文件里。千万别用普通编辑器直接改它——一旦写错语法，可能导致所有人都无法使用 sudo，把自己锁在系统外面。正确做法是用 <code>visudo</code> 命令，它会在保存前检查语法。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安全地编辑 sudoers 文件</span></span><br><span class="line"><span class="built_in">sudo</span> visudo</span><br></pre></td></tr></table></figure>
+
+<p>在文件里，你要确认对应管理组的配置行没有被注释掉。下面这两行分别代表允许 wheel 组或 sudo 组里的所有人运行所有命令：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%wheel  ALL=(ALL)       ALL</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%sudo   ALL=(ALL:ALL)   ALL</span><br></pre></td></tr></table></figure>
+
+<p>行首的 <code>%</code> 表示这是一个组。如果需要给某个特定用户授予所有权限，可以写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username ALL=(ALL:ALL) ALL</span><br></pre></td></tr></table></figure>
+
+<p>还可以精确到具体命令。比如允许用户 alice 无需密码重启和查看某个服务：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alice ALL=(ALL) NOPASSWD: /bin/systemctl restart my_service, /bin/systemctl status my_service</span><br></pre></td></tr></table></figure>
+
+<p><code>NOPASSWD</code> 用起来省事，但风险也明显：一旦这个账户被盗，攻击者就能无阻碍地执行这些高权限命令。除非确实需要自动化场景，否则建议保留密码确认这道关卡。</p>
+<h3 id="日常怎么使用-sudo"><a href="#日常怎么使用-sudo" class="headerlink" title="日常怎么使用 sudo"></a>日常怎么使用 sudo</h3><p><strong>要解决什么</strong>：用管理员权限重启服务或编辑系统文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在需要高权限的命令前加上 sudo</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl restart nginx</span><br><span class="line"><span class="built_in">sudo</span> vim /etc/hosts</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换到 root 的 Shell（不推荐长期使用）</span></span><br><span class="line"><span class="built_in">sudo</span> -i</span><br></pre></td></tr></table></figure>
+
+<p>执行 sudo 时，系统会要求输入当前用户的密码（不是 root 密码），验证通过后在一段时间内免重复输入。<code>sudo -i</code> 会直接开启一个 root Shell，权限过大且容易忘记退出，因此只在确实需要连续执行多条管理命令时短期使用，做完立刻 <code>exit</code> 退回普通用户。</p>
+<p>从目录结构到权限位，再到 root 与 sudo，这套机制的核心思想其实只有一句：让每个用户只拿到刚好够用的权限。把 755 和 644、把 <code>usermod -aG</code> 和 <code>visudo</code> 这几个知识点记牢，你就能在日常使用中既把事情办成，又不给系统埋下安全隐患。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/linux%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%8E%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

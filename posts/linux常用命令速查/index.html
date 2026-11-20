@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="这份Linux常用命令速查按真实使用场景组织，汇总pwd、ls、cd、mkdir、rm、cp、mv、cat、less、find、grep、tar、df、top、ps、ping、ss、yum、apt等高频命令，逐条给出语法、常用参数和可复制的例子，并附PATH配错恢复的踩坑小贴士，是Linux初学者和运维人员的随身参考手册。">
+
+
+    
+  <meta name="keywords" content="Linux命令,Linux命令速查,Linux文件操作命令,grep命令,tar命令,ps命令,yum与apt,PATH恢复">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>linux常用命令速查</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Linux命令"
+                           title="Linux命令">Linux命令</a>
+                        
+                        <a class="tag" href="/tags/#命令速查"
+                           title="命令速查">命令速查</a>
+                        
+                        <a class="tag" href="/tags/#文件操作"
+                           title="文件操作">文件操作</a>
+                        
+                        <a class="tag" href="/tags/#系统管理"
+                           title="系统管理">系统管理</a>
+                        
+                    </div>
+                    <h1>linux常用命令速查</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>命令是和 Linux 对话的方式。刚上手时，最实用的不是把每个命令的所有参数背下来，而是知道”遇到某类事情，该用哪个命令、怎么写”。这一篇按使用场景把高频命令整理成速查手册，每条都给出语法、常用参数和可以直接复制的例子，用到时回来翻一翻就行。</p>
+<h2 id="文件与目录操作"><a href="#文件与目录操作" class="headerlink" title="文件与目录操作"></a>文件与目录操作</h2><p>这是每天都会用到的基础动作：显示位置、列目录、切换、新建、删除、复制、移动。先看清命令和参数：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>常用参数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pwd</code></td>
+<td>显示当前所在目录</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>ls</code></td>
+<td>列出目录内容</td>
+<td><code>-l</code> 详细、<code>-a</code> 含隐藏、<code>-h</code> 易读大小、<code>-t</code> 按时间排序</td>
+</tr>
+<tr>
+<td><code>cd</code></td>
+<td>切换目录</td>
+<td><code>..</code> 上一级、<code>~</code> 家目录、<code>-</code> 上一个目录</td>
+</tr>
+<tr>
+<td><code>mkdir</code></td>
+<td>创建目录</td>
+<td><code>-p</code> 递归创建多级目录</td>
+</tr>
+<tr>
+<td><code>rmdir</code></td>
+<td>删除空目录</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>rm</code></td>
+<td>删除文件或目录</td>
+<td><code>-r</code> 递归、<code>-f</code> 强制、<code>-i</code> 删除前确认</td>
+</tr>
+<tr>
+<td><code>cp</code></td>
+<td>复制文件或目录</td>
+<td><code>-r</code> 递归、<code>-p</code> 保留属性、<code>-a</code> 归档模式</td>
+</tr>
+<tr>
+<td><code>mv</code></td>
+<td>移动或重命名</td>
+<td>无常用参数</td>
+</tr>
+<tr>
+<td><code>touch</code></td>
+<td>创建空文件或更新时间戳</td>
+<td><code>-t</code> 指定时间</td>
+</tr>
+</tbody></table>
+<p><strong>要解决什么</strong>：在一台新机器上建立一套项目目录，把文件复制过去，再改个名。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">pwd</span>                          <span class="comment"># 先看自己在哪，输出如 /home/alice</span></span><br><span class="line"><span class="built_in">mkdir</span> -p project/src/docs    <span class="comment"># 递归创建多级目录，父目录不存在也没关系</span></span><br><span class="line"><span class="built_in">cd</span> project                    <span class="comment"># 进入刚建的目录</span></span><br><span class="line"><span class="built_in">touch</span> src/main.py            <span class="comment"># 创建一个空的源文件</span></span><br><span class="line"><span class="built_in">cp</span> -a src main_backup         <span class="comment"># 归档模式复制整个目录，保留所有属性</span></span><br><span class="line"><span class="built_in">mv</span> main_backup src_old        <span class="comment"># 把目录改名</span></span><br><span class="line"><span class="built_in">ls</span> -lah                       <span class="comment"># 详细列出，含隐藏文件，大小显示为 K/M/G</span></span><br></pre></td></tr></table></figure>
+
+<p>这里有两个容易踩坑的地方。<code>rm -rf</code> 表示强制递归删除，威力很大且不会二次确认，执行前务必确认路径写对；<code>cp -a</code> 相当于 <code>-dR --preserve=all</code>，会保留权限、时间戳、链接等全部属性，做备份时比单纯的 <code>-r</code> 更合适。<strong>预期效果</strong>：执行后你能在正确的位置看到新建的目录和文件，复制件保留了原始属性。</p>
+<h2 id="文件内容查看"><a href="#文件内容查看" class="headerlink" title="文件内容查看"></a>文件内容查看</h2><p>看文件内容也有讲究：小文件直接显示，大文件要分页，日志则常看开头或结尾。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>常用参数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cat</code></td>
+<td>连接并显示文件内容</td>
+<td><code>-n</code> 显示行号</td>
+</tr>
+<tr>
+<td><code>more</code></td>
+<td>分页显示，只能向下翻</td>
+<td>空格翻页、<code>q</code> 退出</td>
+</tr>
+<tr>
+<td><code>less</code></td>
+<td>分页显示，可上下翻</td>
+<td><code>b</code> 上翻、<code>/关键词</code> 搜索、<code>q</code> 退出</td>
+</tr>
+<tr>
+<td><code>head</code></td>
+<td>显示文件开头</td>
+<td><code>-n 20</code> 指定行数</td>
+</tr>
+<tr>
+<td><code>tail</code></td>
+<td>显示文件结尾</td>
+<td><code>-n 20</code> 指定行数、<code>-f</code> 实时跟踪</td>
+</tr>
+</tbody></table>
+<p><strong>要解决什么</strong>：查看一份很长的日志，先定位末尾的最新记录，再实时盯着它的变化。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> -n config.txt            <span class="comment"># 显示小文件并带行号</span></span><br><span class="line">less /var/log/syslog          <span class="comment"># 分页查看大日志，按 / 搜关键词，按 q 退出</span></span><br><span class="line"><span class="built_in">head</span> -n 20 access.log        <span class="comment"># 看前 20 行</span></span><br><span class="line"><span class="built_in">tail</span> -n 50 error.log         <span class="comment"># 看最后 50 行</span></span><br><span class="line"><span class="built_in">tail</span> -f access.log           <span class="comment"># 实时跟踪新写入的日志，排障时非常好用</span></span><br></pre></td></tr></table></figure>
+
+<p><code>less</code> 比 <code>more</code> 更灵活，能前后翻页也能搜索，日常优先用它。<code>tail -f</code> 是排查运行故障的利器：日志一有新内容，终端就立刻显示出来。<strong>预期效果</strong>：你能快速从海量日志里找到最近的错误，而不必把整个文件翻一遍。</p>
+<h2 id="查找与搜索"><a href="#查找与搜索" class="headerlink" title="查找与搜索"></a>查找与搜索</h2><p>“文件放哪了”和”内容在哪一行”是两个不同问题，分别用 <code>find</code> 和 <code>grep</code>。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>常用参数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>find</code></td>
+<td>按名称、类型、大小、时间、用户查找文件</td>
+<td><code>-name</code>、<code>-type</code>、<code>-size</code>、<code>-mtime</code>、<code>-user</code></td>
+</tr>
+<tr>
+<td><code>grep</code></td>
+<td>在内容里搜索匹配的行</td>
+<td><code>-r</code> 递归、<code>-i</code> 忽略大小写、<code>-n</code> 显示行号、<code>-v</code> 反向匹配</td>
+</tr>
+</tbody></table>
+<p><strong>要解决什么</strong>：找出家里所有文本文件，再看其中哪些提到了某个关键词。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">find /home -name <span class="string">&quot;*.txt&quot;</span>          <span class="comment"># 按文件名查找</span></span><br><span class="line">find /var -<span class="built_in">type</span> f -size +1M       <span class="comment"># 查找大于 1MB 的普通文件</span></span><br><span class="line">find . -mtime -7                  <span class="comment"># 查找 7 天内修改过的文件</span></span><br><span class="line">find /tmp -user root              <span class="comment"># 按所属用户查找</span></span><br><span class="line">grep -rn <span class="string">&quot;error&quot;</span> /var/log         <span class="comment"># 递归搜索并显示行号</span></span><br><span class="line">grep -i <span class="string">&quot;warning&quot;</span> app.log         <span class="comment"># 忽略大小写搜索</span></span><br><span class="line">grep -v <span class="string">&quot;^#&quot;</span> config.conf          <span class="comment"># 排除以 # 开头的注释行</span></span><br></pre></td></tr></table></figure>
+
+<p><code>find</code> 的条件可以组合，<code>-type f</code> 限定只找文件、<code>-size +1M</code> 表示大于 1MB、<code>-mtime -7</code> 表示 7 天内。<code>grep</code> 的 <code>-v</code> 是反向匹配，上面最后一条就常用来过滤掉注释和空行。<strong>预期效果</strong>：你能迅速定位目标文件，或在一堆日志中筛出真正关心的行。</p>
+<h2 id="压缩与解压"><a href="#压缩与解压" class="headerlink" title="压缩与解压"></a>压缩与解压</h2><p>不同压缩格式用不同工具，Linux 上最常见的是 tar 包和 zip 包。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>常用参数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>tar</code></td>
+<td>打包与解包</td>
+<td><code>-c</code> 创建、<code>-x</code> 解包、<code>-z</code> 用 gzip、<code>-v</code> 显示过程、<code>-f</code> 指定文件名、<code>-t</code> 查看内容</td>
+</tr>
+<tr>
+<td><code>gzip</code> &#x2F; <code>gunzip</code></td>
+<td>压缩 &#x2F; 解压单个文件</td>
+<td>生成 <code>.gz</code> 文件</td>
+</tr>
+<tr>
+<td><code>zip</code> &#x2F; <code>unzip</code></td>
+<td>创建 &#x2F; 解压 zip 包</td>
+<td>跨平台通用</td>
+</tr>
+</tbody></table>
+<p><strong>要解决什么</strong>：把整个项目目录打包压缩备份，之后再解压还原。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">tar -czvf archive.tar.gz project/   <span class="comment"># 打包并用 gzip 压缩，-v 会列出过程</span></span><br><span class="line">tar -tzvf archive.tar.gz            <span class="comment"># 只看压缩包里有什么，不解压</span></span><br><span class="line">tar -xzvf archive.tar.gz            <span class="comment"># 解压到当前目录</span></span><br><span class="line"></span><br><span class="line">gzip access.log                     <span class="comment"># 压缩成 access.log.gz</span></span><br><span class="line">gunzip access.log.gz                <span class="comment"># 解压回去</span></span><br><span class="line"></span><br><span class="line">zip site.zip index.html style.css   <span class="comment"># 打包成 zip</span></span><br><span class="line">unzip site.zip                      <span class="comment"># 解压 zip</span></span><br></pre></td></tr></table></figure>
+
+<p>tar 的参数看起来多，其实记住”c 创建、x 解压、z 用 gzip、f 跟文件名”这一组就够了，<code>-czvf</code> 和 <code>-xzvf</code> 是一对最常用的组合。需要保留权限做完整备份时，也可以加上 <code>-p</code>。<strong>预期效果</strong>：一条命令得到一个压缩包，需要时原样解开，目录结构和权限都不乱。</p>
+<h2 id="系统信息查看"><a href="#系统信息查看" class="headerlink" title="系统信息查看"></a>系统信息查看</h2><p>机器卡不卡、磁盘够不够、内存剩多少，靠下面这些命令一目了然。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>常用参数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>uname</code></td>
+<td>显示系统信息</td>
+<td><code>-a</code> 全部、<code>-r</code> 内核版本、<code>-m</code> 机器架构</td>
+</tr>
+<tr>
+<td><code>df</code></td>
+<td>查看磁盘剩余空间</td>
+<td><code>-h</code> 易读格式、<code>-i</code> inode 使用情况</td>
+</tr>
+<tr>
+<td><code>du</code></td>
+<td>查看目录&#x2F;文件占用空间</td>
+<td><code>-sh</code> 显示总和、<code>-ah</code> 列出所有</td>
+</tr>
+<tr>
+<td><code>free</code></td>
+<td>查看内存使用</td>
+<td><code>-h</code> 易读格式</td>
+</tr>
+<tr>
+<td><code>top</code> &#x2F; <code>htop</code></td>
+<td>动态监控进程与资源</td>
+<td><code>htop</code> 是增强版，需额外安装</td>
+</tr>
+</tbody></table>
+<p><strong>要解决什么</strong>：磁盘报警了，先确认哪个分区满了，再找出是哪个目录在占用空间。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">uname</span> -a                 <span class="comment"># 显示完整系统信息</span></span><br><span class="line"><span class="built_in">df</span> -h                    <span class="comment"># 各分区使用情况，以 G/M 显示</span></span><br><span class="line"><span class="built_in">du</span> -sh /var/log          <span class="comment"># 看某个目录总共占多少</span></span><br><span class="line"><span class="built_in">du</span> -ah /home | <span class="built_in">sort</span> -rh | <span class="built_in">head</span> -n 10   <span class="comment"># 列出最大的 10 个文件/目录</span></span><br><span class="line"></span><br><span class="line">free -h                  <span class="comment"># 内存使用情况</span></span><br><span class="line">top                      <span class="comment"># 动态查看，按 q 退出</span></span><br></pre></td></tr></table></figure>
+
+<p><code>df</code> 看的是”整个分区”的余量，<code>du</code> 算的是”某个目录”实际占了多大，两者配合才能定位空间去哪了。<code>top</code> 打开后能看到 CPU、内存占用最高的进程，按 <code>q</code> 退出。<strong>预期效果</strong>：你能判断是磁盘真满了还是 inode 耗尽，并揪出占用空间的大户。</p>
+<h2 id="进程管理"><a href="#进程管理" class="headerlink" title="进程管理"></a>进程管理</h2><p>当某个程序卡死或占用过高，就需要查看和终止进程。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>常用参数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ps</code></td>
+<td>显示进程快照</td>
+<td><code>aux</code> 详细信息、<code>-ef</code> 完整格式、<code>-u</code> 指定用户</td>
+</tr>
+<tr>
+<td><code>kill</code></td>
+<td>按 PID 终止进程</td>
+<td><code>-9</code> 强制终止</td>
+</tr>
+<tr>
+<td><code>killall</code></td>
+<td>按名称终止一类进程</td>
+<td>直接跟进程名</td>
+</tr>
+<tr>
+<td><code>pkill</code></td>
+<td>按名称匹配终止进程</td>
+<td>支持模式匹配</td>
+</tr>
+</tbody></table>
+<p><strong>要解决什么</strong>：找出卡死的浏览器进程并结束它。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ps aux | grep chrome      <span class="comment"># 找到目标进程，记下第二列的 PID</span></span><br><span class="line"><span class="built_in">kill</span> 12345                <span class="comment"># 正常终止 PID 为 12345 的进程</span></span><br><span class="line"><span class="built_in">kill</span> -9 12345             <span class="comment"># 进程无响应时强制终止</span></span><br><span class="line">pkill chrome              <span class="comment"># 按进程名终止所有同名进程</span></span><br></pre></td></tr></table></figure>
+
+<p><code>kill</code> 默认发送的是”请求退出”信号，给进程留出清理的机会；<code>kill -9</code> 是强制杀死，可能导致数据没来得及保存，应作为最后手段。<code>ps aux</code> 的输出里，第二列就是 PID。<strong>预期效果</strong>：卡住的进程消失，系统资源得到释放。</p>
+<h2 id="网络相关命令"><a href="#网络相关命令" class="headerlink" title="网络相关命令"></a>网络相关命令</h2><p>排查网络问题时，先看连通性，再看地址和端口。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>常用参数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ping</code></td>
+<td>测试主机连通性</td>
+<td><code>-c 4</code> 只发 4 个包</td>
+</tr>
+<tr>
+<td><code>ifconfig</code></td>
+<td>查看网卡信息（较老）</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>ip</code></td>
+<td>新一代网络配置工具</td>
+<td><code>addr</code> 看地址、<code>route</code> 看路由</td>
+</tr>
+<tr>
+<td><code>netstat</code></td>
+<td>查看网络连接与端口</td>
+<td><code>-tuln</code> 看监听端口、<code>-r</code> 看路由</td>
+</tr>
+<tr>
+<td><code>ss</code></td>
+<td>socket 统计，推荐替代 netstat</td>
+<td><code>-tuln</code> 看监听端口</td>
+</tr>
+</tbody></table>
+<p><strong>要解决什么</strong>：确认本机 IP 是否正确、网站是否可达、某个服务的端口有没有监听。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ping -c 4 baidu.com       <span class="comment"># 发 4 个包测试连通性，避免无限继续</span></span><br><span class="line">ip addr                    <span class="comment"># 查看所有网卡的 IP 地址</span></span><br><span class="line">ip route                   <span class="comment"># 查看路由表，确认网关</span></span><br><span class="line">ss -tuln                   <span class="comment"># 列出正在监听的 TCP/UDP 端口</span></span><br></pre></td></tr></table></figure>
+
+<p>新系统里 <code>ifconfig</code> 和 <code>netstat</code> 逐渐被 <code>ip</code> 和 <code>ss</code> 取代，功能更强、输出更清晰。比如要确认 Nginx 是否真的在 80 端口监听，用 <code>ss -tuln | grep :80</code> 一眼就能看出来。<strong>预期效果</strong>：网络不通时，你能逐层判断是 DNS、路由还是服务本身的问题。</p>
+<h2 id="软件包管理"><a href="#软件包管理" class="headerlink" title="软件包管理"></a>软件包管理</h2><p>装软件优先用包管理器，它会自动处理依赖关系。不同发行版用的工具不同，别混用。</p>
+<p><strong>CentOS &#x2F; RHEL 系列（yum &#x2F; dnf）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">yum update                    <span class="comment"># 更新所有软件包</span></span><br><span class="line">yum install vim               <span class="comment"># 安装 vim</span></span><br><span class="line">yum remove vim                <span class="comment"># 卸载 vim</span></span><br><span class="line">yum search keyword            <span class="comment"># 搜索软件包</span></span><br><span class="line">yum list installed            <span class="comment"># 列出已安装的包</span></span><br><span class="line">yum -y install vim            <span class="comment"># -y 自动确认，适合脚本里使用</span></span><br><span class="line">dnf install vim               <span class="comment"># dnf 是 yum 的继任者，CentOS 8+ 推荐</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Ubuntu &#x2F; Debian 系列（apt）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update               <span class="comment"># 更新软件包索引，安装前通常先执行</span></span><br><span class="line"><span class="built_in">sudo</span> apt upgrade              <span class="comment"># 升级已安装的包</span></span><br><span class="line"><span class="built_in">sudo</span> apt install vim          <span class="comment"># 安装 vim</span></span><br><span class="line"><span class="built_in">sudo</span> apt remove vim           <span class="comment"># 卸载 vim</span></span><br><span class="line"><span class="built_in">sudo</span> apt search keyword       <span class="comment"># 搜索软件包</span></span><br><span class="line"><span class="built_in">sudo</span> apt list --installed     <span class="comment"># 列出已安装的包</span></span><br></pre></td></tr></table></figure>
+
+<p>一个常见疑问：为什么 <code>apt</code> 前要加 <code>sudo</code>？因为安装软件需要往系统目录写文件，必须临时提权。另外 <code>apt update</code> 只是刷新”软件清单”，真正升级要用 <code>apt upgrade</code>，两步别搞混。<strong>预期效果</strong>：一条命令完成安装，依赖自动满足，日后升级也统一管理。</p>
+<h2 id="踩坑小贴士：PATH-配错后的恢复"><a href="#踩坑小贴士：PATH-配错后的恢复" class="headerlink" title="踩坑小贴士：PATH 配错后的恢复"></a>踩坑小贴士：PATH 配错后的恢复</h2><p>修改环境变量时不小心把 <code>PATH</code> 写坏，是很常见的翻车现场：明明命令还在，系统却提示 <code>command not found</code>，连 <code>vi</code>、<code>sudo</code> 都用不了。别慌，<code>PATH</code> 只是告诉系统去哪里找命令，临时重设一下就能恢复。</p>
+<p><strong>要解决什么</strong>：PATH 被改错后，临时恢复出一个可用的命令搜索路径，先把终端救回来。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin</span><br></pre></td></tr></table></figure>
+
+<p>这条命令把几个标准目录重新拼成 PATH：<code>/bin</code>、<code>/sbin</code> 放系统基础命令，<code>/usr/bin</code>、<code>/usr/sbin</code> 放常规程序，<code>/usr/local/bin</code>、<code>/usr/local/sbin</code> 放本地安装的软件。执行后，常用命令立刻就能找到了。</p>
+<p>这里要提醒两点。第一，这是<strong>临时</strong>恢复，只对当前终端会话有效，关掉窗口就失效；要永久生效，得把正确配置写进 <code>~/.bashrc</code> 或 <code>~/.profile</code>，写之前一定先备份。第二，配置 PATH 时建议用 <code>$PATH</code> 追加而不是整体覆盖，比如 <code>export PATH=$PATH:/your/new/path</code>，这样就不会把系统原有路径弄丢。<strong>预期效果</strong>：终端从”什么命令都找不到”恢复到可用状态，你可以从容地去修正配置文件。</p>
+<p>把这份速查表按场景存下来，用到时对着查、照着敲，慢慢就会熟能生巧。命令不需要死记，重要的是知道每类问题该找哪个工具，以及关键参数怎么组合。等这些命令用顺了，再去学文本处理和 shell 编程，就会水到渠成。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/linux%E5%85%A5%E9%97%A8%E4%B8%8Ewindows%E5%8C%BA%E5%88%AB/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E6%9D%83%E9%99%90/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

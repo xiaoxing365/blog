@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="正则表达式速查与Python re模块是文本处理的重要工具。本文先用表格系统整理点号、插字符、美元符号、星号、加号、问号、字符集、速写字符等元字符的含义，再讲量词、分组、分支、转义和定位符，通过对比示例说明贪婪匹配与非贪婪匹配的差异，用生活化场景解释正向先行、负向先行、正向后行、负向后行四种断言，最后为re模块的每个常用方法配上可运行的代码示例，帮助读者从零掌握正则匹配与替换。">
+
+
+    
+  <meta name="keywords" content="正则表达式,Python re模块,元字符,量词,贪婪匹配,断言,findall,分组">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>正则表达式速查与pythonre模块</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Python"
+                           title="Python">Python</a>
+                        
+                        <a class="tag" href="/tags/#正则表达式"
+                           title="正则表达式">正则表达式</a>
+                        
+                        <a class="tag" href="/tags/#re模块"
+                           title="re模块">re模块</a>
+                        
+                        <a class="tag" href="/tags/#元字符"
+                           title="元字符">元字符</a>
+                        
+                    </div>
+                    <h1>正则表达式速查与pythonre模块</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>在一大段文字里找出所有手机号、把日志里的 IP 全部提取出来、把重复空格压缩成一个——这些活靠手工做又慢又容易漏，正则表达式就是专门干这个的。它看起来像一串”天书”，但拆开看只有元字符、量词、分组等几个零件。本文先给速查表，再用 Python 的 <code>re</code> 模块把每个用法跑一遍。</p>
+<h2 id="一、元字符速查表"><a href="#一、元字符速查表" class="headerlink" title="一、元字符速查表"></a>一、元字符速查表</h2><p>元字符是正则表达式里有特殊含义的字符。记住这张表，就看懂了一大半：</p>
+<table>
+<thead>
+<tr>
+<th>元字符</th>
+<th>含义</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>.</code></td>
+<td>匹配除换行外的任意单个字符</td>
+<td><code>.ar</code> 可匹配 car、jar</td>
+</tr>
+<tr>
+<td><code>^</code></td>
+<td>匹配字符串开始</td>
+<td><code>^abc</code> 匹配以 abc 开头</td>
+</tr>
+<tr>
+<td><code>$</code></td>
+<td>匹配字符串结束</td>
+<td><code>at\.$</code> 匹配以 at. 结尾</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td>前面元素出现 0 次或多次</td>
+<td><code>a*</code> 匹配空、a、aaa</td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>前面元素出现 1 次或多次</td>
+<td><code>c.+t</code> 匹配 c 开头 t 结尾</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>前面元素出现 0 次或 1 次</td>
+<td><code>[T]?he</code> 匹配 The 和 he</td>
+</tr>
+<tr>
+<td><code>[abc]</code></td>
+<td>字符集中的任意一个</td>
+<td><code>[Tt]he</code> 匹配 The、the</td>
+</tr>
+<tr>
+<td><code>[^abc]</code></td>
+<td>不在字符集中的任意字符</td>
+<td><code>[^C]</code> 匹配非 C 字符</td>
+</tr>
+<tr>
+<td><code>[a-z]</code></td>
+<td>范围内的任意小写字母</td>
+<td><code>[0-9]</code> 匹配一个数字</td>
+</tr>
+<tr>
+<td><code>\s</code></td>
+<td>任意空白字符（空格、制表、换行）</td>
+<td><code>\s+</code> 匹配一段空白</td>
+</tr>
+<tr>
+<td><code>\S</code></td>
+<td>任意非空白字符</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>\d</code></td>
+<td>数字，等价 <code>[0-9]</code> (digit)</td>
+<td><code>\d&#123;3&#125;</code> 匹配三位数字</td>
+</tr>
+<tr>
+<td><code>\D</code></td>
+<td>非数字</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>\w</code></td>
+<td>字母、数字、下划线，等价 <code>[A-Za-z0-9_]</code> (word)</td>
+<td><code>\w+</code> 匹配一个单词</td>
+</tr>
+<tr>
+<td><code>\W</code></td>
+<td>非单词字符</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>[\s\S]</code></td>
+<td>任意字符，包括换行</td>
+<td>常用于跨行匹配</td>
+</tr>
+</tbody></table>
+<p>一个规律：**小写表示”匹配”，大写表示”取反”**，例如 <code>\d</code> 匹配数字，<code>\D</code> 匹配非数字。方括号里的 <code>^</code> 不再表示开头，而是”排除”的意思。</p>
+<h2 id="二、量词与贪婪"><a href="#二、量词与贪婪" class="headerlink" title="二、量词与贪婪"></a>二、量词与贪婪</h2><p>量词用来指定某个元素重复多少次：</p>
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&#123;n&#125;</code></td>
+<td>正好 n 次</td>
+</tr>
+<tr>
+<td><code>&#123;n,&#125;</code></td>
+<td>至少 n 次</td>
+</tr>
+<tr>
+<td><code>&#123;n,m&#125;</code></td>
+<td>至少 n 次，最多 m 次</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td>0 次或多次，等价 <code>&#123;0,&#125;</code></td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>1 次或多次，等价 <code>&#123;1,&#125;</code></td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>0 次或 1 次，等价 <code>&#123;0,1&#125;</code></td>
+</tr>
+</tbody></table>
+<p>例如 <code>[0-9]&#123;2,3&#125;</code> 匹配 2 到 3 位数字；<code>[0-9]&#123;2,&#125;</code> 匹配至少 2 位；<code>[0-9]&#123;2&#125;</code> 匹配正好 2 位。</p>
+<h3 id="2-1-贪婪与非贪婪"><a href="#2-1-贪婪与非贪婪" class="headerlink" title="2.1 贪婪与非贪婪"></a>2.1 贪婪与非贪婪</h3><p>默认情况下，量词是<strong>贪婪</strong>的——尽可能多匹配。在量词后面加 <code>?</code> 就变成<strong>非贪婪</strong>，尽可能少匹配。这个区别在处理成对标签时特别明显：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">text = <span class="string">&#x27;&lt;b&gt;苹果&lt;/b&gt; 和 &lt;b&gt;香蕉&lt;/b&gt;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(re.findall(<span class="string">r&#x27;&lt;b&gt;.+&lt;/b&gt;&#x27;</span>, text))    <span class="comment"># 贪婪</span></span><br><span class="line"><span class="comment"># [&#x27;&lt;b&gt;苹果&lt;/b&gt; 和 &lt;b&gt;香蕉&lt;/b&gt;&#x27;]</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(re.findall(<span class="string">r&#x27;&lt;b&gt;.+?&lt;/b&gt;&#x27;</span>, text))   <span class="comment"># 非贪婪</span></span><br><span class="line"><span class="comment"># [&#x27;&lt;b&gt;苹果&lt;/b&gt;&#x27;, &#x27;&lt;b&gt;香蕉&lt;/b&gt;&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<p>贪婪模式下，<code>.+</code> 一路吃到最后一个 <code>&lt;/b&gt;</code> 才停；加上 <code>?</code> 后，遇到第一个 <code>&lt;/b&gt;</code> 就收手。需要”最短匹配”时记得加这个问号。</p>
+<h2 id="三、分组、分支与转义"><a href="#三、分组、分支与转义" class="headerlink" title="三、分组、分支与转义"></a>三、分组、分支与转义</h2><h3 id="3-1-分组与分支"><a href="#3-1-分组与分支" class="headerlink" title="3.1 分组与分支"></a>3.1 分组与分支</h3><p>圆括号 <code>()</code> 把多个字符组合成一个子模式，后面可以跟量词。竖线 <code>|</code> 表示”或”，也叫分支：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">re.findall(<span class="string">r&#x27;(ab)+&#x27;</span>, <span class="string">&#x27;ababab ab&#x27;</span>)   <span class="comment"># [&#x27;ab&#x27;, &#x27;ab&#x27;]，括号让 ab 作为整体重复</span></span><br><span class="line">re.findall(<span class="string">r&#x27;(c|g|p)ar&#x27;</span>, <span class="string">&#x27;car par gar&#x27;</span>)  <span class="comment"># [&#x27;c&#x27;, &#x27;p&#x27;, &#x27;g&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<p>给分组起名用 <code>(?P&lt;名字&gt;...)</code>，后面可以按名字取值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">m = re.<span class="keyword">match</span>(<span class="string">r&#x27;(?P&lt;year&gt;\d&#123;4&#125;)-(?P&lt;month&gt;\d&#123;2&#125;)&#x27;</span>, <span class="string">&#x27;2026-11&#x27;</span>)</span><br><span class="line">m.groupdict()   <span class="comment"># &#123;&#x27;year&#x27;: &#x27;2026&#x27;, &#x27;month&#x27;: &#x27;11&#x27;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-转义"><a href="#3-2-转义" class="headerlink" title="3.2 转义"></a>3.2 转义</h3><p>反斜杠 <code>\</code> 把特殊字符变成普通字符。比如点号 <code>.</code> 默认匹配任意字符，想匹配真正的句号就要写成 <code>\.</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">re.findall(<span class="string">r&#x27;ar\.&#x27;</span>, <span class="string">&#x27;ar. and car&#x27;</span>)   <span class="comment"># [&#x27;ar.&#x27;]，只匹配字面上的 &quot;ar.&quot;</span></span><br><span class="line">re.findall(<span class="string">r&#x27;.ar&#x27;</span>, <span class="string">&#x27;car jar&#x27;</span>)        <span class="comment"># [&#x27;car&#x27;, &#x27;jar&#x27;]，点号匹配任意字符</span></span><br></pre></td></tr></table></figure>
+
+<p>在 Python 里建议用<strong>原始字符串</strong>（在字符串前加 <code>r</code>），省去反斜杠被Python 再次转义的麻烦。</p>
+<h2 id="四、定位符与断言"><a href="#四、定位符与断言" class="headerlink" title="四、定位符与断言"></a>四、定位符与断言</h2><h3 id="4-1-定位符"><a href="#4-1-定位符" class="headerlink" title="4.1 定位符"></a>4.1 定位符</h3><p><code>^</code> 和 <code>$</code> 是定位符，分别锁定开头和结尾，不匹配任何实际字符：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">re.search(<span class="string">r&#x27;^(T|t)he&#x27;</span>, <span class="string">&#x27;The cat&#x27;</span>)     <span class="comment"># 匹配到 The</span></span><br><span class="line">re.search(<span class="string">r&#x27;^(T|t)he&#x27;</span>, <span class="string">&#x27;a The cat&#x27;</span>)   <span class="comment"># None，因为 The 不在开头</span></span><br></pre></td></tr></table></figure>
+
+<p><code>\b</code> 表示单词边界，常用于”匹配完整单词”：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">example = <span class="string">&quot;Beautiful is better than ugly&quot;</span></span><br><span class="line">re.findall(<span class="string">r&#x27;\bb\w*\b&#x27;</span>, example)   <span class="comment"># [&#x27;better&#x27;]，只取以小写 b 开头的完整单词</span></span><br><span class="line">re.findall(<span class="string">r&#x27;\b\w+\b&#x27;</span>, example)    <span class="comment"># 所有完整单词</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-四种断言"><a href="#4-2-四种断言" class="headerlink" title="4.2 四种断言"></a>4.2 四种断言</h3><p>断言（lookaround）只检查”前后是否满足条件”，本身不消耗字符，所以叫”零宽”。它们像站在某个位置向前后张望：</p>
+<table>
+<thead>
+<tr>
+<th>断言</th>
+<th>写法</th>
+<th>通俗含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>正向先行</td>
+<td><code>(?=...)</code></td>
+<td>后面<strong>必须</strong>跟着某内容</td>
+</tr>
+<tr>
+<td>负向先行</td>
+<td><code>(?!...)</code></td>
+<td>后面<strong>不能</strong>跟着某内容</td>
+</tr>
+<tr>
+<td>正向后行</td>
+<td><code>(?&lt;=...)</code></td>
+<td>前面<strong>必须</strong>是某内容</td>
+</tr>
+<tr>
+<td>负向后行</td>
+<td><code>(?&lt;!...)</code></td>
+<td>前面<strong>不能</strong>是某内容</td>
+</tr>
+</tbody></table>
+<p>用”价格”来举例最直观。假设文本是 <code>apple 5元 banana $8 orange 10元</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">text = <span class="string">&#x27;apple 5元 banana $8 orange 10元&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 只要数字后面跟着&quot;元&quot;的价格</span></span><br><span class="line">re.findall(<span class="string">r&#x27;\d+(?=元)&#x27;</span>, text)</span><br><span class="line"><span class="comment"># [&#x27;5&#x27;, &#x27;10&#x27;] —— 只取数字，不取&quot;元&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 数字后面不是&quot;元&quot;的（比如美元标价里的 8）</span></span><br><span class="line">re.findall(<span class="string">r&#x27;\d+(?!元)&#x27;</span>, text)</span><br><span class="line"><span class="comment"># [&#x27;8&#x27;, &#x27;1&#x27;] —— 5 和 10 后面是&quot;元&quot;被排除；10 中的 1 后面是 0，符合条件所以留下了 1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 只要前面是&quot;￥&quot;的数字</span></span><br><span class="line">re.findall(<span class="string">r&#x27;(?&lt;=￥)\d+&#x27;</span>, <span class="string">&#x27;￥99 和 $88&#x27;</span>)</span><br><span class="line"><span class="comment"># [&#x27;99&#x27;]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 前面不是&quot;￥&quot;的数字</span></span><br><span class="line">re.findall(<span class="string">r&#x27;(?&lt;!￥)\d+&#x27;</span>, <span class="string">&#x27;￥99 和 88&#x27;</span>)</span><br><span class="line"><span class="comment"># [&#x27;9&#x27;, &#x27;88&#x27;] —— 99 的第一位前面是￥，被排除；第二位前面是 9，所以会命中</span></span><br></pre></td></tr></table></figure>
+
+<p>最后一条结果有点反直觉：这正说明断言检查的是”紧挨着的前一个字符”。断言的特点是<strong>只做条件判断、不把条件内容放进结果</strong>，特别适合”取数字但不要单位符号”这类需求。</p>
+<h2 id="五、Python-re-模块逐个演示"><a href="#五、Python-re-模块逐个演示" class="headerlink" title="五、Python re 模块逐个演示"></a>五、Python re 模块逐个演示</h2><p>使用正则要先导入模块：<code>import re</code>。下面把常用方法逐个跑一遍。</p>
+<h3 id="5-1-re-split：按模式分割"><a href="#5-1-re-split：按模式分割" class="headerlink" title="5.1 re.split：按模式分割"></a>5.1 re.split：按模式分割</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">text = <span class="string">&#x27;one.two...three..four&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(re.split(<span class="string">r&#x27;\.+&#x27;</span>, text))</span><br><span class="line"><span class="comment"># [&#x27;one&#x27;, &#x27;two&#x27;, &#x27;three&#x27;, &#x27;four&#x27;]，按一个或多个点分割</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(re.split(<span class="string">r&#x27;\.+&#x27;</span>, text, maxsplit=<span class="number">2</span>))</span><br><span class="line"><span class="comment"># [&#x27;one&#x27;, &#x27;two&#x27;, &#x27;three..four&#x27;]，最多切两次</span></span><br></pre></td></tr></table></figure>
+
+<p><code>maxsplit</code> 参数限制最大分割次数，不写就是全部分割。</p>
+<h3 id="5-2-re-findall：找出所有匹配"><a href="#5-2-re-findall：找出所有匹配" class="headerlink" title="5.2 re.findall：找出所有匹配"></a>5.2 re.findall：找出所有匹配</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">text = <span class="string">&#x27;Order 123, ticket 456, code 789&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(re.findall(<span class="string">r&#x27;\d+&#x27;</span>, text))</span><br><span class="line"><span class="comment"># [&#x27;123&#x27;, &#x27;456&#x27;, &#x27;789&#x27;]</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(re.findall(<span class="string">r&#x27;[a-zA-Z]+&#x27;</span>, <span class="string">&#x27;abc 123 DEF&#x27;</span>))</span><br><span class="line"><span class="comment"># [&#x27;abc&#x27;, &#x27;DEF&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<p>返回所有匹配结果的列表，是最常用的方法之一。</p>
+<h3 id="5-3-re-sub：替换"><a href="#5-3-re-sub：替换" class="headerlink" title="5.3 re.sub：替换"></a>5.3 re.sub：替换</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(re.sub(<span class="string">r&#x27;\&#123;name\&#125;&#x27;</span>, <span class="string">&#x27;小明&#x27;</span>, <span class="string">&#x27;Dear &#123;name&#125;&#x27;</span>))</span><br><span class="line"><span class="comment"># &#x27;Dear 小明&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(re.sub(<span class="string">r&#x27;a|s|d&#x27;</span>, <span class="string">&#x27;good&#x27;</span>, <span class="string">&#x27;asd&#x27;</span>))</span><br><span class="line"><span class="comment"># &#x27;goodgoodgood&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>三个参数依次是”模式、替换内容、原字符串”。花括号在正则里有含义，匹配字面量时要转义成 <code>\&#123;</code> 和 <code>\&#125;</code>。</p>
+<h3 id="5-4-re-subn：替换并计数"><a href="#5-4-re-subn：替换并计数" class="headerlink" title="5.4 re.subn：替换并计数"></a>5.4 re.subn：替换并计数</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">result = re.subn(<span class="string">r&#x27;a|s|d&#x27;</span>, <span class="string">&#x27;good&#x27;</span>, <span class="string">&#x27;asd&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(result)</span><br><span class="line"><span class="comment"># (&#x27;goodgoodgood&#x27;, 3) —— 元组第一项是结果字符串，第二项是替换次数</span></span><br></pre></td></tr></table></figure>
+
+<p>想知道”到底改了几处”时，用 <code>subn</code> 比 <code>sub</code> 方便。</p>
+<h3 id="5-5-re-escape：转义特殊字符"><a href="#5-5-re-escape：转义特殊字符" class="headerlink" title="5.5 re.escape：转义特殊字符"></a>5.5 re.escape：转义特殊字符</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="built_in">print</span>(re.escape(<span class="string">&#x27;a+b&#x27;</span>))            <span class="comment"># &#x27;a\\+b&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(re.escape(<span class="string">&#x27;www.python.org&#x27;</span>)) <span class="comment"># &#x27;www\\.python\\.org&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>当用户输入的内容要当作普通文本参与匹配时，先用 <code>escape</code> 处理，避免里面的 <code>+</code>、<code>.</code> 被当成元字符。</p>
+<h3 id="5-6-re-match：从开头匹配"><a href="#5-6-re-match：从开头匹配" class="headerlink" title="5.6 re.match：从开头匹配"></a>5.6 re.match：从开头匹配</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">m = re.<span class="keyword">match</span>(<span class="string">r&#x27;done|quit&#x27;</span>, <span class="string">&#x27;done now&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(m.group())   <span class="comment"># &#x27;done&#x27;，匹配成功返回 match 对象</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(re.<span class="keyword">match</span>(<span class="string">r&#x27;done|quit&#x27;</span>, <span class="string">&#x27;a done now&#x27;</span>))</span><br><span class="line"><span class="comment"># None，因为字符串开头是 a，不是 done 或 quit</span></span><br></pre></td></tr></table></figure>
+
+<p><code>match</code> 只检查字符串<strong>开头</strong>，开头不匹配就直接返回 <code>None</code>。注意它和 <code>search</code> 的区别——<code>search</code> 会在整段文字里找，即使目标不在开头也能找到。</p>
+<h3 id="5-7-re-search：任意位置查找"><a href="#5-7-re-search：任意位置查找" class="headerlink" title="5.7 re.search：任意位置查找"></a>5.7 re.search：任意位置查找</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">s = <span class="string">&#x27;&lt;html&gt;&lt;head&gt;This is head.&lt;/head&gt;&lt;body&gt;This is body.&lt;/body&gt;&lt;/html&gt;&#x27;</span></span><br><span class="line">pattern = <span class="string">r&#x27;&lt;html&gt;&lt;head&gt;(.+)&lt;/head&gt;&lt;body&gt;(.+)&lt;/body&gt;&lt;/html&gt;&#x27;</span></span><br><span class="line">result = re.search(pattern, s)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(result.group(<span class="number">0</span>))   <span class="comment"># 整个匹配到的字符串</span></span><br><span class="line"><span class="built_in">print</span>(result.group(<span class="number">1</span>))   <span class="comment"># &#x27;This is head.&#x27;，第一个子模式</span></span><br><span class="line"><span class="built_in">print</span>(result.group(<span class="number">2</span>))   <span class="comment"># &#x27;This is body.&#x27;，第二个子模式</span></span><br></pre></td></tr></table></figure>
+
+<p><code>search</code> 会在整个字符串里找第一个匹配位置。用 <code>group(1)</code>、<code>group(2)</code> 可以按括号顺序取出各个分组捕获的内容。</p>
+<h3 id="5-8-re-compile：预编译"><a href="#5-8-re-compile：预编译" class="headerlink" title="5.8 re.compile：预编译"></a>5.8 re.compile：预编译</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;\d+&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(pattern.findall(<span class="string">&#x27;a1b22c333&#x27;</span>))   <span class="comment"># [&#x27;1&#x27;, &#x27;22&#x27;, &#x27;333&#x27;]</span></span><br><span class="line"><span class="built_in">print</span>(pattern.<span class="keyword">match</span>(<span class="string">&#x27;123abc&#x27;</span>).group())  <span class="comment"># &#x27;123&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>同一条正则要反复使用时，先用 <code>compile</code> 编译成 Pattern 对象，后续直接调用它的方法，既简洁又高效。</p>
+<h2 id="六、三个实战小例子"><a href="#六、三个实战小例子" class="headerlink" title="六、三个实战小例子"></a>六、三个实战小例子</h2><p><strong>压缩多余空格</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">s = <span class="string">&#x27;aaa    bb     c d e  fff    &#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 不用正则的写法</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27; &#x27;</span>.join(s.split()))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用正则的写法</span></span><br><span class="line"><span class="built_in">print</span>(re.sub(<span class="string">r&#x27;\s+&#x27;</span>, <span class="string">&#x27; &#x27;</span>, s.strip()))</span><br></pre></td></tr></table></figure>
+
+<p>两者结果一致。<code>\s+</code> 把连续空白视为一个整体，替换成单个空格，<code>strip()</code> 先去掉首尾空白。</p>
+<p><strong>提取版本号</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">re.findall(<span class="string">r&#x27;\d+\.\d+\.\d+&#x27;</span>, <span class="string">&#x27;Python 2.7.13&#x27;</span>)</span><br><span class="line"><span class="comment"># [&#x27;2.7.13&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<p>点号要转义成 <code>\.</code>，否则会匹配任意字符。</p>
+<p><strong>按非贪婪方式抓标签内容</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">re.findall(<span class="string">r&#x27;&lt;title&gt;(.*?)&lt;/title&gt;&#x27;</span>, <span class="string">&#x27;&lt;title&gt;A&lt;/title&gt;&lt;title&gt;B&lt;/title&gt;&#x27;</span>)</span><br><span class="line"><span class="comment"># [&#x27;A&#x27;, &#x27;B&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="七、常见坑与练习建议"><a href="#七、常见坑与练习建议" class="headerlink" title="七、常见坑与练习建议"></a>七、常见坑与练习建议</h2><p>写正则时新手最容易踩三个坑：</p>
+<ol>
+<li><strong>忘记用原始字符串</strong>。<code>r&#39;\d+&#39;</code> 和 <code>&#39;\d+&#39;</code> 在多数情况下结果相同，但碰到 <code>\b</code>、<code>\1</code> 这类写法时，普通字符串会先被 Python 解释一次，导致匹配失败。养成加 <code>r</code> 前缀的习惯，能省掉很多莫名其妙的问题。</li>
+<li><strong>贪婪匹配切得太多</strong>。用 <code>.*</code> 提取成对标签时，往往一路匹配到最后一个结束标签。先问自己要”最长”还是”最短”，要最短就加 <code>?</code>。</li>
+<li><strong>不清楚断言是否消耗字符</strong>。断言只判断位置、不把内容放进结果，所以 <code>(?=元)</code> 匹配到的数字不包含”元”字。如果想连单位一起取，就把单位写进匹配模式，而不是放在断言里。</li>
+</ol>
+<p>练习建议：先拿一段日志练 <code>findall</code>，把 IP 和时间提取出来；再用 <code>sub</code> 把敏感字段替换成占位符；最后把常用模式用 <code>compile</code> 封装起来复用。写法上先求”能跑通”，再逐步收紧条件，不必一上来就追求一条表达式解决所有问题。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>正则表达式的零件其实不多：元字符定义”匹配什么”，量词定义”匹配几次”，分组定义”把谁当整体”，定位符与断言定义”在哪儿匹配”。写复杂表达式时别急着一次成型，先用最简单的模式跑通，再逐步加条件。在 Python 里，查找用 <code>findall</code>&#x2F;<code>search</code>，替换用 <code>sub</code>&#x2F;<code>subn</code>，分割用 <code>split</code>，反复使用就 <code>compile</code>。记住多用原始字符串 <code>r&#39;...&#39;</code>，遇到贪婪问题先想想该不该加 <code>?</code>，正则就会从”天书”变成趁手的工具。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/windows%E7%BD%91%E7%BB%9C%E5%91%BD%E4%BB%A4%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%95%85%E9%9A%9C%E9%80%9F%E6%9F%A5/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="这份Linux文本处理与系统管理指南，先用场景+命令+结果三段式讲透vim、sed、awk、sort、uniq的用法，再覆盖systemctl服务管理、crontab五字段定时任务格式、/var/log与journalctl日志查看，最后梳理Shell环境变量、输入输出重定向和管道符，帮你把零散命令串成真正可用的自动化技能。">
+
+
+    
+  <meta name="keywords" content="Linux文本处理,vim快捷键,sed命令,awk命令,systemctl,crontab,journalctl,Shell管道">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>linux文本处理与系统管理</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#vim"
+                           title="vim">vim</a>
+                        
+                        <a class="tag" href="/tags/#sed"
+                           title="sed">sed</a>
+                        
+                        <a class="tag" href="/tags/#awk"
+                           title="awk">awk</a>
+                        
+                        <a class="tag" href="/tags/#systemctl"
+                           title="systemctl">systemctl</a>
+                        
+                    </div>
+                    <h1>linux文本处理与系统管理</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>会敲单条命令，只能算”会用” Linux；把命令组合起来处理文本、管理服务、定时运行任务，才算真正”用好”。这一篇就从编辑文本开始，一路讲到服务、定时任务、日志和 Shell 的三个基础机制。每一处都按”场景 + 命令 + 结果”的方式来写，照着做就能看到效果。</p>
+<h2 id="vim：终端里的文本编辑器"><a href="#vim：终端里的文本编辑器" class="headerlink" title="vim：终端里的文本编辑器"></a>vim：终端里的文本编辑器</h2><p>vi 是 Linux 上历史最悠久的文本编辑器，几乎每台机器都有。vim 是 vi 的增强版，支持语法高亮、多级撤销等特性，日常使用它和 vi 的方式基本一致；neovim（nvim）则是 vim 的现代分支，体验更流畅。掌握 vim，你在任何终端里都能从容改文件。</p>
+<h3 id="三种模式是理解-vim-的钥匙"><a href="#三种模式是理解-vim-的钥匙" class="headerlink" title="三种模式是理解 vim 的钥匙"></a>三种模式是理解 vim 的钥匙</h3><p>新手觉得 vim 难，多半是因为没搞清楚模式。vim 主要有三种模式：</p>
+<ul>
+<li><strong>命令模式（普通模式）</strong>：打开文件后默认进入。在这个模式下，按键代表操作命令，比如移动光标、删除、复制、粘贴，而不是往文件里写字。</li>
+<li><strong>插入模式</strong>：在命令模式下按 <code>i</code>、<code>a</code>、<code>o</code> 等键进入，此时才能正常输入和编辑文字。按 <code>Esc</code> 回到命令模式。</li>
+<li><strong>末行模式（命令行模式）</strong>：在命令模式下按 <code>:</code> 进入，光标跳到屏幕底部，用来执行保存、退出、搜索、替换等命令。</li>
+</ul>
+<p>记住一条主线：<strong>打开文件 → 命令模式 → 按 i 进入插入模式改内容 → 按 Esc 回命令模式 → 按 : 输入 wq 保存退出</strong>。</p>
+<p><strong>场景</strong>：编辑一份配置文件，改完后保存退出。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/hosts        <span class="comment"># 用 vim 打开文件（改系统文件需要 sudo）</span></span><br></pre></td></tr></table></figure>
+
+<p>进入后按 <code>i</code> 开始改，改完按 <code>Esc</code>，再输入 <code>:wq</code> 回车。</p>
+<p><strong>结果</strong>：文件被保存，vim 退出回到终端。如果只想退出不保存，用 <code>:q!</code>；只想保存不退出，用 <code>:w</code>。</p>
+<h3 id="高频快捷键速查"><a href="#高频快捷键速查" class="headerlink" title="高频快捷键速查"></a>高频快捷键速查</h3><p>下面这些按键都在命令模式下使用，整理成表格方便记忆：</p>
+<table>
+<thead>
+<tr>
+<th>按键</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>i</code> &#x2F; <code>a</code></td>
+<td>在光标前 &#x2F; 光标后进入插入模式</td>
+</tr>
+<tr>
+<td><code>o</code></td>
+<td>在光标下方新开一行并进入插入模式</td>
+</tr>
+<tr>
+<td><code>s</code></td>
+<td>删除光标处字符并进入插入模式</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>从插入模式返回命令模式</td>
+</tr>
+<tr>
+<td><code>gg</code> &#x2F; <code>G</code></td>
+<td>跳到文件第一行 &#x2F; 最后一行</td>
+</tr>
+<tr>
+<td><code>:数字</code></td>
+<td>跳到指定行，如 <code>:50</code> 跳到第 50 行</td>
+</tr>
+<tr>
+<td><code>h j k l</code></td>
+<td>光标左、下、上、右移动</td>
+</tr>
+<tr>
+<td><code>v</code> → 选中 → <code>y</code> → <code>p</code></td>
+<td>可视模式选中文字，复制后粘贴</td>
+</tr>
+<tr>
+<td><code>/关键词</code></td>
+<td>向下搜索关键词，按 <code>n</code> 跳到下一个</td>
+</tr>
+<tr>
+<td><code>dd</code> &#x2F; <code>yy</code></td>
+<td>删除 &#x2F; 复制当前行</td>
+</tr>
+<tr>
+<td><code>:wq</code> &#x2F; <code>:q!</code></td>
+<td>保存退出 &#x2F; 强制退出不保存</td>
+</tr>
+</tbody></table>
+<p><strong>场景</strong>：想选中一段文字，复制后粘到文件末尾。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">按 v 进入可视模式</span><br><span class="line">用 h j k l 或方向键移动光标选中文字</span><br><span class="line">按 y 复制选中内容</span><br><span class="line">按 G 跳到最后一行</span><br><span class="line">按 p 粘贴</span><br></pre></td></tr></table></figure>
+
+<p><strong>结果</strong>：选中的文字被复制到文件末尾。熟练之后，光标移动、选中、复制、粘贴可以一气呵成，编辑效率远超鼠标操作。</p>
+<h2 id="sed：按行处理文本的流编辑器"><a href="#sed：按行处理文本的流编辑器" class="headerlink" title="sed：按行处理文本的流编辑器"></a>sed：按行处理文本的流编辑器</h2><p>sed 擅长对文本做批量替换、删除、打印，尤其适合处理大文件或在脚本里自动改写内容，不必打开文件逐行手动改。</p>
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sed &#39;s/old/new/g&#39; 文件</code></td>
+<td>把每行中的 old 全部替换成 new</td>
+</tr>
+<tr>
+<td><code>sed -n &#39;5,10p&#39; 文件</code></td>
+<td>只打印第 5 到 10 行</td>
+</tr>
+<tr>
+<td><code>sed &#39;/pattern/d&#39; 文件</code></td>
+<td>删除匹配 pattern 的行</td>
+</tr>
+<tr>
+<td><code>sed -i &#39;s/old/new/g&#39; 文件</code></td>
+<td>直接写回文件（谨慎使用）</td>
+</tr>
+</tbody></table>
+<p><strong>场景</strong>：把配置文件里所有的 <code>localhost</code> 换成 <code>127.0.0.1</code>，并先预览再写回。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/localhost/127.0.0.1/g&#x27;</span> app.conf     <span class="comment"># 先预览替换结果，不改动原文件</span></span><br><span class="line">sed -i <span class="string">&#x27;s/localhost/127.0.0.1/g&#x27;</span> app.conf  <span class="comment"># 确认无误后，用 -i 直接写回文件</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>结果</strong>：第一次执行只在屏幕上显示替换后的内容，<code>app.conf</code> 本身没变；第二次执行后，文件里的 <code>localhost</code> 全部被替换。<code>s</code> 是替换命令，结尾的 <code>g</code> 表示全局替换（否则每行只替换第一处）。<code>-i</code> 会直接改文件，建议先用不带 <code>-i</code> 的命令预览，确认正确再写回。</p>
+<h2 id="awk：按列处理文本的利器"><a href="#awk：按列处理文本的利器" class="headerlink" title="awk：按列处理文本的利器"></a>awk：按列处理文本的利器</h2><p>如果说 sed 按”行”处理，awk 更擅长按”列”处理。它会把每行按分隔符切成若干字段，<code>$1</code> 表示第一列，<code>$2</code> 表示第二列，<code>$0</code> 表示整行。</p>
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>awk &#39;&#123;print $1&#125;&#39; 文件</code></td>
+<td>打印每行的第一列</td>
+</tr>
+<tr>
+<td><code>awk -F: &#39;&#123;print $1&#125;&#39; /etc/passwd</code></td>
+<td>以冒号为分隔符，打印第一列</td>
+</tr>
+<tr>
+<td><code>awk &#39;/pattern/ &#123;print $0&#125;&#39; 文件</code></td>
+<td>打印匹配 pattern 的整行</td>
+</tr>
+</tbody></table>
+<p><strong>场景</strong>：从 <code>/etc/passwd</code> 里列出所有用户名。这个文件用冒号分隔字段，用户名在第一列。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk -F: <span class="string">&#x27;&#123;print $1&#125;&#x27;</span> /etc/passwd</span><br></pre></td></tr></table></figure>
+
+<p><strong>结果</strong>：终端逐行输出系统里的用户名，如 <code>root</code>、<code>daemon</code>、<code>alice</code>。<code>-F:</code> 指定冒号为分隔符（默认是空格或制表符），<code>&#123;print $1&#125;</code> 表示打印第一列。再比如 <code>awk -F: &#39;$3==0 &#123;print $1&#125;&#39; /etc/passwd</code> 可以找出 UID 为 0 的账户，也就是拥有 root 权限的用户，这在安全排查时很有用。</p>
+<h2 id="sort-与-uniq：排序和去重"><a href="#sort-与-uniq：排序和去重" class="headerlink" title="sort 与 uniq：排序和去重"></a>sort 与 uniq：排序和去重</h2><p>这两个命令常配合管道使用，用来整理杂乱的数据。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>常用参数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sort</code></td>
+<td>按行排序</td>
+<td><code>-r</code> 反向、<code>-n</code> 按数值、<code>-u</code> 排序并去重</td>
+</tr>
+<tr>
+<td><code>uniq</code></td>
+<td>去除连续的重复行</td>
+<td><code>-c</code> 统计重复次数</td>
+</tr>
+</tbody></table>
+<p><strong>场景</strong>：统计一份访问日志里，哪个 IP 出现得最多。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span> access.log | <span class="built_in">sort</span> | <span class="built_in">uniq</span> -c | <span class="built_in">sort</span> -rn | <span class="built_in">head</span> -n 5</span><br></pre></td></tr></table></figure>
+
+<p><strong>结果</strong>：输出出现次数最多的前 5 个 IP，每行前面带一个数字表示次数。</p>
+<p>这一条命令串起了好几个工具：先用 <code>awk</code> 取出第一列（IP），再用 <code>sort</code> 把相同 IP 排到一起（<code>uniq</code> 只能去掉<strong>相邻</strong>的重复行，所以必须先排序），接着 <code>uniq -c</code> 统计每个 IP 的出现次数，最后 <code>sort -rn</code> 按数字反向排序，把次数多的排在最前，<code>head -n 5</code> 取前五名。这就是 Linux “小工具组合”思想的典型体现。</p>
+<h2 id="systemctl：服务管理"><a href="#systemctl：服务管理" class="headerlink" title="systemctl：服务管理"></a>systemctl：服务管理</h2><p>现代 Linux 用 systemd 作为初始化系统，<code>systemctl</code> 是管理服务的统一命令，适用于 CentOS 7+ 和 Ubuntu 16+。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>systemctl start 服务名</code></td>
+<td>启动服务</td>
+</tr>
+<tr>
+<td><code>systemctl stop 服务名</code></td>
+<td>停止服务</td>
+</tr>
+<tr>
+<td><code>systemctl restart 服务名</code></td>
+<td>重启服务</td>
+</tr>
+<tr>
+<td><code>systemctl status 服务名</code></td>
+<td>查看服务状态</td>
+</tr>
+<tr>
+<td><code>systemctl enable 服务名</code></td>
+<td>设置开机自启</td>
+</tr>
+<tr>
+<td><code>systemctl disable 服务名</code></td>
+<td>取消开机自启</td>
+</tr>
+</tbody></table>
+<p><strong>场景</strong>：修改 Nginx 配置后，让它重新加载并确认运行正常。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl restart nginx      <span class="comment"># 重启服务使配置生效</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl status nginx       <span class="comment"># 查看状态，确认是 active (running)</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> nginx       <span class="comment"># 设置开机自动启动</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>结果</strong>：<code>status</code> 的输出里出现绿色的 <code>active (running)</code>，说明服务正常运行。注意 <code>restart</code> 只影响当前运行，<code>enable</code> 才决定下次开机是否自动启动，两者是独立的，别混淆。</p>
+<h2 id="crontab：让任务按时自动运行"><a href="#crontab：让任务按时自动运行" class="headerlink" title="crontab：让任务按时自动运行"></a>crontab：让任务按时自动运行</h2><p>crontab 用来设置周期性执行的任务，比如每天凌晨备份、每五分钟检查一次服务。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>crontab -e</code></td>
+<td>编辑当前用户的定时任务</td>
+</tr>
+<tr>
+<td><code>crontab -l</code></td>
+<td>列出已有任务</td>
+</tr>
+<tr>
+<td><code>crontab -r</code></td>
+<td>删除当前用户的所有任务（慎重）</td>
+</tr>
+</tbody></table>
+<p>每条定时任务由五个时间字段加一条命令组成，格式如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">*    *    *    *    *    command_to_execute</span><br><span class="line">│    │    │    │    │</span><br><span class="line">│    │    │    │    └── 星期（0-7，0 和 7 都代表周日）</span><br><span class="line">│    │    │    └────── 月份（1-12）</span><br><span class="line">│    │    └─────────── 日期（1-31）</span><br><span class="line">│    └──────────────── 小时（0-23）</span><br><span class="line">└───────────────────── 分钟（0-59）</span><br></pre></td></tr></table></figure>
+
+<p>从左到右依次是：分钟、小时、日期、月份、星期。<code>*</code> 表示”每一个”，也就是该字段不限制。</p>
+<p><strong>场景</strong>：每天凌晨 2 点执行备份脚本，另外每 5 分钟检查一次服务。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br><span class="line"><span class="comment"># 在打开的文件里加入下面两行</span></span><br><span class="line">0 2 * * * /home/alice/backup.sh</span><br><span class="line">*/5 * * * * /home/alice/check.sh</span><br></pre></td></tr></table></figure>
+
+<p><strong>结果</strong>：保存退出后任务即生效。第一行的 <code>0 2 * * *</code> 表示每天 2 点 0 分执行；第二行的 <code>*/5</code> 表示”每 5 分钟”。可以用 <code>crontab -l</code> 随时查看已设置的任务。需要注意，定时任务里的命令最好写绝对路径，因为 cron 执行时的环境变量和你登录时不一样，找不到命令是常见故障。</p>
+<h2 id="系统日志：出了问题去哪里查"><a href="#系统日志：出了问题去哪里查" class="headerlink" title="系统日志：出了问题去哪里查"></a>系统日志：出了问题去哪里查</h2><p>日志是排查问题的第一现场。Linux 的日志主要放在 <code>/var/log</code> 目录：</p>
+<table>
+<thead>
+<tr>
+<th>日志文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/var/log/messages</code></td>
+<td>系统主要日志（CentOS）</td>
+</tr>
+<tr>
+<td><code>/var/log/syslog</code></td>
+<td>系统日志（Ubuntu）</td>
+</tr>
+<tr>
+<td><code>/var/log/auth.log</code></td>
+<td>认证相关日志（Ubuntu）</td>
+</tr>
+<tr>
+<td><code>/var/log/secure</code></td>
+<td>安全与认证日志（CentOS）</td>
+</tr>
+</tbody></table>
+<p>在使用 systemd 的系统上，还可以用 <code>journalctl</code> 统一查看日志：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>journalctl -f</code></td>
+<td>实时跟踪最新日志</td>
+</tr>
+<tr>
+<td><code>journalctl -u 服务名</code></td>
+<td>查看指定服务的日志</td>
+</tr>
+<tr>
+<td><code>journalctl --since &quot;2026-11-20&quot;</code></td>
+<td>查看指定时间之后的日志</td>
+</tr>
+</tbody></table>
+<p><strong>场景</strong>：Nginx 服务启动失败，想看看它到底报了什么错。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">journalctl -u nginx --since <span class="string">&quot;2026-11-20 09:00:00&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>结果</strong>：终端显示 Nginx 服务在这段时间内的日志，通常能直接看到错误原因，比如端口被占用或配置文件语法错误。配合 <code>-f</code> 实时跟踪，还能观察服务重启时的动态输出。</p>
+<h2 id="Shell-基础：把命令串起来的三个机制"><a href="#Shell-基础：把命令串起来的三个机制" class="headerlink" title="Shell 基础：把命令串起来的三个机制"></a>Shell 基础：把命令串起来的三个机制</h2><p>最后看三个让命令变得”可编程”的基础机制：环境变量、重定向和管道符。</p>
+<h3 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h3><p>环境变量是系统或 Shell 保存的一组”设置值”，程序运行时会读取它们。<code>PATH</code> 是最典型的一个，它决定了系统去哪些目录找命令。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>echo $PATH</code></td>
+<td>显示 PATH 的内容</td>
+</tr>
+<tr>
+<td><code>export 变量=值</code></td>
+<td>设置并导出环境变量</td>
+</tr>
+<tr>
+<td><code>unset 变量</code></td>
+<td>删除环境变量</td>
+</tr>
+<tr>
+<td><code>source 文件</code></td>
+<td>让修改后的配置立即生效</td>
+</tr>
+</tbody></table>
+<p><strong>场景</strong>：临时给 PATH 增加一个自定义脚本目录。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/home/alice/scripts</span><br></pre></td></tr></table></figure>
+
+<p><strong>结果</strong>：该目录加入命令搜索路径，你可以直接运行里面的脚本。用 <code>$PATH</code> 追加而不是覆盖，能保留原有路径。要永久生效，把这一行写进 <code>~/.bashrc</code>，再执行 <code>source ~/.bashrc</code>。</p>
+<h3 id="输入输出重定向"><a href="#输入输出重定向" class="headerlink" title="输入输出重定向"></a>输入输出重定向</h3><p>重定向用来改变命令的输入来源和输出去向，是处理文本和保存结果的基础。这部分的符号也叫左右移定向符。</p>
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>命令 &gt; 文件</code></td>
+<td>标准输出写入文件（覆盖原有内容）</td>
+</tr>
+<tr>
+<td><code>命令 &gt;&gt; 文件</code></td>
+<td>标准输出追加到文件末尾</td>
+</tr>
+<tr>
+<td><code>命令 &lt; 文件</code></td>
+<td>从文件读取标准输入</td>
+</tr>
+<tr>
+<td><code>命令 2&gt; 文件</code></td>
+<td>把错误信息写入文件</td>
+</tr>
+<tr>
+<td><code>命令 &gt; 文件 2&gt;&amp;1</code></td>
+<td>把正常输出和错误信息一起写入文件</td>
+</tr>
+</tbody></table>
+<p><strong>场景</strong>：把命令的完整输出（包括报错）保存到日志文件，方便事后查看。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping -c 4 baidu.com &gt; result.log 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<p><strong>结果</strong>：终端不再显示输出，所有内容都进了 <code>result.log</code>。其中 <code>2&gt;&amp;1</code> 的意思是”把标准错误（文件描述符 2）合并到标准输出（文件描述符 1）”，这样无论成功还是失败的信息都不会漏掉。用 <code>&gt;</code> 会覆盖文件，用 <code>&gt;&gt;</code> 则是追加。</p>
+<h3 id="管道符"><a href="#管道符" class="headerlink" title="管道符"></a>管道符</h3><p>管道符用竖线 <code>|</code> 表示（在键盘上由 Shift 加上反斜杠键输入），作用是把左边命令的输出，作为右边命令的输入。它能把多个简单命令串成一条强大的处理流水线。</p>
+<p><strong>场景</strong>：列出当前目录的所有文件，并从中筛出名字带 mysql 的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> | grep mysql</span><br></pre></td></tr></table></figure>
+
+<p><strong>结果</strong>：终端只显示文件名里包含 <code>mysql</code> 的条目。<code>ls</code> 的输出本来会直接显示在屏幕上，加上管道后，这些内容转而交给 <code>grep</code> 去过滤。前面统计 IP 的那条命令，就是把 <code>awk</code>、<code>sort</code>、<code>uniq</code>、<code>head</code> 用管道串起来的例子。管道符是 Linux 组合命令的核心，掌握它，你就能把一个个简单工具拼出复杂功能。</p>
+<p>从 vim 改配置，到用 sed、awk 批处理文本，再到用 systemctl 管服务、crontab 定时、日志排查问题，最后用环境变量、重定向和管道把命令串起来——这些技能拼在一起，就是你从”会敲命令”走向”能自动化运维”的完整路径。剩下的，就是在真实场景里反复用、反复练。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E6%9D%83%E9%99%90/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/mysql%E5%87%BD%E6%95%B0%E4%B8%8E%E8%A7%86%E5%9B%BE/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

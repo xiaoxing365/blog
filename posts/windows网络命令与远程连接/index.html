@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="Windows网络命令与远程连接是日常运维的基本功。本文先讲清端口与入站出站规则的概念，再用表格和实例整理ipconfig、netstat、netsh、nslookup、route、nbtstat、telnet等高频命令，接着介绍组策略常见配置、scp远程传文件、ssh-keygen与sshd_config密钥登录配置，最后围绕port22 refused、公钥拒绝、主机密钥变更等故障给出可操作的排查步骤，并补充路由器WAN口、LAN口与DHCP地址池的设置要点。">
+
+
+    
+  <meta name="keywords" content="Windows网络命令,ipconfig,netstat,SSH,scp,远程连接,路由器,组策略">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>windows网络命令与远程连接</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Windows"
+                           title="Windows">Windows</a>
+                        
+                        <a class="tag" href="/tags/#网络命令"
+                           title="网络命令">网络命令</a>
+                        
+                        <a class="tag" href="/tags/#远程连接"
+                           title="远程连接">远程连接</a>
+                        
+                        <a class="tag" href="/tags/#SSH"
+                           title="SSH">SSH</a>
+                        
+                    </div>
+                    <h1>windows网络命令与远程连接</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>电脑连不上网、远程登录被拒绝、文件传不过去——遇到这些问题，很多人第一反应是重启。其实只要会几条命令行，大多数网络故障都能快速定位。本文按”命令速查→远程连接→故障排查”的顺序，把常用招式整理成一份可以随手翻的手册。</p>
+<h2 id="一、端口：先把基本概念弄清"><a href="#一、端口：先把基本概念弄清" class="headerlink" title="一、端口：先把基本概念弄清"></a>一、端口：先把基本概念弄清</h2><p>两台机器通信，IP 决定”找哪台电脑”，端口决定”找这台电脑上的哪个服务”。一台电脑的端口范围是 0<del>65535，其中 0</del>1023 是系统保留端口，留给核心服务使用；1024 以上是高位端口，由各种应用自由使用，客户端发起连接时一般随机选用高位端口。</p>
+<table>
+<thead>
+<tr>
+<th>端口</th>
+<th>服务</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>80</td>
+<td>HTTP</td>
+<td>普通网页浏览，明文传输</td>
+</tr>
+<tr>
+<td>443</td>
+<td>HTTPS</td>
+<td>加密网页，基于 TLS</td>
+</tr>
+<tr>
+<td>22</td>
+<td>SSH</td>
+<td>安全的远程登录与文件传输</td>
+</tr>
+<tr>
+<td>21</td>
+<td>FTP</td>
+<td>文件传输</td>
+</tr>
+<tr>
+<td>23</td>
+<td>Telnet</td>
+<td>远程登录，明文不推荐</td>
+</tr>
+<tr>
+<td>3389</td>
+<td>RDP</td>
+<td>Windows 远程桌面</td>
+</tr>
+<tr>
+<td>445</td>
+<td>SMB</td>
+<td>Windows 文件共享</td>
+</tr>
+<tr>
+<td>1433</td>
+<td>SQL Server</td>
+<td>微软数据库服务</td>
+</tr>
+<tr>
+<td>3306</td>
+<td>MySQL</td>
+<td>数据库服务</td>
+</tr>
+<tr>
+<td>8080</td>
+<td>HTTP 代理 &#x2F; Tomcat</td>
+<td>常见 Web 应用端口</td>
+</tr>
+</tbody></table>
+<p>防火墙里有<strong>入站规则</strong>和<strong>出站规则</strong>之分：别人访问你的服务走入站，你访问别人走出站。排查”服务起来了但别人连不上”时，优先检查入站规则是否放行了对应端口。</p>
+<h2 id="二、高频网络命令速查"><a href="#二、高频网络命令速查" class="headerlink" title="二、高频网络命令速查"></a>二、高频网络命令速查</h2><h3 id="2-1-地址与配置类"><a href="#2-1-地址与配置类" class="headerlink" title="2.1 地址与配置类"></a>2.1 地址与配置类</h3><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ipconfig</span>              # 查看当前 TCP/IP 配置摘要</span><br><span class="line"><span class="built_in">ipconfig</span> /all         # 查看完整配置，含 MAC、DNS、DHCP、租约时间</span><br><span class="line"><span class="built_in">ipconfig</span> /flushdns    # 清空本地 DNS 缓存，域名改了之后常用</span><br><span class="line"><span class="built_in">ipconfig</span> /release     # 释放当前租用的 IP 地址</span><br><span class="line"><span class="built_in">ipconfig</span> /renew       # 重新向 DHCP 服务器申请 IP</span><br></pre></td></tr></table></figure>
+
+<p>DNS 解析记录会被系统缓存。如果刚改完域名指向却还是访问旧地址，执行 <code>ipconfig /flushdns</code> 清缓存通常就能解决。</p>
+<h3 id="2-2-连通性与路径类"><a href="#2-2-连通性与路径类" class="headerlink" title="2.2 连通性与路径类"></a>2.2 连通性与路径类</h3><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ping</span> <span class="number">192</span>.<span class="number">168</span>.<span class="number">1</span>.<span class="number">1</span>             # 测试到目标主机是否连通及延迟</span><br><span class="line">tracert www.example.com      # 追踪数据包经过的路由器节点</span><br><span class="line">telnet <span class="number">192</span>.<span class="number">168</span>.<span class="number">0</span>.<span class="number">138</span> <span class="number">8005</span>    # 测试指定 IP 的端口是否开放</span><br></pre></td></tr></table></figure>
+
+<p><code>ping</code> 通只说明网络层可达，<code>telnet IP 端口</code> 才能确认应用层端口是否真的开放。比如要确认服务器的 8005 端口是否畅通，用 <code>telnet</code> 而不是 <code>ping</code>。</p>
+<h3 id="2-3-连接与端口监听类"><a href="#2-3-连接与端口监听类" class="headerlink" title="2.3 连接与端口监听类"></a>2.3 连接与端口监听类</h3><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">netstat -an          # 查看所有连接和监听端口，数字形式显示</span><br><span class="line">netstat -an | <span class="built_in">findstr</span> &quot;LISTENING&quot;   # 只看正在监听的端口</span><br></pre></td></tr></table></figure>
+
+<p><code>netstat</code> 是排查”端口被谁占了”的利器。配合管道符 <code>|</code> 过滤输出，能快速定位目标端口。</p>
+<h3 id="2-4-名称解析类"><a href="#2-4-名称解析类" class="headerlink" title="2.4 名称解析类"></a>2.4 名称解析类</h3><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nslookup www.example.com     # 向 DNS 服务器查询域名对应的 IP</span><br><span class="line">nbtstat -n                   # 显示本机注册在 NetBIOS 上的名称</span><br></pre></td></tr></table></figure>
+
+<p><code>nslookup</code> 用来验证域名解析是否正确；<code>nbtstat -n</code> 可查看本机在局域网 NetBIOS 名称表中的登记情况。</p>
+<h3 id="2-5-路由与-ARP-类"><a href="#2-5-路由与-ARP-类" class="headerlink" title="2.5 路由与 ARP 类"></a>2.5 路由与 ARP 类</h3><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">route <span class="built_in">print</span>                                          # 查看路由表</span><br><span class="line">route -p add <span class="number">192</span>.<span class="number">168</span>.<span class="number">14</span>.<span class="number">241</span> mask <span class="number">255</span>.<span class="number">255</span>.<span class="number">255</span>.<span class="number">255</span> <span class="number">172</span>.<span class="number">26</span>.<span class="number">103</span>.<span class="number">254</span>   # 添加永久路由</span><br><span class="line">arp -a                                               # 查看 IP 与 MAC 的映射表</span><br></pre></td></tr></table></figure>
+
+<p><code>route add</code> 加上 <code>-p</code> 参数表示永久生效，系统重启后依然保留。<code>arp -a</code> 能看到当前局域网内已知的 IP-MAC 对应关系，排查地址冲突时很有用。</p>
+<h3 id="2-6-服务、共享与系统信息类"><a href="#2-6-服务、共享与系统信息类" class="headerlink" title="2.6 服务、共享与系统信息类"></a>2.6 服务、共享与系统信息类</h3><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">net</span> <span class="built_in">start</span>                    # 查看已启动的服务</span><br><span class="line"><span class="built_in">net</span> <span class="built_in">start</span> 服务名              # 启动某个服务</span><br><span class="line"><span class="built_in">net</span> stop 服务名               # 停止某个服务</span><br><span class="line"><span class="built_in">net</span> share                    # 查看当前开放的共享</span><br><span class="line"><span class="built_in">net</span> share C$ /delete         # 删除默认的管理共享</span><br><span class="line">systeminfo | <span class="built_in">findstr</span> -i &quot;系统启动时间&quot;   # 查看系统启动时间</span><br><span class="line">winver                       # 查看 Windows 版本信息</span><br><span class="line">regedit                      # 打开注册表编辑器</span><br><span class="line">mstsc                        # 打开远程桌面连接</span><br></pre></td></tr></table></figure>
+
+<p>Windows 中的管道符 <code>|</code> 与 Linux 作用一致，都把左边命令的输出作为右边命令的输入。重定向略有不同：Windows 用 <code>&gt;</code> 把结果写入文件，例如导出网络配置：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh -c interface dump &gt; c:\interface.txt</span><br></pre></td></tr></table></figure>
+
+<p><code>netsh</code> 是功能强大的网络配置工具，防火墙设置、接口配置都能通过它完成。</p>
+<h2 id="三、组策略里的常用网络配置"><a href="#三、组策略里的常用网络配置" class="headerlink" title="三、组策略里的常用网络配置"></a>三、组策略里的常用网络配置</h2><p>在”运行”框输入 <code>gpedit.msc</code> 打开本地组策略编辑器，常见配置路径整理如下：</p>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>组策略路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>密码最长使用期限</td>
+<td>计算机配置 → Windows 设置 → 安全设置 → 账户策略 → 密码策略</td>
+</tr>
+<tr>
+<td>重命名管理员账户</td>
+<td>计算机配置 → Windows 设置 → 安全设置 → 本地策略 → 安全选项</td>
+</tr>
+<tr>
+<td>启用长路径支持</td>
+<td>计算机配置 → 管理模板 → 系统 → 文件系统 → 启用 Win32 长路径</td>
+</tr>
+<tr>
+<td>屏蔽上次登录用户名</td>
+<td>计算机配置 → 管理模板 → Windows 组件 → Windows 登录选项</td>
+</tr>
+<tr>
+<td>显示详细开关机状态</td>
+<td>计算机配置 → 管理模板 → 系统 → 显示非常详细的状态消息</td>
+</tr>
+<tr>
+<td>限制远程 Shell 最大内存</td>
+<td>计算机配置 → Windows 组件 → Windows 远程 Shell</td>
+</tr>
+</tbody></table>
+<p>本地安全策略也可以用 <code>secpol.msc</code> 单独打开。需要查看初始安装日期和启动时间时，用这条命令：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systeminfo | <span class="built_in">findstr</span> -i &quot;初始安装日期 系统启动时间&quot;</span><br></pre></td></tr></table></figure>
+
+<p>另外，<code>hosts</code> 文件相当于本地的”小型 DNS”，可以手动把域名绑定到指定 IP，位置在 <code>C:\Windows\System32\drivers\etc\hosts</code>，格式为”IP 地址 空格 域名”。修改它会立即影响本机解析，常用于测试或内网访问。</p>
+<h2 id="四、远程连接：scp-与-SSH"><a href="#四、远程连接：scp-与-SSH" class="headerlink" title="四、远程连接：scp 与 SSH"></a>四、远程连接：scp 与 SSH</h2><h3 id="4-1-scp-传文件"><a href="#4-1-scp-传文件" class="headerlink" title="4.1 scp 传文件"></a>4.1 scp 传文件</h3><p><code>scp</code> 基于 SSH 协议，用来在本地和远程主机之间安全复制文件。两个方向的基本语法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 本地 → 远程</span></span><br><span class="line">scp [参数] 本地文件 用户名@IP地址:远程绝对路径</span><br><span class="line"></span><br><span class="line"><span class="comment"># 远程 → 本地</span></span><br><span class="line">scp [参数] 用户名@IP地址:远程文件路径 本地路径</span><br><span class="line"></span><br><span class="line"><span class="comment"># 示例：递归上传整个目录，并指定端口</span></span><br><span class="line">scp -r -P 2222 ./report user@192.168.1.100:/home/user/</span><br></pre></td></tr></table></figure>
+
+<p>常用参数：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-r</td>
+<td>递归复制整个目录</td>
+</tr>
+<tr>
+<td>-P</td>
+<td>指定 SSH 端口号（注意是大写）</td>
+</tr>
+<tr>
+<td>-p</td>
+<td>保留修改时间、访问时间和权限</td>
+</tr>
+<tr>
+<td>-C</td>
+<td>传输时压缩</td>
+</tr>
+<tr>
+<td>-q</td>
+<td>不显示进度条</td>
+</tr>
+<tr>
+<td>-4 &#x2F; -6</td>
+<td>强制使用 IPv4 &#x2F; IPv6</td>
+</tr>
+<tr>
+<td>-v</td>
+<td>显示详细调试信息</td>
+</tr>
+</tbody></table>
+<h3 id="4-2-在-Windows-上启用-SSH-服务"><a href="#4-2-在-Windows-上启用-SSH-服务" class="headerlink" title="4.2 在 Windows 上启用 SSH 服务"></a>4.2 在 Windows 上启用 SSH 服务</h3><p>部分 Windows 系统默认没有安装 SSH 组件。在”设置 → 应用 → 管理可选功能”中安装 <strong>OpenSSH 客户端</strong>和 <strong>OpenSSH 服务器</strong>，再到服务管理（<code>services.msc</code>）里找到 Open SSH Server 并启动。注意：安装组件不等于服务已启动，这一步常被忽略。</p>
+<h3 id="4-3-SSH-密钥登录配置"><a href="#4-3-SSH-密钥登录配置" class="headerlink" title="4.3 SSH 密钥登录配置"></a>4.3 SSH 密钥登录配置</h3><p>密钥登录比密码更安全，推荐配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen                 <span class="comment"># 生成密钥对，一路回车即可</span></span><br></pre></td></tr></table></figure>
+
+<p>生成的文件在用户主目录的 <code>.ssh</code> 文件夹下，其中 <code>id_rsa</code> 是私钥（必须自己保管），<code>id_rsa.pub</code> 是公钥（放到服务器上）。</p>
+<p>在 Windows 服务端编辑 <code>C:\ProgramData\ssh\sshd_config</code>，建议这样设置：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PubkeyAuthentication yes                        # 启用公钥认证</span><br><span class="line">AuthorizedKeysFile .ssh/authorized_keys         # 指定公钥存放位置</span><br><span class="line">PasswordAuthentication no                       # 关闭密码登录，提升安全性</span><br><span class="line">#Match Group administrators                     # 注释掉这两行</span><br><span class="line">#AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys</span><br></pre></td></tr></table></figure>
+
+<p>把客户端生成的 <code>id_rsa.pub</code> 内容追加到服务端 <code>C:\Users\用户名\.ssh\authorized_keys</code> 文件中，重启 SSH 服务后即可免密登录。</p>
+<p>如果要用 root 用户远程登录 Linux，需要修改 <code>/etc/ssh/sshd_config</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vi /etc/ssh/sshd_config   <span class="comment"># 找到 PermitRootLogin，改为 yes</span></span><br><span class="line"><span class="built_in">sudo</span> service sshd reload       <span class="comment"># 重新加载配置使其生效</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="五、故障排查：三类典型问题"><a href="#五、故障排查：三类典型问题" class="headerlink" title="五、故障排查：三类典型问题"></a>五、故障排查：三类典型问题</h2><h3 id="5-1-port-22-refused：22-号端口被拒绝"><a href="#5-1-port-22-refused：22-号端口被拒绝" class="headerlink" title="5.1 port 22 refused：22 号端口被拒绝"></a>5.1 port 22 refused：22 号端口被拒绝</h3><p>Linux 向 Windows 传文件报 <code>port 22 refused</code>，多数不是 Linux 的问题，而是 <strong>Windows 防火墙没有放行 22 端口</strong>。先检查防火墙状态：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">netsh advfirewall show allprofiles          # 查看各配置文件防火墙状态</span><br><span class="line">netsh advfirewall <span class="built_in">set</span> allprofiles state off # 临时关闭防火墙（仅排查用）</span><br><span class="line">netsh advfirewall <span class="built_in">set</span> allprofiles state on  # 排查后务必重新开启</span><br></pre></td></tr></table></figure>
+
+<p>更稳妥的做法是不关防火墙，只添加入站规则：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh advfirewall firewall add rule name=sshd <span class="built_in">dir</span>=<span class="keyword">in</span> action=allow protocol=TCP localport=<span class="number">22</span></span><br></pre></td></tr></table></figure>
+
+<p>也可以在图形界面操作：控制面板 → Windows Defender 防火墙 → 高级设置 → 入站规则 → 新建规则 → 选择端口 → TCP → 填 22 → 允许连接 → 勾选域&#x2F;专用&#x2F;公用 → 命名完成。</p>
+<h3 id="5-2-公钥认证失败"><a href="#5-2-公钥认证失败" class="headerlink" title="5.2 公钥认证失败"></a>5.2 公钥认证失败</h3><p>Windows 向 Linux 传文件时出现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CreateProcessW failed error:2</span><br><span class="line">posix_spawn: No such file or directory</span><br></pre></td></tr></table></figure>
+
+<p>这通常意味着公钥和私钥没有正确配对。依次检查：客户端私钥是否存在、<code>ssh-agent</code> 是否加载、服务端 <code>authorized_keys</code> 是否包含对应公钥、<code>sshd_config</code> 中 <code>PubkeyAuthentication</code> 是否为 <code>yes</code>。</p>
+<h3 id="5-3-REMOTE-HOST-IDENTIFICATION-HAS-CHANGED"><a href="#5-3-REMOTE-HOST-IDENTIFICATION-HAS-CHANGED" class="headerlink" title="5.3 REMOTE HOST IDENTIFICATION HAS CHANGED"></a>5.3 REMOTE HOST IDENTIFICATION HAS CHANGED</h3><p>连接时报主机密钥变更警告，说明服务端密钥已改变（重装系统或重新生成密钥都会触发）。确认是合法变更后，删除客户端 <code>C:\Users\用户名\.ssh</code> 下的 <code>known_hosts</code> 文件即可；建议先改名备份，例如 <code>known_hosts.backup</code>。</p>
+<h3 id="5-4-通用排查清单"><a href="#5-4-通用排查清单" class="headerlink" title="5.4 通用排查清单"></a>5.4 通用排查清单</h3><p>遇到问题按这个顺序过一遍，效率最高：</p>
+<ol>
+<li><strong>物理层</strong>：网线插好了吗？网卡灯亮吗？</li>
+<li><strong>地址层</strong>：<code>ipconfig /all</code> 看 IP、掩码、网关是否正确。</li>
+<li><strong>连通层</strong>：<code>ping 网关</code> 通不通？</li>
+<li><strong>解析层</strong>：<code>nslookup 域名</code> 能否解析？</li>
+<li><strong>端口层</strong>：<code>netstat -an</code> 看服务是否在监听，<code>telnet IP 端口</code> 验证可达。</li>
+<li><strong>防火墙层</strong>：入站规则是否放行对应端口。</li>
+<li><strong>认证层</strong>：密钥、权限、用户配置是否正确。</li>
+</ol>
+<h2 id="六、路由器基础：WAN、LAN-与-DHCP"><a href="#六、路由器基础：WAN、LAN-与-DHCP" class="headerlink" title="六、路由器基础：WAN、LAN 与 DHCP"></a>六、路由器基础：WAN、LAN 与 DHCP</h2><p>家用或小型网络设备通常有两类接口：</p>
+<ul>
+<li><strong>WAN 口</strong>：广域网口，接光猫或上级路由器，负责”对外联网”。连接类型能自动获取 IP 就选自动获取，获取不到再手动填写 IP、子网掩码、网关和 DNS。</li>
+<li><strong>LAN 口</strong>：局域网口，接电脑、交换机等内网设备，决定路由器在内网中的 IP 位置。部分设备没有固定 WAN 口，需要指定哪个口作为 WAN，其余为 LAN；企业级设备还可能有双 WAN 口。</li>
+</ul>
+<p>填写 DNS 时可以运营商提供的地址，也可以用公共 DNS，例如腾讯 <code>119.29.29.29</code>、阿里 <code>223.5.5.5</code>、谷歌 <code>8.8.8.8</code>（后者在部分网络环境下可能不可用）。</p>
+<p><strong>DHCP 服务器</strong>负责给内网设备自动分配地址。关键参数有：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>地址池起止</td>
+<td>可分配 IP 的范围</td>
+</tr>
+<tr>
+<td>地址租期</td>
+<td>IP 租用有效期，一般 2~3 小时较合适</td>
+</tr>
+<tr>
+<td>网关</td>
+<td>填路由器在内网中的 IP（见 LAN 口设置）</td>
+</tr>
+<tr>
+<td>DNS</td>
+<td>下发给客户端的 DNS 服务器地址</td>
+</tr>
+</tbody></table>
+<p>租期设置过短会造成频繁续租，过长则可能导致新设备接入时无地址可分配。如果设备没有 DHCP 功能，就得逐台手动配置静态 IP，并保证地址不冲突。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>网络排障的本质是层层缩小范围：<code>ipconfig</code> 看配置、<code>ping</code> 看连通、<code>nslookup</code> 看解析、<code>netstat</code> 看端口、<code>route</code> 看路径、<code>arp</code> 看映射，再配合组策略与防火墙规则做系统级管控。远程连接方面，记住 <code>scp</code> 的方向写法和 SSH 密钥的三件套——私钥、公钥、<code>authorized_keys</code>。遇到 <code>port 22 refused</code> 先查防火墙入站规则，遇到主机密钥变更先确认再清理 <code>known_hosts</code>。按这套清单走下来，大部分网络问题都能定位到根因。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/ubuntu%E5%AE%89%E8%A3%85%E4%B8%8E%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E9%85%8D%E7%BD%AE/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E9%80%9F%E6%9F%A5%E4%B8%8Epythonre%E6%A8%A1%E5%9D%97/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="Python进阶与数据可视化，按文件与序列化、模块与装饰器、面向对象、数据库与可视化展开：open模式、pickle/struct/shelve、os/shutil、切片、sys.argv、xlwt写Excel；包结构、__name__、__all__、装饰器、魔法方法与继承；演示pymysql连接MySQL及matplotlib、pyecharts、pandas画图，附pip换源。">
+
+
+    
+  <meta name="keywords" content="Python进阶,Python文件操作,Python序列化,Python装饰器,Python面向对象,pymysql连接MySQL,matplotlib折线图,pyecharts数据可视化">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>python进阶与数据可视化</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Python"
+                           title="Python">Python</a>
+                        
+                        <a class="tag" href="/tags/#数据可视化"
+                           title="数据可视化">数据可视化</a>
+                        
+                        <a class="tag" href="/tags/#面向对象"
+                           title="面向对象">面向对象</a>
+                        
+                        <a class="tag" href="/tags/#序列化"
+                           title="序列化">序列化</a>
+                        
+                    </div>
+                    <h1>python进阶与数据可视化</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>掌握了基础语法之后，下一步是让 Python 真正”干活”：把数据存进文件、把程序拆成模块、把逻辑封装成对象，最后把结果画成图给人看。这篇文章按”文件与序列化 → 模块与装饰器 → 面向对象 → 数据库与可视化”四个层次展开，每个示例都尽量给出可直接运行的代码。</p>
+<blockquote>
+<p><strong>小贴士：pip 换源。</strong> 安装第三方库时，默认源在国外，网络不稳定。可以加国内镜像：Linux 下创建 <code>~/.pip/pip.conf</code>，Windows 下在用户目录建 <code>pip/pip.ini</code>，写入 <code>[global]</code> 与 <code>index-url = https://pypi.tuna.tsinghua.edu.cn/simple/</code>。阿里云、网易、中科大也有对应镜像地址，任选其一即可。</p>
+</blockquote>
+<h2 id="一、文件与序列化"><a href="#一、文件与序列化" class="headerlink" title="一、文件与序列化"></a>一、文件与序列化</h2><h3 id="open-的打开模式"><a href="#open-的打开模式" class="headerlink" title="open 的打开模式"></a>open 的打开模式</h3><p>Python 内置 <code>open()</code> 函数用来创建文件对象，签名如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">open</span>(file, mode=<span class="string">&#x27;r&#x27;</span>, buffering=-<span class="number">1</span>, encoding=<span class="literal">None</span>, errors=<span class="literal">None</span>, closefd=<span class="literal">True</span>, opener=<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>buffering</code> 指定缓存策略（0 不缓存，1 缓存，大于 1 表示缓冲区大小），<code>encoding</code> 指定编码。操作完必须关闭文件，因为写入通常先进入缓存，关闭时才会真正落盘；也可以调用 <code>flush()</code> 强制写入。</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>r</code></td>
+<td>读取，默认模式，等价于 <code>rt</code></td>
+</tr>
+<tr>
+<td><code>w</code></td>
+<td>写入，会先清空原文件</td>
+</tr>
+<tr>
+<td><code>x</code></td>
+<td>排他创建，文件已存在则失败</td>
+</tr>
+<tr>
+<td><code>a</code></td>
+<td>追加写入，不清空原内容</td>
+</tr>
+<tr>
+<td><code>b</code></td>
+<td>二进制模式</td>
+</tr>
+<tr>
+<td><code>t</code></td>
+<td>文本模式</td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>以更新（读写）方式打开</td>
+</tr>
+</tbody></table>
+<p>组合起来用，例如 <code>w+</code> 打开并清空后可读写，<code>r+</code> 打开但不清空。推荐用 <code>with</code> 语句，离开缩进块时文件会自动关闭：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;demo.txt&#x27;</span>, <span class="string">&#x27;w&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> fp:</span><br><span class="line">    fp.write(<span class="string">&#x27;hello world&#x27;</span>)     <span class="comment"># 缩进结束时自动关闭，无需手动 close</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="用-pickle-序列化"><a href="#用-pickle-序列化" class="headerlink" title="用 pickle 序列化"></a>用 pickle 序列化</h3><p>序列化就是把 Python 对象变成字节流存起来，需要时再还原。<code>pickle</code> 是最常用的模块：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line">data = [<span class="number">3</span>, <span class="string">&#x27;abc&#x27;</span>, [<span class="number">1</span>, <span class="number">2</span>], (<span class="number">4</span>, <span class="number">5</span>), &#123;<span class="string">&#x27;k&#x27;</span>: <span class="string">&#x27;v&#x27;</span>&#125;]</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;sample_pickle.dat&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    pickle.dump(<span class="built_in">len</span>(data), f)   <span class="comment"># 先写入对象个数，方便读取时控制循环</span></span><br><span class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> data:</span><br><span class="line">        pickle.dump(item, f)    <span class="comment"># 逐个序列化写入</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;sample_pickle.dat&#x27;</span>, <span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    n = pickle.load(f)          <span class="comment"># 读取对象个数</span></span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(n):</span><br><span class="line">        <span class="built_in">print</span>(pickle.load(f))   <span class="comment"># 依次反序列化还原</span></span><br></pre></td></tr></table></figure>
+
+<p>写入时建议用 <code>try-except</code> 捕获异常（现在是 <code>try-except</code> 而不是 Java 风格的 <code>try-catch</code>）。</p>
+<h3 id="struct、shelve-与-marshal"><a href="#struct、shelve-与-marshal" class="headerlink" title="struct、shelve 与 marshal"></a>struct、shelve 与 marshal</h3><p><code>struct</code> 适合按固定格式写二进制，格式串里 <code>i</code> 表示整数、<code>f</code> 表示浮点数、<code>?</code> 表示布尔值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> struct</span><br><span class="line"></span><br><span class="line">n, x, b, s = <span class="number">1300000000</span>, <span class="number">96.45</span>, <span class="literal">True</span>, <span class="string">&#x27;a1@中国&#x27;</span></span><br><span class="line">sn = struct.pack(<span class="string">&#x27;if?&#x27;</span>, n, x, b)   <span class="comment"># 按 int/float/bool 格式打包</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;sample_struct.dat&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(sn)</span><br><span class="line">    f.write(s.encode(<span class="string">&#x27;utf-8&#x27;</span>))    <span class="comment"># 字符串需先编码成字节串再写入</span></span><br></pre></td></tr></table></figure>
+
+<p><code>shelve</code> 更像”键值对形式的持久化字典”，写起来非常直观：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> shelve</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> shelve.<span class="built_in">open</span>(<span class="string">&#x27;shelve_test.dat&#x27;</span>) <span class="keyword">as</span> fp:</span><br><span class="line">    fp[<span class="string">&#x27;zhangsan&#x27;</span>] = &#123;<span class="string">&#x27;age&#x27;</span>: <span class="number">38</span>, <span class="string">&#x27;sex&#x27;</span>: <span class="string">&#x27;Male&#x27;</span>&#125;</span><br><span class="line">    fp[<span class="string">&#x27;lisi&#x27;</span>] = &#123;<span class="string">&#x27;age&#x27;</span>: <span class="number">40</span>, <span class="string">&#x27;qq&#x27;</span>: <span class="string">&#x27;1234567&#x27;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> shelve.<span class="built_in">open</span>(<span class="string">&#x27;shelve_test.dat&#x27;</span>) <span class="keyword">as</span> fp:</span><br><span class="line">    <span class="built_in">print</span>(fp[<span class="string">&#x27;zhangsan&#x27;</span>][<span class="string">&#x27;age&#x27;</span>])  <span class="comment"># 38</span></span><br></pre></td></tr></table></figure>
+
+<p><code>marshal</code> 也能读写二进制，用法与 <code>pickle</code> 类似，但它是 Python 内部使用的格式，跨版本兼容性不如 <code>pickle</code>，日常业务更推荐后者。</p>
+<h3 id="os、os-path-与-shutil"><a href="#os、os-path-与-shutil" class="headerlink" title="os、os.path 与 shutil"></a>os、os.path 与 shutil</h3><p>这三个模块负责文件和目录管理，是写脚本时的高频工具：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> os.path</span><br><span class="line"><span class="keyword">import</span> shutil</span><br><span class="line"></span><br><span class="line">os.getcwd()                         <span class="comment"># 返回当前工作目录</span></span><br><span class="line">os.path.basename(<span class="string">&#x27;/home/newland/1.txt&#x27;</span>)  <span class="comment"># &#x27;1.txt&#x27;，取路径最后一段</span></span><br><span class="line">os.path.dirname(<span class="string">&#x27;/home/newland/1.txt&#x27;</span>)   <span class="comment"># &#x27;/home/newland&#x27;，取所在目录</span></span><br><span class="line">os.path.split(<span class="string">&#x27;/home/newland/1.txt&#x27;</span>)     <span class="comment"># (&#x27;/home/newland&#x27;, &#x27;1.txt&#x27;)，拆分路径与文件名</span></span><br><span class="line">os.path.splitext(<span class="string">&#x27;test2.txt&#x27;</span>)       <span class="comment"># (&#x27;test2&#x27;, &#x27;.txt&#x27;)，拆分文件名与扩展名</span></span><br><span class="line">os.path.exists(<span class="string">&#x27;demo.txt&#x27;</span>)          <span class="comment"># 判断文件是否存在</span></span><br><span class="line">os.rename(<span class="string">&#x27;test.txt&#x27;</span>, <span class="string">&#x27;1.txt&#x27;</span>)      <span class="comment"># 重命名</span></span><br><span class="line">os.mkdir(<span class="string">&#x27;newdir&#x27;</span>)                  <span class="comment"># 建目录</span></span><br><span class="line">os.chdir(<span class="string">&#x27;newdir&#x27;</span>)                  <span class="comment"># 切换工作目录</span></span><br><span class="line">os.rmdir(<span class="string">&#x27;newdir&#x27;</span>)                  <span class="comment"># 删空目录</span></span><br><span class="line">os.listdir(<span class="string">&#x27;.&#x27;</span>)                     <span class="comment"># 列出目录下的名称</span></span><br><span class="line"></span><br><span class="line">shutil.copyfile(<span class="string">&#x27;a.txt&#x27;</span>, <span class="string">&#x27;b.txt&#x27;</span>)   <span class="comment"># 复制文件</span></span><br><span class="line">shutil.make_archive(<span class="string">&#x27;backup&#x27;</span>, <span class="string">&#x27;zip&#x27;</span>, <span class="string">&#x27;.&#x27;</span>)      <span class="comment"># 打包压缩，格式可为 zip/tar/gztar 等</span></span><br><span class="line">shutil.unpack_archive(<span class="string">&#x27;/root/a.zip&#x27;</span>, <span class="string">&#x27;a_unpack&#x27;</span>)  <span class="comment"># 解压到指定目录</span></span><br><span class="line">shutil.rmtree(<span class="string">&#x27;a_unpack&#x27;</span>)           <span class="comment"># 递归删除整个目录树</span></span><br></pre></td></tr></table></figure>
+
+<p><code>shutil.rmtree()</code> 删除只读文件可能报错，可以配一个回调函数先去掉只读属性：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> stat</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">remove_readonly</span>(<span class="params">func, path, _</span>):</span><br><span class="line">    os.chmod(path, stat.S_IWRITE)   <span class="comment"># 去掉只读属性</span></span><br><span class="line">    func(path)                      <span class="comment"># 再次执行删除</span></span><br><span class="line"></span><br><span class="line">shutil.rmtree(<span class="string">&#x27;Module1&#x27;</span>, onerror=remove_readonly)</span><br></pre></td></tr></table></figure>
+
+<p>递归复制整个目录用 <code>copytree()</code>，还能用 <code>ignore_patterns</code> 排除特定文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> shutil <span class="keyword">import</span> copytree, ignore_patterns</span><br><span class="line"></span><br><span class="line">copytree(<span class="string">&#x27;src&#x27;</span>, <span class="string">&#x27;dst&#x27;</span>, ignore=ignore_patterns(<span class="string">&#x27;*.pyc&#x27;</span>, <span class="string">&#x27;now*&#x27;</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="切片：-pos-1-与-pos-1"><a href="#切片：-pos-1-与-pos-1" class="headerlink" title="切片：[:pos+1] 与 [pos+1:]"></a>切片：[:pos+1] 与 [pos+1:]</h3><p>切片用 <code>起始:结束</code> 取子序列，结束位置不包含在内：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">my_list = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">pos = <span class="number">3</span></span><br><span class="line"><span class="built_in">print</span>(my_list[:pos + <span class="number">1</span>])   <span class="comment"># [0, 1, 2, 3]，从开头到下标 3（含）</span></span><br><span class="line">pos = <span class="number">2</span></span><br><span class="line"><span class="built_in">print</span>(my_list[pos + <span class="number">1</span>:])   <span class="comment"># [3, 4, 5]，从下标 3 到结尾</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="sys-argv-与-CRC32-校验"><a href="#sys-argv-与-CRC32-校验" class="headerlink" title="sys.argv 与 CRC32 校验"></a>sys.argv 与 CRC32 校验</h3><p><code>sys.argv</code> 是命令行参数的列表：<code>sys.argv[0]</code> 是脚本名，后面的元素才是从外部传入的参数。下面的 CRC32 校验器从命令行接收文件名，读取二进制内容后算校验值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> zlib</span><br><span class="line"><span class="keyword">import</span> os.path</span><br><span class="line"></span><br><span class="line">filename = sys.argv[<span class="number">1</span>]              <span class="comment"># 运行时由命令行传入，如 python crc.py a.txt</span></span><br><span class="line"><span class="keyword">if</span> os.path.isfile(filename):</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(filename, <span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> fp:  <span class="comment"># 二进制读取</span></span><br><span class="line">        contents = fp.read()</span><br><span class="line">    <span class="built_in">print</span>(zlib.crc32(contents))       <span class="comment"># 计算 CRC32 校验值</span></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;file not exists&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>拓展一下，判断文件真实类型要看”文件头”而不是扩展名，例如 GIF 文件头四个字节是 <code>GIF8</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">is_gif</span>(<span class="params">fname</span>):</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(fname, <span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        first4 = <span class="built_in">tuple</span>(f.read(<span class="number">4</span>))</span><br><span class="line">    <span class="keyword">return</span> first4 == (<span class="built_in">ord</span>(<span class="string">&#x27;G&#x27;</span>), <span class="built_in">ord</span>(<span class="string">&#x27;I&#x27;</span>), <span class="built_in">ord</span>(<span class="string">&#x27;F&#x27;</span>), <span class="built_in">ord</span>(<span class="string">&#x27;8&#x27;</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="用-xlwt-写入-Excel"><a href="#用-xlwt-写入-Excel" class="headerlink" title="用 xlwt 写入 Excel"></a>用 xlwt 写入 Excel</h3><p><code>xlwt</code> 主要用来生成老式的 <code>.xls</code> 文件（注意不是 <code>.xlsx</code>）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> xlwt <span class="keyword">import</span> Workbook, Alignment, Borders, XFStyle</span><br><span class="line"></span><br><span class="line">book = Workbook()                   <span class="comment"># 创建工作簿</span></span><br><span class="line">sheet = book.add_sheet(<span class="string">&#x27;First&#x27;</span>)     <span class="comment"># 添加工作表</span></span><br><span class="line"></span><br><span class="line">al = Alignment()                    <span class="comment"># 设置居中</span></span><br><span class="line">al.horz = Alignment.HORZ_CENTER</span><br><span class="line">al.vert = Alignment.VERT_CENTER</span><br><span class="line">borders = Borders()                 <span class="comment"># 设置粗下边框</span></span><br><span class="line">borders.bottom = Borders.THICK</span><br><span class="line">style = XFStyle()                   <span class="comment"># 组合成样式</span></span><br><span class="line">style.alignment = al</span><br><span class="line">style.borders = borders</span><br><span class="line"></span><br><span class="line">row0 = sheet.row(<span class="number">0</span>)</span><br><span class="line">row0.write(<span class="number">0</span>, <span class="string">&#x27;test&#x27;</span>, style)        <span class="comment"># 第 1 行第 1 格写入内容并套用样式</span></span><br><span class="line">book.save(<span class="string">&#x27;result.xls&#x27;</span>)             <span class="comment"># 保存为 .xls</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="几个顺手的小工具"><a href="#几个顺手的小工具" class="headerlink" title="几个顺手的小工具"></a>几个顺手的小工具</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> defaultdict</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"></span><br><span class="line"><span class="comment"># map() 对每个元素应用函数，Python 3.x 返回迭代器</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">square</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> x * x</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">list</span>(<span class="built_in">map</span>(square, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])))   <span class="comment"># [1, 4, 9, 16, 25]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># logspace 生成对数刻度上均匀分布的数字</span></span><br><span class="line"><span class="built_in">print</span>(np.logspace(<span class="number">1</span>, <span class="number">3</span>, num=<span class="number">3</span>))     <span class="comment"># [  10.  100. 1000.]，即 10^1 到 10^3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># defaultdict 为不存在的键提供默认值</span></span><br><span class="line">d = defaultdict(<span class="built_in">int</span>)                <span class="comment"># 默认值是 int() 的结果，即 0</span></span><br><span class="line">d[<span class="string">&#x27;apple&#x27;</span>] += <span class="number">1</span></span><br><span class="line"><span class="built_in">print</span>(d[<span class="string">&#x27;apple&#x27;</span>])                   <span class="comment"># 1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># random + string 生成随机字符串</span></span><br><span class="line">chars = string.ascii_letters + string.digits</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;&#x27;</span>.join(random.choice(chars) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">8</span>)))</span><br></pre></td></tr></table></figure>
+
+<p><code>defaultdict</code> 内部有 <code>__missing__</code> 方法：访问不存在的键时，若 <code>default_factory</code> 不为 <code>None</code>，就调用它生成一个默认值并插入字典；否则抛出 <code>KeyError</code>。</p>
+<h2 id="二、模块与装饰器"><a href="#二、模块与装饰器" class="headerlink" title="二、模块与装饰器"></a>二、模块与装饰器</h2><h3 id="模块、包与-init-py"><a href="#模块、包与-init-py" class="headerlink" title="模块、包与 init.py"></a>模块、包与 <strong>init</strong>.py</h3><p>单个 <code>.py</code> 文件就是模块；包含 <code>__init__.py</code> 的目录被视为<strong>包</strong>，导入包时实际执行的就是这个 <code>__init__.py</code>。同级导入常用相对写法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在包的 __init__.py 中</span></span><br><span class="line"><span class="keyword">from</span> . <span class="keyword">import</span> my_module            <span class="comment"># &#x27;.&#x27; 表示当前目录</span></span><br></pre></td></tr></table></figure>
+
+<p>也可以直接 <code>from 包名.模块名 import 工具名</code>。</p>
+<h3 id="name-与-all"><a href="#name-与-all" class="headerlink" title="name 与 all"></a><strong>name</strong> 与 <strong>all</strong></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()                          <span class="comment"># 只有直接运行本文件时才执行</span></span><br></pre></td></tr></table></figure>
+
+<p>原理是：文件被直接运行时 <code>__name__</code> 等于 <code>&#39;__main__&#39;</code>，被别的文件 <code>import</code> 时则等于模块名。把不希望导入时执行的代码放进这个判断里，是 Python 的标准做法。</p>
+<p><code>__all__</code> 是一个字符串列表，用来控制 <code>from 模块 import *</code> 时到底导出哪些名字：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__all__ = [<span class="string">&#x27;func_a&#x27;</span>, <span class="string">&#x27;func_b&#x27;</span>]      <span class="comment"># 通配符导入时只暴露这两个名字</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="装饰器"><a href="#装饰器" class="headerlink" title="装饰器"></a>装饰器</h3><p>装饰器类似 Java 的注解，用 <code>@装饰器名</code> 写在函数定义上方，可以在不改动原函数的情况下增加功能：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">time_logger</span>(<span class="params">func</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">        start = time.time()</span><br><span class="line">        result = func(*args, **kwargs)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;<span class="subst">&#123;func.__name__&#125;</span> 耗时 <span class="subst">&#123;time.time() - start:<span class="number">.4</span>f&#125;</span> 秒&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> result</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="meta">@time_logger</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">task</span>():</span><br><span class="line">    time.sleep(<span class="number">0.1</span>)</span><br><span class="line"></span><br><span class="line">task()                              <span class="comment"># 调用时自动打印耗时</span></span><br></pre></td></tr></table></figure>
+
+<p>装饰器也能带参数，例如 <code>@repeat(3)</code> 表示重复执行三次；Python 还内置了 <code>@staticmethod</code>、<code>@classmethod</code> 用于定义静态方法和类方法。</p>
+<h2 id="三、面向对象"><a href="#三、面向对象" class="headerlink" title="三、面向对象"></a>三、面向对象</h2><p>Python 一切皆对象。类里那些前后各带两个下划线的”魔法方法”，会在特定时机被自动调用。</p>
+<h3 id="魔法方法"><a href="#魔法方法" class="headerlink" title="魔法方法"></a>魔法方法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name, age</span>):      <span class="comment"># 创建对象时自动调用，类似构造函数</span></span><br><span class="line">        <span class="variable language_">self</span>.name = name</span><br><span class="line">        <span class="variable language_">self</span>.age = age</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>):                  <span class="comment"># print(对象) 时自动调用，必须返回字符串</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&#x27;Person(name=<span class="subst">&#123;self.name&#125;</span>, age=<span class="subst">&#123;self.age&#125;</span>)&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__del__</span>(<span class="params">self</span>):                  <span class="comment"># 对象销毁时自动调用，做清理工作</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">p = Person(<span class="string">&#x27;张三&#x27;</span>, <span class="number">18</span>)</span><br><span class="line"><span class="built_in">print</span>(p)                                <span class="comment"># Person(name=张三, age=18)</span></span><br></pre></td></tr></table></figure>
+
+<p>注意 <code>__init__</code> 不能写成 <code>init</code> 或 <code>__init</code>，第一个参数约定叫 <code>self</code>，代表对象自身。没实现 <code>__str__</code> 时，<code>print(对象)</code> 会看到一串内存地址。</p>
+<h3 id="私有属性与继承"><a href="#私有属性与继承" class="headerlink" title="私有属性与继承"></a>私有属性与继承</h3><p>属性名前加两个下划线就变成私有属性，只能在类内部访问：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Account</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.__balance = <span class="number">0</span>              <span class="comment"># 私有属性，外部不能直接改</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_balance</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.__balance           <span class="comment"># 通过方法间接访问</span></span><br></pre></td></tr></table></figure>
+
+<p>继承让子类复用父类代码。子类找不到方法时会去父类找，这叫”就近原则”；子类也可以重写父类方法，要求函数名和形参一致：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Animal</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">speak</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;动物在叫&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Dog</span>(<span class="title class_ inherited__">Animal</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">speak</span>(<span class="params">self</span>):                    <span class="comment"># 重写父类方法</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;汪汪汪&#x27;</span>)</span><br><span class="line"></span><br><span class="line">d = Dog()</span><br><span class="line">d.speak()                               <span class="comment"># 汪汪汪</span></span><br><span class="line"><span class="built_in">print</span>(Dog.__mro__)                      <span class="comment"># 查看方法解析顺序</span></span><br></pre></td></tr></table></figure>
+
+<p><code>__mro__</code> 显示多继承时的查找顺序，一般是”子类 → 第一个父类 → 第二个父类”。两个父类有同名方法时，默认调用形参中排在第一位的父类方法。</p>
+<h2 id="四、数据库与可视化"><a href="#四、数据库与可视化" class="headerlink" title="四、数据库与可视化"></a>四、数据库与可视化</h2><p>可视化部分需要先安装依赖：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install pymysql matplotlib pyecharts pandas</span><br></pre></td></tr></table></figure>
+
+<h3 id="用-pymysql-连接-MySQL"><a href="#用-pymysql-连接-MySQL" class="headerlink" title="用 pymysql 连接 MySQL"></a>用 pymysql 连接 MySQL</h3><p><code>pymysql</code> 是纯 Python 编写的第三方库，连接前确保 MySQL 已设置密码。建议用关键字参数，可读性好：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql</span><br><span class="line"></span><br><span class="line">db = pymysql.connect(host=<span class="string">&#x27;localhost&#x27;</span>, user=<span class="string">&#x27;root&#x27;</span>, password=<span class="string">&#x27;&lt;密码&gt;&#x27;</span>, database=<span class="string">&#x27;TESTDB&#x27;</span>)</span><br><span class="line">cursor = db.cursor()                    <span class="comment"># 创建游标</span></span><br><span class="line">cursor.execute(<span class="string">&#x27;SELECT VERSION()&#x27;</span>)      <span class="comment"># 执行 SQL</span></span><br><span class="line">data = cursor.fetchone()                <span class="comment"># 取一条结果</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Database version:&#x27;</span>, data)</span><br><span class="line">db.close()                              <span class="comment"># 关闭连接</span></span><br></pre></td></tr></table></figure>
+
+<p>常用方法还有 <code>select_db()</code> 切换数据库、<code>fetchall()</code> 取全部结果（返回列表，无结果时为空列表）、<code>commit()</code> 提交事务、<code>ping(reconnect=True)</code> 检查连接。另一个选择是 MySQL 官方的 <code>mysql-connector</code>，用 C 编写，性能更好并支持连接池、异步执行。</p>
+<h3 id="matplotlib-折线图"><a href="#matplotlib-折线图" class="headerlink" title="matplotlib 折线图"></a>matplotlib 折线图</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">x = np.arange(<span class="number">1</span>, <span class="number">11</span>)        <span class="comment"># x 轴为 1 到 10</span></span><br><span class="line">y = x + <span class="number">5</span></span><br><span class="line">y2 = x * x + <span class="number">5</span></span><br><span class="line">plt.title(<span class="string">&#x27;line chart&#x27;</span>)     <span class="comment"># 标题</span></span><br><span class="line">plt.xlabel(<span class="string">&#x27;x axis&#x27;</span>)        <span class="comment"># 横轴名称</span></span><br><span class="line">plt.ylabel(<span class="string">&#x27;y axis&#x27;</span>)        <span class="comment"># 纵轴名称</span></span><br><span class="line">plt.plot(x, y, color=<span class="string">&#x27;k&#x27;</span>, marker=<span class="string">&#x27;v&#x27;</span>, linestyle=<span class="string">&#x27;-.&#x27;</span>, label=<span class="string">&#x27;x+5&#x27;</span>)   <span class="comment"># 第一条线</span></span><br><span class="line">plt.plot(x, y2, color=<span class="string">&#x27;r&#x27;</span>, marker=<span class="string">&#x27;o&#x27;</span>, linestyle=<span class="string">&#x27;-&#x27;</span>, label=<span class="string">&#x27;x^2+5&#x27;</span>) <span class="comment"># 第二条线</span></span><br><span class="line">plt.legend()                <span class="comment"># 显示图例</span></span><br><span class="line">plt.show()                  <span class="comment"># 显示图形</span></span><br></pre></td></tr></table></figure>
+
+<p><code>color</code> 控制颜色，<code>marker</code> 控制数据点形状，<code>linestyle</code> 控制线型；画多条线就多次调用 <code>plot()</code>。</p>
+<h3 id="pyecharts-图表"><a href="#pyecharts-图表" class="headerlink" title="pyecharts 图表"></a>pyecharts 图表</h3><p>pyecharts 是百度团队开源的可视化库，能生成漂亮的交互式网页图表：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyecharts.charts <span class="keyword">import</span> Line</span><br><span class="line"><span class="keyword">from</span> pyecharts.options <span class="keyword">import</span> TitleOpts, ToolboxOpts, LegendOpts</span><br><span class="line"></span><br><span class="line">line = Line()                                  <span class="comment"># 构建空坐标系</span></span><br><span class="line">line.add_xaxis([<span class="string">&#x27;中国&#x27;</span>, <span class="string">&#x27;美国&#x27;</span>, <span class="string">&#x27;英国&#x27;</span>])       <span class="comment"># X 轴数据</span></span><br><span class="line">line.add_yaxis(<span class="string">&#x27;GDP&#x27;</span>, [<span class="number">30</span>, <span class="number">20</span>, <span class="number">10</span>])            <span class="comment"># Y 轴数据</span></span><br><span class="line">line.set_global_opts(                          <span class="comment"># 全局配置</span></span><br><span class="line">    title_opts=TitleOpts(title=<span class="string">&#x27;GDP 对比&#x27;</span>),</span><br><span class="line">    legend_opts=LegendOpts(is_show=<span class="literal">True</span>),</span><br><span class="line">    toolbox_opts=ToolboxOpts(is_show=<span class="literal">True</span>),</span><br><span class="line">)</span><br><span class="line">line.render()                                  <span class="comment"># 生成 render.html，双击用浏览器打开</span></span><br></pre></td></tr></table></figure>
+
+<p>地图类图表用 <code>from pyecharts.charts import Map</code> 导入 <code>Map</code> 对象，用法类似。</p>
+<h3 id="pandas-DataFrame"><a href="#pandas-DataFrame" class="headerlink" title="pandas DataFrame"></a>pandas DataFrame</h3><p>pandas 约定导入时写成 <code>import pandas as pd</code>。DataFrame 可以用多种方式创建：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 空 DataFrame</span></span><br><span class="line">df = pd.DataFrame()</span><br><span class="line"><span class="built_in">print</span>(df)                       <span class="comment"># Empty DataFrame</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 用二维列表创建，并指定列名</span></span><br><span class="line">data = [[<span class="string">&#x27;China&#x27;</span>, <span class="number">132874</span>], [<span class="string">&#x27;USA&#x27;</span>, <span class="number">302841</span>], [<span class="string">&#x27;Japan&#x27;</span>, <span class="number">127953</span>]]</span><br><span class="line">df = pd.DataFrame(data, columns=[<span class="string">&#x27;Country&#x27;</span>, <span class="string">&#x27;Population(thousands)&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用字典创建，字典的键成为列名</span></span><br><span class="line">data = &#123;</span><br><span class="line">    <span class="string">&#x27;Country&#x27;</span>: [<span class="string">&#x27;China&#x27;</span>, <span class="string">&#x27;USA&#x27;</span>, <span class="string">&#x27;India&#x27;</span>],</span><br><span class="line">    <span class="string">&#x27;Population&#x27;</span>: [<span class="number">132874</span>, <span class="number">302841</span>, <span class="number">1151751</span>],</span><br><span class="line">&#125;</span><br><span class="line">df = pd.DataFrame(data)</span><br><span class="line"><span class="built_in">print</span>(df)</span><br></pre></td></tr></table></figure>
+
+<p>也可以用 <code>pd.Series</code> 对象作为字典的值来构造，各列长度需要一致，否则会报错。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这一篇把 Python 的应用能力串成了一条线：用 <code>open</code> 的模式和 <code>pickle</code>、<code>struct</code>、<code>shelve</code> 把数据存好，用 <code>os</code>、<code>shutil</code> 管理文件目录，用切片、<code>sys.argv</code>、CRC32、<code>xlwt</code> 处理日常任务；再把代码拆成模块和包，用 <code>__name__</code>、<code>__all__</code> 控制可见性，用装饰器增加通用功能；进一步用类、魔法方法、私有属性和继承组织复杂逻辑；最后通过 <code>pymysql</code> 连接数据库，用 matplotlib、pyecharts 和 pandas 把数据变成直观的图表。到这里，Python 就已经从”会写语法”进阶到”能完成项目”了。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/python%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%E4%B8%8E%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/tcpip%E5%8D%8F%E8%AE%AE%E4%B8%8E%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

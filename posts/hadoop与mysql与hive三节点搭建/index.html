@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="Hadoop三节点搭建入门教程：先讲vim阅读约定与PATH恢复，再完成主机名、JDK、Hadoop、Hive、MySQL环境变量与SSH免密同步；给出core-site.xml、hdfs-site.xml等配置写法、NameNode格式化与jps排查，并覆盖MySQL授权建库、Hive初始化0x8报错、Flume采集及数据清洗命令。">
+
+
+    
+  <meta name="keywords" content="Hadoop三节点集群,Hive环境搭建,MySQL安装配置,SSH免密登录,Hadoop核心配置,hdfs namenode format,Flume数据采集,数据清洗命令">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>hadoop与mysql与hive三节点搭建</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Hadoop"
+                           title="Hadoop">Hadoop</a>
+                        
+                        <a class="tag" href="/tags/#MySQL"
+                           title="MySQL">MySQL</a>
+                        
+                        <a class="tag" href="/tags/#Hive"
+                           title="Hive">Hive</a>
+                        
+                        <a class="tag" href="/tags/#集群搭建"
+                           title="集群搭建">集群搭建</a>
+                        
+                    </div>
+                    <h1>hadoop与mysql与hive三节点搭建</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>搭一套大数据集群，听起来很复杂，其实可以把它想象成组建一个三人小团队：一个人负责调度（主节点 master），两个人负责干活（从节点 slave1、slave2）。三个人要互相认识（主机名与 hosts）、有统一的作息（时间同步）、能无障碍沟通（免密登录），还要各司其职（Hadoop 负责存储与计算，MySQL 负责保管元数据，Hive 负责把 SQL 翻译成计算任务，Flume 负责搬数据）。这篇文章就按真实的搭建顺序，把每一步的命令、配置和排错方法完整写下来，照着做就能得到一套可用的三节点环境。</p>
+<h2 id="动手之前的约定：vim-操作与本文符号说明"><a href="#动手之前的约定：vim-操作与本文符号说明" class="headerlink" title="动手之前的约定：vim 操作与本文符号说明"></a>动手之前的约定：vim 操作与本文符号说明</h2><h3 id="本文的”阅读约定”"><a href="#本文的”阅读约定”" class="headerlink" title="本文的”阅读约定”"></a>本文的”阅读约定”</h3><p>原始笔记为了便于现场操作，用了几套固定的分隔符号。这里先规范化成统一说明，后面看到就不会困惑：</p>
+<table>
+<thead>
+<tr>
+<th>符号形式</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一排等号 <code>======</code></td>
+<td>不同软件阶段的分界线，例如”开始 Hadoop””开始 MySQL”</td>
+</tr>
+<tr>
+<td>一排减号 <code>------</code></td>
+<td>两个减号之间是某个文件的<strong>完整内容</strong></td>
+</tr>
+<tr>
+<td>三个反引号包裹的段落</td>
+<td>对上方命令或配置的<strong>解释说明</strong></td>
+</tr>
+<tr>
+<td>命令下方的文字行</td>
+<td>对该条命令的补充说明</td>
+</tr>
+<tr>
+<td><code>#</code> 号后面的文字</td>
+<td>该命令的<strong>单行注释</strong></td>
+</tr>
+</tbody></table>
+<h3 id="vim-编辑器常用操作"><a href="#vim-编辑器常用操作" class="headerlink" title="vim 编辑器常用操作"></a>vim 编辑器常用操作</h3><p>配置文件基本都要用 vim 修改，先记住下面这些高频操作（注意输入时切换到英文状态）：</p>
+<ul>
+<li><strong>模式切换</strong>：普通模式下按 <code>i</code> 或 <code>Insert</code> 进入编辑模式；按 <code>Esc</code> 回到普通模式。</li>
+<li><strong>搜索</strong>：普通模式下输入 <code>/关键词</code>（如 <code>/User</code>），按 <code>n</code> 跳到下一个匹配，搜到末尾会从头继续。</li>
+<li><strong>保存退出</strong>：<code>:wq</code> 表示保存并退出（write + quit）；只保存用 <code>:w</code>；不保存强制退出用 <code>:q!</code>（<code>!</code> 表示强制）。</li>
+<li><strong>快速定位</strong>：普通模式下按大写 <code>G</code> 跳到文件末尾，连按两次小写 <code>g</code>（即 <code>gg</code>）跳到文件开头。</li>
+<li><strong>可视模式</strong>：普通模式按 <code>v</code> 进入 visual 模式，用 <code>h/j/k/l</code> 或方向键选中文本，按 <code>y</code> 复制、<code>p</code> 粘贴。</li>
+<li><strong>行操作</strong>：<code>dd</code> 删除整行，<code>yy</code> 复制整行，<code>p</code> 粘贴，<code>h/j/k/l</code> 移动光标。</li>
+</ul>
+<h3 id="全局环境变量配错了怎么救"><a href="#全局环境变量配错了怎么救" class="headerlink" title="全局环境变量配错了怎么救"></a>全局环境变量配错了怎么救</h3><p>这是最容易让人慌的一步：<code>/etc/profile</code> 里的 <code>PATH</code> 一旦写错并生效，很多系统命令（包括 vim）都会提示”命令找不到”。恢复办法是先用<strong>绝对路径</strong>重设一个可用的 PATH，让编辑器先能启动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 重设一个最小可用 PATH，先让 vim 等基础命令恢复可用</span></span><br><span class="line"><span class="built_in">export</span> PATH=/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin</span><br><span class="line"><span class="comment"># 再用 vim 打开配置文件，逐行核对 PATH 是否漏写 &#x27;$&#x27; 等符号，改对后保存</span></span><br><span class="line">vim /etc/profile</span><br><span class="line"><span class="comment"># 最后让配置生效</span></span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br></pre></td></tr></table></figure>
+
+<h2 id="第一步：规划三台机器——主机名与-hosts"><a href="#第一步：规划三台机器——主机名与-hosts" class="headerlink" title="第一步：规划三台机器——主机名与 hosts"></a>第一步：规划三台机器——主机名与 hosts</h2><p>先给三台机器起好名字并写入 hosts 解析，让它们能”叫出对方的名字”。下面命令在对应节点上执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 master 节点执行，修改主机名（只是临时改，不改 hosts）</span></span><br><span class="line">hostname master</span><br><span class="line">bash                      <span class="comment"># 让主机名立即生效</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 slave1 节点执行</span></span><br><span class="line">hostname slave1</span><br><span class="line">bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 slave2 节点执行</span></span><br><span class="line">hostname slave2</span><br><span class="line">bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># 三台机器都要编辑 hosts 文件，加入 IP 与主机名的对应关系</span></span><br><span class="line">vim /etc/hosts</span><br><span class="line"><span class="comment"># 在文件末尾追加（IP 请替换成你自己的实际地址）</span></span><br><span class="line"><span class="comment"># &lt;master的IP&gt;   master</span></span><br><span class="line"><span class="comment"># &lt;slave1的IP&gt;   slave1</span></span><br><span class="line"><span class="comment"># &lt;slave2的IP&gt;   slave2</span></span><br></pre></td></tr></table></figure>
+
+<p>同时停掉防火墙，避免节点间通信被拦截：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld    <span class="comment"># 停止防火墙（仅本次生效）</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="第二步：解压安装包并配置环境变量"><a href="#第二步：解压安装包并配置环境变量" class="headerlink" title="第二步：解压安装包并配置环境变量"></a>第二步：解压安装包并配置环境变量</h2><p>统一把 JDK、Hadoop、Hive 解压到 <code>/opt/module</code>，MySQL 解压到 <code>/usr/local</code>。这里用 <code>&lt;版本号&gt;</code> 代表你实际下载的版本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /opt/module                                              <span class="comment"># 创建统一安装目录</span></span><br><span class="line">tar -xvzf /opt/software/hadoop-&lt;版本号&gt;.tar.gz -C /opt/module/    <span class="comment"># 解压 Hadoop</span></span><br><span class="line">tar -xvzf /opt/software/apache-hive-&lt;版本号&gt;.tar.gz -C /opt/module/  <span class="comment"># 解压 Hive</span></span><br><span class="line">tar -xvzf /opt/software/jdk-&lt;版本号&gt;.tar.gz -C /opt/module/        <span class="comment"># 解压 JDK</span></span><br><span class="line">tar -xvzf /opt/software/mysql-&lt;版本号&gt;.tar.gz -C /usr/local/      <span class="comment"># MySQL 放到 /usr/local</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> /opt/module</span><br><span class="line"><span class="built_in">mv</span> jdk-&lt;版本号&gt; jdk            <span class="comment"># 改短名，后面配置引用更方便</span></span><br><span class="line"><span class="built_in">mv</span> hadoop-&lt;版本号&gt; hadoop</span><br><span class="line"><span class="built_in">mv</span> apache-hive-&lt;版本号&gt; hive</span><br><span class="line"><span class="built_in">cd</span> /usr/local/</span><br><span class="line"><span class="built_in">mv</span> mysql-&lt;版本号&gt; mysql</span><br></pre></td></tr></table></figure>
+
+<p>接着编辑 <code>/etc/profile</code>，把各组件的家目录和 PATH 一次性配好：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="comment"># 在文件末尾加入以下内容</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/opt/module/jdk</span><br><span class="line"><span class="built_in">export</span> MYSQL_HOME=/usr/local/mysql</span><br><span class="line"><span class="built_in">export</span> HIVE_HOME=/opt/module/hive</span><br><span class="line"><span class="built_in">export</span> HADOOP_HOME=/opt/module/hadoop</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$HADOOP_HOME</span>/bin:<span class="variable">$HADOOP_HOME</span>/sbin:<span class="variable">$HIVE_HOME</span>/bin:<span class="variable">$HIVE_HOME</span>/lib:<span class="variable">$MYSQL_HOME</span>/bin:<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 下面 5 行是为了允许用 root 身份启动 Hadoop</span></span><br><span class="line"><span class="comment"># 否则执行 start-all.sh 时会提示不允许使用 root 用户</span></span><br><span class="line"><span class="built_in">export</span> HDFS_NAMENODE_USER=root</span><br><span class="line"><span class="built_in">export</span> HDFS_DATANODE_USER=root</span><br><span class="line"><span class="built_in">export</span> HDFS_SECONDARYNAMENODE_USER=root</span><br><span class="line"><span class="built_in">export</span> YARN_RESOURCEMANAGER_USER=root</span><br><span class="line"><span class="built_in">export</span> YARN_NODEMANAGER_USER=root</span><br></pre></td></tr></table></figure>
+
+<p>保存后让配置生效，并验证 JDK：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> /etc/profile         <span class="comment"># 让环境变量立即生效</span></span><br><span class="line">java -version               <span class="comment"># 查看 Java 版本，确认 JDK 可用</span></span><br><span class="line">javac                       <span class="comment"># 编译命令能执行，说明 JDK 完整</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="第三步：SSH-免密登录与-rsync-同步"><a href="#第三步：SSH-免密登录与-rsync-同步" class="headerlink" title="第三步：SSH 免密登录与 rsync 同步"></a>第三步：SSH 免密登录与 rsync 同步</h2><p>Hadoop 启动时会远程登录其他节点，因此三台机器之间必须做到免密。每台机器都要生成密钥，并把公钥复制给自己和另外两台：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa            <span class="comment"># 生成 RSA 密钥对，一路回车即可</span></span><br><span class="line">ssh-copy-id master           <span class="comment"># 把公钥复制到 master，按提示输入 &lt;密码&gt;</span></span><br><span class="line">ssh-copy-id slave1           <span class="comment"># 复制到 slave1</span></span><br><span class="line">ssh-copy-id slave2           <span class="comment"># 复制到 slave2</span></span><br></pre></td></tr></table></figure>
+
+<p>上面这组操作要<strong>分别在 master、slave1、slave2 上都执行一遍</strong>，这样任意两台之间都能免密。</p>
+<p>环境变量确认无误后（重点检查 <code>$</code> 有没有漏写），用 <code>rsync</code> 把 profile 同步到从节点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rsync -av /etc/profile slave1:/etc/profile</span><br><span class="line">rsync -av /etc/profile slave2:/etc/profile</span><br></pre></td></tr></table></figure>
+
+<p><code>rsync</code> 和 <code>scp</code> 都能传文件，区别在于 <code>rsync</code> 会先比对差异，只同步改动过的部分，适合目录级别的增量同步。</p>
+<p>同步完成后，在 slave1、slave2 上做基础准备：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">hostname slave1             <span class="comment"># slave2 上对应改为 slave2</span></span><br><span class="line">bash</span><br><span class="line"><span class="built_in">source</span> /etc/profile         <span class="comment"># 让同步过来的环境变量生效</span></span><br><span class="line"><span class="built_in">mkdir</span> /opt/module           <span class="comment"># 创建安装目录，等待同步安装包</span></span><br></pre></td></tr></table></figure>
+
+<p>在 master 上把 JDK 同步给两个从节点，并在从节点验证 Java：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以下在 master 执行</span></span><br><span class="line">rsync -av /opt/module/jdk slave1:/opt/module/jdk</span><br><span class="line">rsync -av /opt/module/jdk slave2:/opt/module/jdk</span><br><span class="line"></span><br><span class="line"><span class="comment"># 以下在 slave1、slave2 分别执行</span></span><br><span class="line">java -version</span><br><span class="line">javac</span><br></pre></td></tr></table></figure>
+
+<h2 id="第四步：Hadoop-核心配置"><a href="#第四步：Hadoop-核心配置" class="headerlink" title="第四步：Hadoop 核心配置"></a>第四步：Hadoop 核心配置</h2><p>先进入 Hadoop 配置目录，逐一修改下面 6 个核心文件。所有文件都只写一份，改完再统一同步到从节点。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /opt/module/hadoop/etc/hadoop</span><br></pre></td></tr></table></figure>
+
+<h3 id="core-site-xml：指定默认文件系统"><a href="#core-site-xml：指定默认文件系统" class="headerlink" title="core-site.xml：指定默认文件系统"></a>core-site.xml：指定默认文件系统</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.defaultFS<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://master:8020<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/module/hadoop/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /opt/module/hadoop/data     <span class="comment"># 创建上一步配置的数据目录</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="hdfs-site-xml：NameNode-与数据目录"><a href="#hdfs-site-xml：NameNode-与数据目录" class="headerlink" title="hdfs-site.xml：NameNode 与数据目录"></a>hdfs-site.xml：NameNode 与数据目录</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.name.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/module/hadoop/data/name<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.secondary.http-address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>slave2:9868<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/module/hadoop/data/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.client.datanode.checkpoint.restart-timeout<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>30<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="yarn-site-xml：资源管理器位置"><a href="#yarn-site-xml：资源管理器位置" class="headerlink" title="yarn-site.xml：资源管理器位置"></a>yarn-site.xml：资源管理器位置</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.hostname<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>slave1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="mapred-site-xml：计算框架"><a href="#mapred-site-xml：计算框架" class="headerlink" title="mapred-site.xml：计算框架"></a>mapred-site.xml：计算框架</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.framework.name<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>yarn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="hadoop-env-sh-与-workers"><a href="#hadoop-env-sh-与-workers" class="headerlink" title="hadoop-env.sh 与 workers"></a>hadoop-env.sh 与 workers</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># hadoop-env.sh 末尾指定 JDK 路径</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/opt/module/jdk</span><br><span class="line"></span><br><span class="line"><span class="comment"># workers 文件（每行一个从节点主机名）</span></span><br><span class="line">master</span><br><span class="line">slave1</span><br><span class="line">slave2</span><br></pre></td></tr></table></figure>
+
+<p>配置完成后，把整个 Hadoop 目录同步到两个从节点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rsync -av /opt/module/hadoop/ slave1:/opt/module/hadoop/</span><br><span class="line">rsync -av /opt/module/hadoop/ slave2:/opt/module/hadoop/</span><br></pre></td></tr></table></figure>
+
+<h2 id="第五步：格式化-NameNode-并启动集群"><a href="#第五步：格式化-NameNode-并启动集群" class="headerlink" title="第五步：格式化 NameNode 并启动集群"></a>第五步：格式化 NameNode 并启动集群</h2><p>三台机器都执行一次格式化。注意 <code>-format</code> <strong>只有一个减号</strong>，写成两个会报错；看到 <code>formatted successfully</code> 就说明成功（它不一定在最后一行）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -format</span><br></pre></td></tr></table></figure>
+
+<p>在 master 上启动全部服务并用 <code>jps</code> 检查进程：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">start-all.sh                  <span class="comment"># 一条命令启动 HDFS 和 YARN</span></span><br><span class="line">jps                           <span class="comment"># 查看本机 Java 进程</span></span><br></pre></td></tr></table></figure>
+
+<p>正常情况下各节点应看到这些进程：</p>
+<table>
+<thead>
+<tr>
+<th>节点</th>
+<th>应看到的进程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>master</td>
+<td>DataNode、NameNode、Jps、NodeManager</td>
+</tr>
+<tr>
+<td>slave1</td>
+<td>ResourceManager、DataNode、NodeManager、Jps</td>
+</tr>
+<tr>
+<td>slave2</td>
+<td>SecondaryNameNode、DataNode、NodeManager、Jps</td>
+</tr>
+</tbody></table>
+<p>如果某个角色没起来，可以单独启动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs --daemon start &lt;角色名&gt;</span><br></pre></td></tr></table></figure>
+
+<p>但如果 <code>jps</code> 只显示一个 <code>Jps</code>，通常说明配置文件写错了，应检查配置、重新同步后再把三个节点的服务全部重启一次。</p>
+<h2 id="第六步：MySQL-安装、授权与建库"><a href="#第六步：MySQL-安装、授权与建库" class="headerlink" title="第六步：MySQL 安装、授权与建库"></a>第六步：MySQL 安装、授权与建库</h2><p>Hive 的元数据存在 MySQL 里，所以必须先装好 MySQL。先编辑 <code>/etc/my.cnf</code>：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="attr">port</span>=<span class="number">3306</span>                          <span class="comment"># 服务端口</span></span><br><span class="line"><span class="attr">datadir</span>=/usr/local/mysql/data      <span class="comment"># 数据文件目录</span></span><br><span class="line"><span class="attr">basedir</span>=/usr/local/mysql           <span class="comment"># 安装根目录</span></span><br><span class="line"><span class="attr">lower_case_table_names</span>=<span class="number">1</span>           <span class="comment"># 忽略表名大小写</span></span><br><span class="line"><span class="attr">character-set-server</span>=utf8mb4       <span class="comment"># 用 utf8mb4 支持多字节字符</span></span><br><span class="line"><span class="attr">explicit_defaults_for_timestamp</span>=<span class="number">1</span>  <span class="comment"># 避免初始化时的时间戳报错</span></span><br></pre></td></tr></table></figure>
+
+<p>注意中括号里是 <code>mysqld</code> 而不是 <code>mysql</code>。接着初始化：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/local/mysql</span><br><span class="line"><span class="built_in">mkdir</span> data                                             <span class="comment"># 创建数据目录</span></span><br><span class="line"><span class="built_in">cp</span> supported-files/mysql.server /etc/init.d/mysqld     <span class="comment"># 注册为服务</span></span><br><span class="line">chkconfig --add mysqld                                 <span class="comment"># 注意是两个减号</span></span><br><span class="line">yum install -y numactl libaio                          <span class="comment"># 安装依赖库</span></span><br><span class="line">useradd mysql                                          <span class="comment"># 创建运行用户</span></span><br><span class="line"><span class="built_in">chown</span> -R root:mysql /usr/local/mysql                   <span class="comment"># 修改属主属组</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 以无密码方式初始化，成功会提示 root with an empty password</span></span><br><span class="line">mysqld --initialize-insecure --user=mysql --datadir=/usr/local/mysql/data --basedir=/usr/local/mysql</span><br></pre></td></tr></table></figure>
+
+<p>如果初始化失败，先把 data 目录删掉重建再重试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -rf /usr/local/mysql/data</span><br><span class="line"><span class="built_in">mkdir</span> data</span><br></pre></td></tr></table></figure>
+
+<p>启动服务并做授权建库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl start mysqld            <span class="comment"># 不同版本也可能是 service mysql start</span></span><br><span class="line">mysql                             <span class="comment"># 无密码可直接进入</span></span><br></pre></td></tr></table></figure>
+
+<p>进入 MySQL 后执行：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">grant</span> <span class="keyword">all</span> <span class="keyword">on</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">to</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span> identified <span class="keyword">by</span> <span class="string">&#x27;&lt;密码&gt;&#x27;</span>;  <span class="comment">-- 允许 root 从任意主机登录</span></span><br><span class="line">flush privileges;                                       <span class="comment">-- 刷新权限使其生效</span></span><br><span class="line"><span class="keyword">create</span> database hive;                                   <span class="comment">-- 创建存放元数据的库</span></span><br></pre></td></tr></table></figure>
+
+<p>小提醒：<code>identified</code> 不要拼成 <code>indentified</code>。</p>
+<h2 id="第七步：Hive-配置与元数据初始化"><a href="#第七步：Hive-配置与元数据初始化" class="headerlink" title="第七步：Hive 配置与元数据初始化"></a>第七步：Hive 配置与元数据初始化</h2><p>进入 Hive 配置目录，复制一份默认配置再修改：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /opt/module/hive/conf</span><br><span class="line"><span class="built_in">cp</span> hive-default.xml hive-site.xml</span><br><span class="line">vim hive-site.xml</span><br></pre></td></tr></table></figure>
+
+<p>在 vim 里用搜索定位下面4项并改值：</p>
+<table>
+<thead>
+<tr>
+<th>搜索关键字</th>
+<th>配置项</th>
+<th>改成的值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/UserName</code></td>
+<td><code>javax.jdo.option.ConnectionUserName</code></td>
+<td><code>root</code></td>
+</tr>
+<tr>
+<td><code>/ConnectionURL</code></td>
+<td><code>javax.jdo.option.ConnectionURL</code></td>
+<td><code>jdbc:mysql://master:3306/hive?createDatabaseIfNotExist=true</code></td>
+</tr>
+<tr>
+<td><code>/DriverName</code></td>
+<td><code>javax.jdo.option.ConnectionDriverName</code></td>
+<td><code>com.mysql.jdbc.Driver</code></td>
+</tr>
+<tr>
+<td><code>/Password</code></td>
+<td><code>javax.jdo.option.ConnectionPassword</code></td>
+<td><code>&lt;密码&gt;</code></td>
+</tr>
+</tbody></table>
+<p>然后准备 <code>hive-env.sh</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> hive-env.sh.template hive-env.sh</span><br><span class="line">vim hive-env.sh</span><br><span class="line"><span class="comment"># 加入以下环境变量</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/opt/module/jdk</span><br><span class="line"><span class="built_in">export</span> MYSQL_HOME=/usr/local/mysql</span><br><span class="line"><span class="built_in">export</span> HIVE_AUX_JARS_PATH=/opt/module/hive/lib</span><br><span class="line"><span class="built_in">export</span> HIVE_CONF_DIR=/opt/module/hive/conf</span><br><span class="line"><span class="built_in">export</span> HADOOP_HOME=/opt/module/hadoop</span><br></pre></td></tr></table></figure>
+
+<p>最后初始化元数据库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">schematool --initSchema --dbType mysql --verbose</span><br></pre></td></tr></table></figure>
+
+<h3 id="排错：遇到带-0x8-的报错"><a href="#排错：遇到带-0x8-的报错" class="headerlink" title="排错：遇到带 0x8 的报错"></a>排错：遇到带 0x8 的报错</h3><p>初始化时常见的报错信息里会带 <code>0x8</code> 字样，原因是默认配置中有一段 <code>&amp;#8;</code> 控制字符导致解析失败。处理办法：</p>
+<ol>
+<li>在 <code>hive-site.xml</code> 里跳到第 3215 行（命令模式输入 <code>:3215</code>）；</li>
+<li>或者搜索 <code>/&amp;#</code> 定位到那一行；</li>
+<li>把 <code>&lt;description&gt;...&lt;/description&gt;</code> 里包含 <code>&amp;#8;</code> 的整行删掉。<code>&lt;description&gt;</code> 只是给人看的说明，程序不会读取，用 <code>dd</code> 整行删除即可。</li>
+</ol>
+<p>改完保存后重新执行初始化命令即可。成功后就可以用图形化客户端（如 Navicat）从 Windows 连接这台 MySQL 了。</p>
+<h2 id="第八步：Flume-采集配置"><a href="#第八步：Flume-采集配置" class="headerlink" title="第八步：Flume 采集配置"></a>第八步：Flume 采集配置</h2><p>Flume 常用来把日志实时搬到 HDFS。配置一个 agent，从 NameNode 日志末尾读取内容并写入 HDFS：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 定义 agent 的三个组件</span></span><br><span class="line"><span class="attr">a1.sources</span> = <span class="string">r1</span></span><br><span class="line"><span class="attr">a1.sinks</span> = <span class="string">k1</span></span><br><span class="line"><span class="attr">a1.channels</span> = <span class="string">c1</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 数据源：实时跟踪 NameNode 日志</span></span><br><span class="line"><span class="attr">a1.sources.r1.type</span> = <span class="string">exec</span></span><br><span class="line"><span class="attr">a1.sources.r1.command</span> = <span class="string">tail -F /opt/module/hadoop/logs/hadoop-root-namenode-master.log</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 输出：写入 HDFS 的 /tmp/flume 目录</span></span><br><span class="line"><span class="attr">a1.sinks.k1.type</span> = <span class="string">hdfs</span></span><br><span class="line"><span class="attr">a1.sinks.k1.hdfs.path</span> = <span class="string">hdfs://master:8020/tmp/flume</span></span><br><span class="line"><span class="attr">a1.sinks.k1.hdfs.filePrefix</span> = <span class="string">log-</span></span><br><span class="line"><span class="attr">a1.sinks.k1.hdfs.fileType</span> = <span class="string">DataStream</span></span><br><span class="line"><span class="attr">a1.sinks.k1.hdfs.useLocalTimeStamp</span> = <span class="string">true</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 通道：内存通道，并接上 source 和 sink</span></span><br><span class="line"><span class="attr">a1.channels.c1.type</span> = <span class="string">memory</span></span><br><span class="line"><span class="attr">a1.sources.r1.channels</span> = <span class="string">c1</span></span><br><span class="line"><span class="attr">a1.sinks.k1.channel</span> = <span class="string">c1</span></span><br></pre></td></tr></table></figure>
+
+<p>为了让 Flume 能访问 HDFS，需要把 Hadoop 的相关 jar 包和配置文件放进 Flume 的目录，并解决 Guava 版本冲突（删旧版、拷新版）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/common/hadoop-common-&lt;版本号&gt;.jar <span class="variable">$FLUME_HOME</span>/lib</span><br><span class="line"><span class="built_in">cp</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/common/lib/hadoop-auth-&lt;版本号&gt;.jar <span class="variable">$FLUME_HOME</span>/lib</span><br><span class="line"><span class="built_in">cp</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/common/lib/commons-configuration2-&lt;版本号&gt;.jar <span class="variable">$FLUME_HOME</span>/lib</span><br><span class="line"><span class="built_in">cp</span> <span class="variable">$HADOOP_HOME</span>/etc/hadoop/core-site.xml <span class="variable">$FLUME_HOME</span>/conf</span><br><span class="line"><span class="built_in">cp</span> <span class="variable">$HADOOP_HOME</span>/etc/hadoop/hdfs-site.xml <span class="variable">$FLUME_HOME</span>/conf</span><br><span class="line"><span class="built_in">rm</span> <span class="variable">$FLUME_HOME</span>/lib/guava-11.0.2.jar</span><br><span class="line"><span class="built_in">cp</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/common/lib/guava-&lt;新版本&gt;.jar <span class="variable">$FLUME_HOME</span>/lib</span><br></pre></td></tr></table></figure>
+
+<p>启动 agent（建议另开一个终端专门挂着 Flume）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flume-ng agent --conf <span class="variable">$FLUME_HOME</span>/conf/ --conf-file <span class="variable">$FLUME_HOME</span>/conf/flume-conf.properties --name a1 -Dflume.root.logger=INFO,console</span><br></pre></td></tr></table></figure>
+
+<h2 id="第九步：数据清洗常用命令"><a href="#第九步：数据清洗常用命令" class="headerlink" title="第九步：数据清洗常用命令"></a>第九步：数据清洗常用命令</h2><p>数据进到 HDFS 前后，常用几个文本命令做快速检查和清洗：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>常用写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>head</code></td>
+<td>看开头若干行&#x2F;字节</td>
+<td><code>head -n 10 file.txt</code>（看前10行）</td>
+</tr>
+<tr>
+<td><code>wc</code></td>
+<td>统计行数、字节数、单词数</td>
+<td><code>wc -l file.txt</code>（统计行数）</td>
+</tr>
+<tr>
+<td><code>cut</code></td>
+<td>按分隔符截取列</td>
+<td><code>cut -d &#39;,&#39; -f 3 file.txt</code>（取逗号分隔的第3列）</td>
+</tr>
+<tr>
+<td><code>awk</code></td>
+<td>按列格式化处理</td>
+<td><code>awk -F &#39;,&#39; &#39;&#123;print $1,$2&#125;&#39; file.txt</code></td>
+</tr>
+<tr>
+<td><code>cat</code></td>
+<td>显示全文</td>
+<td><code>cat -n file.txt</code>（带行号显示）</td>
+</tr>
+</tbody></table>
+<p>几个实用例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">head</span> -n 1 data.txt                              <span class="comment"># 看第一行，常用于确认表头</span></span><br><span class="line">awk -F <span class="string">&#x27;,&#x27;</span> <span class="string">&#x27;&#123;print NF&#125;&#x27;</span> data.txt | <span class="built_in">head</span> -2      <span class="comment"># 看每行列数，确认分隔是否正确</span></span><br><span class="line">awk -F <span class="string">&#x27;,&#x27;</span> <span class="string">&#x27;&#123;print $1,$2&#125;&#x27;</span> data.txt             <span class="comment"># 打印逗号分隔的前两列</span></span><br><span class="line"><span class="built_in">cut</span> -d <span class="string">&#x27;,&#x27;</span> -f 3- data.txt &gt; result.txt          <span class="comment"># 截取第3列到结尾，写入新文件</span></span><br><span class="line">sed -i <span class="string">&#x27;1d&#x27;</span> result.txt                          <span class="comment"># 删除第一行（通常是表头）</span></span><br><span class="line"><span class="built_in">cat</span> data.txt | grep 采集 | <span class="built_in">wc</span> -l                <span class="comment"># 统计包含关键字的行数</span></span><br></pre></td></tr></table></figure>
+
+<p>清洗完成后上传到 HDFS 供后续计算：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfs -<span class="built_in">mkdir</span> -p /source/sms/sms_so_failure_logs/        <span class="comment"># 创建 HDFS 目录</span></span><br><span class="line">hdfs dfs -put ./sms_so_failure_logs_shell.txt /source/sms/ <span class="comment"># 上传本地文件</span></span><br><span class="line">hdfs dfs -<span class="built_in">cat</span> /source/sms/sms_so_failure_logs/*.txt | <span class="built_in">head</span> -3  <span class="comment"># 抽查前3行</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到这里，一套完整的三节点大数据环境就搭起来了：三台机器通过主机名和免密登录连成整体，Hadoop 负责分布式存储与计算，MySQL 保管 Hive 元数据，Hive 提供类 SQL 查询，Flume 负责日志采集，几个文本命令完成了数据清洗。回顾整个过程，最容易出错的地方集中在三处——环境变量 PATH、Hadoop 核心配置文件的 XML 结构、以及 MySQL 初始化参数。遇到问题时按”先看进程（<code>jps</code>）、再看日志、最后核对配置”的顺序排查，绝大多数故障都能定位。基础环境准备好之后，想进一步了解如何让集群避免单点故障，可以继续阅读《hadoop高可用集群搭建》一文。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/hadoop%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

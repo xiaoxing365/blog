@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="物联网平台部署涉及本机 IP、数据库账号、IIS 站点与云端参数。本文按平台部署、常见故障、术语速查三段组织：给出新零售门店与智能工厂的完整部署清单，包含 config 配置、SQL Server sa 账号、数据库附加、IIS 发布与店长登录，以及云平台域名和端口用法；针对连接错误 53、登录卡死闪退、组网失败给出排查命令；最后梳理 LoRa、LPWAN、网关连接器与串口波特率选型要点。">
+
+
+    
+  <meta name="keywords" content="物联网平台部署,新零售门店,SQL Server,IIS 部署,云平台接入,故障排查,LoRa,串口波特率">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>物联网平台部署与故障速查</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#物联网平台"
+                           title="物联网平台">物联网平台</a>
+                        
+                        <a class="tag" href="/tags/#部署运维"
+                           title="部署运维">部署运维</a>
+                        
+                        <a class="tag" href="/tags/#故障排查"
+                           title="故障排查">故障排查</a>
+                        
+                        <a class="tag" href="/tags/#SQL Server"
+                           title="SQL Server">SQL Server</a>
+                        
+                    </div>
+                    <h1>物联网平台部署与故障速查</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>物联网平台部署看似只是”装软件、填参数”，实际牵扯本机 IP、数据库账号、IIS 站点、云端域名与端口等多处配置，任何一处填错都会表现为登录失败或数据不通。本文把部署步骤、排障路径和基础术语整理成可直接对照的速查表，适合在实训或现场部署时随手查阅。</p>
+<h2 id="平台部署速查"><a href="#平台部署速查" class="headerlink" title="平台部署速查"></a>平台部署速查</h2><h3 id="部署前的网络与账号基线"><a href="#部署前的网络与账号基线" class="headerlink" title="部署前的网络与账号基线"></a>部署前的网络与账号基线</h3><p>进入任何设备或平台前，先把网络基线设好。所有网络设备接入后的第一件事就是修改 IP，避免默认地址冲突。</p>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>推荐值 &#x2F; 说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>中心网关 IP</td>
+<td>192.168.1.100，掩码 255.255.255.0，网关 192.168.1.1</td>
+</tr>
+<tr>
+<td>常用 DNS</td>
+<td>谷歌 8.8.8.8、阿里 223.5.5.5、腾讯 119.29.29.29、CF 1.1.1.1</td>
+</tr>
+<tr>
+<td>路由器管理地址</td>
+<td>普联科技（TP-LINK）为 192.168.0.1 或 tplogin.cn</td>
+</tr>
+<tr>
+<td>SQL Server 账号</td>
+<td>用户名 sa，密码 123456</td>
+</tr>
+<tr>
+<td>310S &#x2F; 4150 &#x2F; 4017</td>
+<td>4150 默认设备地址 01，4017 默认设备地址 02</td>
+</tr>
+<tr>
+<td>串口命名</td>
+<td>串口名称必须固定到同一个 USB 口，不得中途更换</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>说明：原文涉及的软件目录位于实训平台安装包下，例如 <code>NLE-ENC1000物联网技术应用实训平台V1.0\03_软件安装包\...</code>，按实际安装路径替换即可。</p>
+</blockquote>
+<h3 id="新零售门店部署清单"><a href="#新零售门店部署清单" class="headerlink" title="新零售门店部署清单"></a>新零售门店部署清单</h3><p>新零售门店由本地客户端、数据库、IIS 站点和移动端 APP 四部分组成，按顺序配置即可。</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作要点</th>
+<th>关键配置值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. 安装客户端</td>
+<td>安装包位于 <code>03_PC客户端软件\01_新零售门店</code></td>
+<td>安装完成后进入软件目录</td>
+</tr>
+<tr>
+<td>2. 修改 config</td>
+<td>把 IP 改为本机 IP，确认数据库名与密码</td>
+<td>用户名 sa，密码 123456</td>
+</tr>
+<tr>
+<td>3. 附加数据库</td>
+<td>SQL Server Manager 中若无数据库，从 <code>01_数据库\01_新零售门店\NLE_Supermarket_V1.0.0</code> 附加</td>
+<td>先确认 sa 账号可登录</td>
+</tr>
+<tr>
+<td>4. 客户端配置</td>
+<td>打开软件点右上角配置，IP 填本机 IP，端口填数据库端口</td>
+<td>—</td>
+</tr>
+<tr>
+<td>5. IIS 部署</td>
+<td>打开 IIS 管理器添加站点，IP 为本机 IP，端口按实训要求填写，点右侧”启动”</td>
+<td>初次打开较慢</td>
+</tr>
+<tr>
+<td>6. 网页登录</td>
+<td>浏览器打开站点，账号 admin、密码 admin，进入总部</td>
+<td>务必点击浏览器”保存密码”</td>
+</tr>
+<tr>
+<td>7. 添加门店与员工</td>
+<td>进入门店管理后添加门店、员工，编号按实训要求填写</td>
+<td>示例店长：张无忌 &#x2F; 卡号 04 &#x2F; 账号 Zwj</td>
+</tr>
+<tr>
+<td>8. 门店 APP 配置</td>
+<td>IP 填 <code>api.nlecloud.com</code>，端口 80，用户名为注册手机号，密码为云平台注册密码</td>
+<td>项目 ID 为中心网关 ID，网关 ID 为应用 ID</td>
+</tr>
+<tr>
+<td>9. COM 口确认</td>
+<td>此电脑 → 右键管理 → 设备管理器 → 端口，查看串口号</td>
+<td>与配置管理中填写的保持一致</td>
+</tr>
+<tr>
+<td>10. 店长登录</td>
+<td>必须用店长身份账号登录程序，admin 账号进不去</td>
+<td>配置正确时退出后会自动进入</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>数据库路径要求：若需把新零售门店数据库保存到 <code>c:\Database\</code>，先在 SQL Server Manager 中右键最上方的机器名 → 属性 → 数据库默认位置，改好路径后再附加数据库，顺序不能颠倒。</p>
+</blockquote>
+<h3 id="摄像头与-RTSP-参数"><a href="#摄像头与-RTSP-参数" class="headerlink" title="摄像头与 RTSP 参数"></a>摄像头与 RTSP 参数</h3><p>摄像头 IP 用附带程序 Search Tool 查询，RTSP 相关参数基本固定。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>固定值 &#x2F; 说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RTSP 端口</td>
+<td>554</td>
+</tr>
+<tr>
+<td>RTSP 参数</td>
+<td>11</td>
+</tr>
+<tr>
+<td>默认用户名 &#x2F; 密码</td>
+<td>admin &#x2F; admin</td>
+</tr>
+<tr>
+<td>IP 获取方式</td>
+<td>用 Search Tool 工具查询实际地址</td>
+</tr>
+<tr>
+<td>添加网关时类型</td>
+<td>选择 IPC，不是 Camera，端口 554</td>
+</tr>
+</tbody></table>
+<h3 id="智能工厂部署差异"><a href="#智能工厂部署差异" class="headerlink" title="智能工厂部署差异"></a>智能工厂部署差异</h3><p>智能工厂没有 IIS 服务器，因此不需要发布站点，只需附加对应数据库并调好串口链路。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>智能工厂配置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IIS</td>
+<td>不需要，跳过站点发布</td>
+</tr>
+<tr>
+<td>数据库</td>
+<td>附加 MS SQL Server Manager 对应数据库</td>
+</tr>
+<tr>
+<td>C 面板双刀双掷开关</td>
+<td>拨到下方连接串口服务器，再把 ZigBee 协调器转插到串口服务器</td>
+</tr>
+<tr>
+<td>虚拟串口</td>
+<td>打开虚拟串口软件，把双刀双掷开关与协调器的两个串口连接至虚拟串口；连不上就重启串口服务器</td>
+</tr>
+<tr>
+<td>右上角配置</td>
+<td>ADAM 的 COM 口与 ZigBee 的 COM 口按虚拟串口软件的串口号填写</td>
+</tr>
+<tr>
+<td>量程与摄像头</td>
+<td>转速 &#x2F; 浓度范围按实训要求填写，摄像头 RTSP 参数 11、端口 554、账号密码默认 admin</td>
+</tr>
+</tbody></table>
+<p>双刀双掷开关的方向决定控制权归属，排障时经常用得上。</p>
+<table>
+<thead>
+<tr>
+<th>闸刀位置</th>
+<th>串口服务器</th>
+<th>中心网关 &#x2F; 云平台</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>拨到上方</td>
+<td>不能控制控制器与传感器数据</td>
+<td>物联网中心网关与云平台可控制</td>
+</tr>
+<tr>
+<td>拨到下方</td>
+<td>连接的电脑可控制（虚拟串口或 VGA 物理连接均可）</td>
+<td>边缘云网关与云平台不可控制</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>RGB 控制器直接并联在双刀双掷开关下方，相当于直连串口服务器，不受开关影响；若面板上执行器全部失效，先检查开关是否被拨到了下方。</p>
+</blockquote>
+<h3 id="云平台与边缘服务器接入"><a href="#云平台与边缘服务器接入" class="headerlink" title="云平台与边缘服务器接入"></a>云平台与边缘服务器接入</h3><table>
+<thead>
+<tr>
+<th>用途</th>
+<th>域名 &#x2F; IP</th>
+<th>协议与端口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>门店 APP 云平台配置</td>
+<td>api.nlecloud.com</td>
+<td>HTTP，端口 80</td>
+</tr>
+<tr>
+<td>云平台 &#x2F; 边缘服务器</td>
+<td>ndp.nlecloud.com（注意是 NDP，不是 UDP）</td>
+<td>TCP，8600 或 8601，长期支持</td>
+</tr>
+<tr>
+<td>TCP 接入备选端口</td>
+<td>ndp.nlecloud.com 或 117.78.1.201</td>
+<td>TCP 8600 &#x2F; 8700 &#x2F; 8800；TLS 加密用 8601</td>
+</tr>
+<tr>
+<td>410S 串口服务器</td>
+<td>192.168.0.7</td>
+<td>用户 &#x2F; 密码 admin &#x2F; admin</td>
+</tr>
+</tbody></table>
+<p>登录中心网关后要用 Android APP 鉴权；若上报数据已存在，先删除再上传，上传完成后要重启云平台，否则数据为空。</p>
+<h2 id="常见故障速查"><a href="#常见故障速查" class="headerlink" title="常见故障速查"></a>常见故障速查</h2><h3 id="SQL-Manager-连接错误-53"><a href="#SQL-Manager-连接错误-53" class="headerlink" title="SQL Manager 连接错误 53"></a>SQL Manager 连接错误 53</h3><p>这是部署中最高频的故障，根因通常是 TCP&#x2F;IP 协议未启用。</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>菜单 → Microsoft SQL Server 2008 R2 → 配置管理器</td>
+</tr>
+<tr>
+<td>2</td>
+<td>SQL Server 网络配置 → MSSQLSERVER 的协议</td>
+</tr>
+<tr>
+<td>3</td>
+<td>找到 TCP&#x2F;IP，将其启用</td>
+</tr>
+<tr>
+<td>找不到菜单项时</td>
+<td>进入 <code>C:\Windows\SysWOW64</code>，打开 <code>SQLServerManager10.msc</code>；或先运行 <code>mmc.exe</code>，在”文件”中打开 <code>SQLServerManager10.msc</code>，再按上面步骤配置</td>
+</tr>
+</tbody></table>
+<h3 id="登录与配置类故障"><a href="#登录与配置类故障" class="headerlink" title="登录与配置类故障"></a>登录与配置类故障</h3><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>排查方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>新零售门店卡死并闪退</td>
+<td>配置不正确；退出后能自动进入说明配置正确</td>
+</tr>
+<tr>
+<td>用 admin 进不去程序</td>
+<td>必须用店长身份账号登录</td>
+</tr>
+<tr>
+<td>网页端登不进去（摄像头除外）</td>
+<td>多半是 IIS 服务未开启、数据库 IP 未改，或 config 中 IP 填错</td>
+</tr>
+<tr>
+<td>门店管理页添加门店失败</td>
+<td>确认浏览器已保存密码，门店编号按实训要求填写</td>
+</tr>
+<tr>
+<td>上传后云平台数据为空</td>
+<td>上传完成后重启云平台；鉴权上报若已存在需先删除</td>
+</tr>
+</tbody></table>
+<h3 id="串口与组网故障"><a href="#串口与组网故障" class="headerlink" title="串口与组网故障"></a>串口与组网故障</h3><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>处理办法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>串口服务器重启后长时间不启动，但网口数据灯亮、电源灯不亮</td>
+<td>关闭 C 面板电源开关后重新上电</td>
+</tr>
+<tr>
+<td>虚拟串口连接 LED 屏失败</td>
+<td>确认信息无误后重启串口服务器，等待片刻</td>
+</tr>
+<tr>
+<td>ZigBee 两个灯一起闪</td>
+<td>未组网（程序已烧写）；确认协调器也烧写好、Channel 与 PAN ID 全部统一、每个节点都装有天线</td>
+</tr>
+<tr>
+<td>按组网按钮长时间组不上网</td>
+<td>先按协调器上的第二个按钮（或与组网按钮一起按），再按 ZigBee 组网按钮</td>
+</tr>
+<tr>
+<td>组网成功指示</td>
+<td>通讯灯闪烁、另一个灯常亮</td>
+</tr>
+<tr>
+<td>ZigBee 链路指示灯常灭</td>
+<td>未接入网络，重新检查烧写与组网参数</td>
+</tr>
+</tbody></table>
+<h3 id="网络排查常用命令"><a href="#网络排查常用命令" class="headerlink" title="网络排查常用命令"></a>网络排查常用命令</h3><p>下列命令在 CMD 中直接执行，适合定位 DNS、端口与连通性问题。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ipconfig</span> /displaydns          # 查看本地 DNS 缓存内容</span><br><span class="line">nslookup -d 域名              # 连接 DNS 服务器查询域名信息</span><br><span class="line">netstat                       # 显示协议统计与当前 TCP/IP 连接</span><br><span class="line">route                         # 操作网络路由表</span><br><span class="line"><span class="built_in">ping</span> 目标地址                 # 测试网络连通性</span><br><span class="line">mstsc                         # 远程桌面连接，默认端口 <span class="number">3389</span></span><br><span class="line">tasklist                      # 查看当前运行的进程列表</span><br><span class="line"><span class="built_in">taskkill</span> /PID 进程号 /F       # 按 PID 终止进程</span><br></pre></td></tr></table></figure>
+
+<h2 id="术语速查"><a href="#术语速查" class="headerlink" title="术语速查"></a>术语速查</h2><h3 id="LoRa-与-LPWAN"><a href="#LoRa-与-LPWAN" class="headerlink" title="LoRa 与 LPWAN"></a>LoRa 与 LPWAN</h3><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LoRa</td>
+<td>基于 Sub-GHz 频段，低功耗远距离通信，可用电池或能量采集供电，信号对建筑穿透性强</td>
+</tr>
+<tr>
+<td>LoRa 模块参数</td>
+<td>出厂波特率 9600，地址码 0，共 65536 个地址码可设，12V 或 24V 供电</td>
+</tr>
+<tr>
+<td>LoRa 工作模式</td>
+<td>四种模式；无苛刻低功耗需求时用一般模式（模式 0），配置电台时切到休眠模式（模式 3）</td>
+</tr>
+<tr>
+<td>LoRa 网络组成</td>
+<td>终端（内置 LoRa 模块）、网关（基站）、Server、云四部分，应用数据双向传输</td>
+</tr>
+<tr>
+<td>LPWAN</td>
+<td>低功耗广域网络，功耗低、覆盖广、穿透强，适合每隔几分钟收发少量数据的场景，如水运定位、路灯监测、停车位监测</td>
+</tr>
+</tbody></table>
+<h3 id="物联网网关与连接器"><a href="#物联网网关与连接器" class="headerlink" title="物联网网关与连接器"></a>物联网网关与连接器</h3><p>物联网网关部署在网络边缘侧，通过网络连接与协议转换联结物理与数字世界，提供多样化接口、轻量化连接管理、实时数据分析与应用管理。</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IoT 平台客户端代理</td>
+<td>负责与物联网平台通信，网关内其他模块经此模块上报</td>
+</tr>
+<tr>
+<td>Gateway 配置 Web App</td>
+<td>网关配置工具</td>
+</tr>
+<tr>
+<td>规则引擎</td>
+<td>从物联网平台下载规则并在网关本地执行</td>
+</tr>
+<tr>
+<td>连接器</td>
+<td>连接网关与传感器网络，数量按需配置</td>
+</tr>
+</tbody></table>
+<p>连接器分两大类，选型时按设备接入方式判断。</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>适用设备</th>
+<th>典型连接器</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>串口连接器</td>
+<td>通过 RS232 &#x2F; RS485 &#x2F; USB 接入网关</td>
+<td>Modbus Over serial、LED Display、WIEGAND Bus（门禁韦根转 485）、ZigBee 2 MQTT</td>
+</tr>
+<tr>
+<td>网络连接器</td>
+<td>通过 TCP&#x2F;IP 网络接入网关</td>
+<td>Modbus Over TCP、HAIDAI BRESEE CAMERA（车牌识别）、HAIDAI Face Recognizer（门禁识别）、OMRON PLC</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>记忆要点：直连中心网关的设备全部选串口连接，只有经过串口服务器中转的才选串口服务器接入。</p>
+</blockquote>
+<h3 id="串口波特率分类与选择"><a href="#串口波特率分类与选择" class="headerlink" title="串口波特率分类与选择"></a>串口波特率分类与选择</h3><table>
+<thead>
+<tr>
+<th>分类</th>
+<th>常见取值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>标准波特率</td>
+<td>2400、4800、9600、19200、38400、57600、115200</td>
+</tr>
+<tr>
+<td>自适应波特率</td>
+<td>按通信协议与传输介质自动选择，提升效率与稳定性</td>
+</tr>
+<tr>
+<td>可编程波特率</td>
+<td>按需自行设置，适合特殊应用场景</td>
+</tr>
+<tr>
+<td>高波特率</td>
+<td>46800、230400、460800、921600，适合高速数据传输</td>
+</tr>
+</tbody></table>
+<p>选择波特率时权衡三点。</p>
+<table>
+<thead>
+<tr>
+<th>因素</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>传输速度</td>
+<td>波特率越高越快，但传输错误概率上升</td>
+</tr>
+<tr>
+<td>传输距离</td>
+<td>波特率越高距离越短，高速传输会导致信号衰减</td>
+</tr>
+<tr>
+<td>硬件支持</td>
+<td>必须与设备硬件匹配，硬件不支持时无法使用高波特率</td>
+</tr>
+</tbody></table>
+<h3 id="新旧设备区别"><a href="#新旧设备区别" class="headerlink" title="新旧设备区别"></a>新旧设备区别</h3><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>旧设备</th>
+<th>新设备</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>部件安装</td>
+<td>部分预装</td>
+<td>线槽、电源口、插排等全部自行安装</td>
+</tr>
+<tr>
+<td>走线方式</td>
+<td>不一</td>
+<td>走线全部在前面固定，采用塑料垫片与尖头螺丝</td>
+</tr>
+<tr>
+<td>采集模块</td>
+<td>ADAM4150、ADAM4017</td>
+<td>取消两者，改用 IOT 采集器，由串口传输改为网络传输</td>
+</tr>
+<tr>
+<td>网关版本</td>
+<td>旧版</td>
+<td>网关版本升级</td>
+</tr>
+</tbody></table>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E9%80%9F%E6%9F%A5%E4%B8%8Epythonre%E6%A8%A1%E5%9D%97/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%85%8D%E7%BD%AE%E9%80%9F%E6%9F%A5/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

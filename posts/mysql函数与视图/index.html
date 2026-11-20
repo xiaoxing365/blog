@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="从统计报表最常用的 count、sum、max、min、avg 讲起，比较 GROUP BY 与 row_number() over() 窗口函数的差别，给出 ASCII、CHAR_LENGTH、CONCAT 等常用字符串函数的函数作用示例速查表，并解释视图作为虚拟表的简化查询、安全与逻辑独立价值，覆盖创建、替换、修改、删除视图的完整写法。">
+
+
+    
+  <meta name="keywords" content="MySQL函数,聚合函数,row_number over,字符串函数,MySQL视图,虚拟表,创建视图">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>mysql函数与视图</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#MySQL"
+                           title="MySQL">MySQL</a>
+                        
+                        <a class="tag" href="/tags/#SQL函数"
+                           title="SQL函数">SQL函数</a>
+                        
+                        <a class="tag" href="/tags/#窗口函数"
+                           title="窗口函数">窗口函数</a>
+                        
+                        <a class="tag" href="/tags/#数据库视图"
+                           title="数据库视图">数据库视图</a>
+                        
+                    </div>
+                    <h1>mysql函数与视图</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <h2 id="一、聚合函数：一条语句算出一组数据的统计值"><a href="#一、聚合函数：一条语句算出一组数据的统计值" class="headerlink" title="一、聚合函数：一条语句算出一组数据的统计值"></a>一、聚合函数：一条语句算出一组数据的统计值</h2><p>用过 WPS 表格的人对”求和、计数、平均值”一定不陌生，MySQL 里把这些能力做成了内置函数，直接写在 SELECT 后面就能用。函数不改变表里的原始数据，只是对查出来的结果做加工。</p>
+<p>为了方便演示，先建一张销售流水表并塞几条数据。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 建销售表：金额用 DECIMAL 而不是 FLOAT，避免金额精度误差</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> sales (</span><br><span class="line">    id <span class="type">INT</span> <span class="keyword">PRIMARY KEY</span> AUTO_INCREMENT,</span><br><span class="line">    product <span class="type">VARCHAR</span>(<span class="number">20</span>),</span><br><span class="line">    category <span class="type">VARCHAR</span>(<span class="number">20</span>),</span><br><span class="line">    amount <span class="type">DECIMAL</span>(<span class="number">10</span>, <span class="number">2</span>)</span><br><span class="line">);</span><br><span class="line"><span class="keyword">INSERT INTO</span> sales (product, category, amount) <span class="keyword">VALUES</span></span><br><span class="line">(<span class="string">&#x27;键盘&#x27;</span>, <span class="string">&#x27;外设&#x27;</span>, <span class="number">299.00</span>),</span><br><span class="line">(<span class="string">&#x27;鼠标&#x27;</span>, <span class="string">&#x27;外设&#x27;</span>, <span class="number">129.00</span>),</span><br><span class="line">(<span class="string">&#x27;显示器&#x27;</span>, <span class="string">&#x27;外设&#x27;</span>, <span class="number">1299.00</span>),</span><br><span class="line">(<span class="string">&#x27;耳机&#x27;</span>, <span class="string">&#x27;外设&#x27;</span>, <span class="number">399.00</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-1-五个核心聚合函数速查"><a href="#1-1-五个核心聚合函数速查" class="headerlink" title="1.1 五个核心聚合函数速查"></a>1.1 五个核心聚合函数速查</h3><table>
+<thead>
+<tr>
+<th>函数</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>COUNT()</td>
+<td>统计行数；<code>COUNT(*)</code> 统计所有行，<code>COUNT(列)</code> 忽略 NULL</td>
+<td><code>SELECT COUNT(*) FROM sales;</code></td>
+</tr>
+<tr>
+<td>SUM()</td>
+<td>求某一列的合计值，只对数值列有意义</td>
+<td><code>SELECT SUM(amount) FROM sales;</code></td>
+</tr>
+<tr>
+<td>MAX()</td>
+<td>取某一列的最大值</td>
+<td><code>SELECT MAX(amount) FROM sales;</code></td>
+</tr>
+<tr>
+<td>MIN()</td>
+<td>取某一列的最小值</td>
+<td><code>SELECT MIN(amount) FROM sales;</code></td>
+</tr>
+<tr>
+<td>AVG()</td>
+<td>计算某一列的平均值</td>
+<td><code>SELECT AVG(amount) FROM sales;</code></td>
+</tr>
+</tbody></table>
+<h3 id="1-2-一次算出多个统计指标"><a href="#1-2-一次算出多个统计指标" class="headerlink" title="1.2 一次算出多个统计指标"></a>1.2 一次算出多个统计指标</h3><p><strong>要解决什么</strong>：做销售日报时，往往不是只要一个总数，而是同时要订单量、总额、最高最低单价和平均单价。逐个函数分开查要连数据库四次，写在一起只需一次。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 一条语句返回五个统计指标，AS 给结果列起中文别名</span></span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    <span class="built_in">COUNT</span>(<span class="operator">*</span>)    <span class="keyword">AS</span> 订单数,</span><br><span class="line">    <span class="built_in">SUM</span>(amount) <span class="keyword">AS</span> 总销售额,</span><br><span class="line">    <span class="built_in">MAX</span>(amount) <span class="keyword">AS</span> 最高单价,</span><br><span class="line">    <span class="built_in">MIN</span>(amount) <span class="keyword">AS</span> 最低单价,</span><br><span class="line">    <span class="built_in">AVG</span>(amount) <span class="keyword">AS</span> 平均单价</span><br><span class="line"><span class="keyword">FROM</span> sales;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：返回一行五列，分别是 4、2126.00、1299.00、129.00、531.50 左右（平均值随数据而定）。这就是聚合函数最典型的用法：把多行”压缩”成一行汇总结果。</p>
+<p>配合 GROUP BY 还能按维度分别统计：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 每个品类各卖了多少单、卖了多少钱</span></span><br><span class="line"><span class="keyword">SELECT</span> category, <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">AS</span> 订单数, <span class="built_in">SUM</span>(amount) <span class="keyword">AS</span> 小计</span><br><span class="line"><span class="keyword">FROM</span> sales</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> category;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：每个 category 输出一行。如果想在末尾追加总计行，在 GROUP BY 后面加 <code>WITH ROLLUP</code> 即可。</p>
+<p>一个容易踩的细节：<code>COUNT(*)</code> 统计所有行，而 <code>COUNT(amount)</code> 会跳过 amount 为 NULL 的行。需要”总行数”时用 <code>COUNT(*)</code>，需要”有效值个数”时才用 <code>COUNT(列)</code>。</p>
+<h2 id="二、窗口函数-row-number-over-：保留每一行再排名"><a href="#二、窗口函数-row-number-over-：保留每一行再排名" class="headerlink" title="二、窗口函数 row_number() over()：保留每一行再排名"></a>二、窗口函数 row_number() over()：保留每一行再排名</h2><p>聚合函数好用，但它会把多行揉成一行。有时候你既想给每行编号或排名，又不想丢掉明细，这就需要窗口函数。MySQL 从 8.0 开始支持窗口函数，5.7 没有这个功能。</p>
+<h3 id="2-1-语法拆解"><a href="#2-1-语法拆解" class="headerlink" title="2.1 语法拆解"></a>2.1 语法拆解</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (</span><br><span class="line">    [<span class="keyword">PARTITION</span> <span class="keyword">BY</span> 列名]        <span class="comment">-- 可选：按什么分组编号</span></span><br><span class="line">    <span class="keyword">ORDER</span> <span class="keyword">BY</span> 列名 [<span class="keyword">ASC</span><span class="operator">|</span><span class="keyword">DESC</span>]   <span class="comment">-- 必填：组内按什么排序</span></span><br><span class="line">) <span class="keyword">AS</span> 别名</span><br><span class="line"><span class="keyword">FROM</span> table_name;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>ROW_NUMBER()</code>：给结果集的每一行生成一个从 1 开始、连续且不重复的序号。</li>
+<li><code>PARTITION BY</code>：把数据切成若干”窗口”，编号在每个窗口内重新从 1 开始；不写就等于整张表是一个窗口。</li>
+<li><code>ORDER BY</code>：决定编号的先后次序，这一步不能省。</li>
+</ul>
+<h3 id="2-2-解决”每组取第一名”这类问题"><a href="#2-2-解决”每组取第一名”这类问题" class="headerlink" title="2.2 解决”每组取第一名”这类问题"></a>2.2 解决”每组取第一名”这类问题</h3><p><strong>要解决什么</strong>：假设要找出每个品类里单价最高的那件商品。用 <code>GROUP BY category</code> 配合 <code>MAX(amount)</code> 只能拿到金额，拿不到对应的商品名；用窗口函数先 ranking，再筛出第 1 名，明细就完整保留了。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 子查询里先按品类分组、按金额降序编号，外层只取每组第 1 名</span></span><br><span class="line"><span class="keyword">SELECT</span> id, product, category, amount</span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> id, product, category, amount,</span><br><span class="line">           <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (</span><br><span class="line">               <span class="keyword">PARTITION</span> <span class="keyword">BY</span> category</span><br><span class="line">               <span class="keyword">ORDER</span> <span class="keyword">BY</span> amount <span class="keyword">DESC</span></span><br><span class="line">           ) <span class="keyword">AS</span> rn</span><br><span class="line">    <span class="keyword">FROM</span> sales</span><br><span class="line">) t</span><br><span class="line"><span class="keyword">WHERE</span> rn <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：每个品类只返回金额最高的那一行。这里 <code>PARTITION BY category</code> 让外设品类内部独立编号，<code>ORDER BY amount DESC</code> 让贵的排前面。如果去掉 PARTITION BY，就变成全表统一排名。</p>
+<p>GROUP BY 与窗口函数的区别可以这么记：</p>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>GROUP BY + 聚合函数</th>
+<th>row_number() over()</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结果行数</td>
+<td>每组压缩成一行</td>
+<td>原始行一行不少</td>
+</tr>
+<tr>
+<td>能否看到明细</td>
+<td>看不到被聚合掉的行</td>
+<td>每行都保留，并多出一列编号</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>统计总数、平均值</td>
+<td>排名、分组取前 N 条、去重</td>
+</tr>
+</tbody></table>
+<p>顺带一提，<code>ROW_NUMBER()</code> 也常用来去重：按某字段分区、按时间倒序编号，然后删掉 <code>rn &gt; 1</code> 的重复行，比传统的 <code>GROUP BY + 子查询</code> 直观得多。</p>
+<h2 id="三、常用字符串函数速查"><a href="#三、常用字符串函数速查" class="headerlink" title="三、常用字符串函数速查"></a>三、常用字符串函数速查</h2><p>处理文本是另一大类需求。下面这张表按”函数 → 作用 → 示例”整理，示例里的 <code>s</code> 表示字符串参数。</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>作用</th>
+<th>示例</th>
+<th>返回值说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ASCII(s)</td>
+<td>返回字符串 s 第一个字符的 ASCII 码</td>
+<td><code>SELECT ASCII(&#39;A&#39;);</code></td>
+<td>65</td>
+</tr>
+<tr>
+<td>CHAR_LENGTH(s)</td>
+<td>返回字符串 s 的字符数</td>
+<td><code>SELECT CHAR_LENGTH(&#39;你好&#39;);</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>CHARACTER_LENGTH(s)</td>
+<td>同 CHAR_LENGTH，是它的同义词</td>
+<td><code>SELECT CHARACTER_LENGTH(&#39;hi&#39;);</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>CONCAT(s1,s2,…)</td>
+<td>把多个字符串合并成一个</td>
+<td><code>SELECT CONCAT(&#39;My&#39;,&#39;SQL&#39;);</code></td>
+<td>MySQL</td>
+</tr>
+<tr>
+<td>LENGTH(s)</td>
+<td>返回字符串 s 的字节数</td>
+<td><code>SELECT LENGTH(&#39;你好&#39;);</code></td>
+<td>在 utf8mb4 下是 6</td>
+</tr>
+<tr>
+<td>LOWER(s)</td>
+<td>把字符串全部转成小写</td>
+<td><code>SELECT LOWER(&#39;HELLO&#39;);</code></td>
+<td>hello</td>
+</tr>
+<tr>
+<td>UPPER(s)</td>
+<td>把字符串全部转成大写</td>
+<td><code>SELECT UPPER(&#39;hello&#39;);</code></td>
+<td>HELLO</td>
+</tr>
+<tr>
+<td>SUBSTRING(s,pos,len)</td>
+<td>从 pos 位置起截取 len 个字符</td>
+<td><code>SELECT SUBSTRING(&#39;MySQL&#39;,2,3);</code></td>
+<td>ySQ</td>
+</tr>
+<tr>
+<td>TRIM(s)</td>
+<td>去掉字符串首尾空格</td>
+<td><code>SELECT TRIM(&#39; hi &#39;);</code></td>
+<td>hi</td>
+</tr>
+<tr>
+<td>REPLACE(s,a,b)</td>
+<td>把 s 中的 a 全部替换成 b</td>
+<td><code>SELECT REPLACE(&#39;a-b&#39;,&#39;-&#39;,&#39;_&#39;);</code></td>
+<td>a_b</td>
+</tr>
+<tr>
+<td>LEFT(s,n) &#x2F; RIGHT(s,n)</td>
+<td>取最左&#x2F;最右的 n 个字符</td>
+<td><code>SELECT LEFT(&#39;MySQL&#39;,2);</code></td>
+<td>My</td>
+</tr>
+</tbody></table>
+<p><strong>要解决什么</strong>：报表里经常需要把多列拼成一个展示字段，或者从一段文本里截取固定位置的内容，字符串函数能直接在 SQL 层完成，不必把数据拉回程序再处理。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 把商品名和品类拼成标签；CHAR_LENGTH 统计名字字符数</span></span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    CONCAT(product, <span class="string">&#x27; [&#x27;</span>, category, <span class="string">&#x27;]&#x27;</span>) <span class="keyword">AS</span> 商品标签,</span><br><span class="line">    <span class="keyword">CHAR_LENGTH</span>(product) <span class="keyword">AS</span> 名字长度</span><br><span class="line"><span class="keyword">FROM</span> sales;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：输出形如 <code>键盘 [外设]</code> 的标签列和对应字符数。注意 CHAR_LENGTH 数的是”字符”，LENGTH 数的是”字节”；在 utf8mb4 下一个中文字符占 3~4 个字节，所以 <code>CHAR_LENGTH(&#39;你好&#39;)</code> 是 2，<code>LENGTH(&#39;你好&#39;)</code> 往往是 6。需要按人的直觉统计字数时用 CHAR_LENGTH。</p>
+<h2 id="四、视图：把复杂查询封装成”虚拟表”"><a href="#四、视图：把复杂查询封装成”虚拟表”" class="headerlink" title="四、视图：把复杂查询封装成”虚拟表”"></a>四、视图：把复杂查询封装成”虚拟表”</h2><h3 id="4-1-视图到底是什么"><a href="#4-1-视图到底是什么" class="headerlink" title="4.1 视图到底是什么"></a>4.1 视图到底是什么</h3><p>视图可以想象成窗户上的一层定制贴膜：你透过它看到的是窗外的景色，但景色本身并不在贴膜上。技术上说，视图是一个<strong>虚拟表</strong>——它的内容由一条 SELECT 查询定义。数据库里只保存视图的定义（那条 SQL），并不保存视图的数据；真正的数据仍然存在原来的表（也叫基表）里。当你查询视图时，数据库系统临时从基表中取出对应数据呈现给你。</p>
+<p>因此有两个重要推论：基表数据变了，视图看到的结果会跟着变；反过来，在满足一定条件时，对视图做 UPDATE、INSERT 也会影响到基表。视图不是数据副本，而是一层”查询视角”。</p>
+<h3 id="4-2-视图的四大作用"><a href="#4-2-视图的四大作用" class="headerlink" title="4.2 视图的四大作用"></a>4.2 视图的四大作用</h3><ol>
+<li><strong>简化操作</strong>。把多表 JOIN、复杂 WHERE、分组统计封装成一句 <code>SELECT * FROM 视图名</code>，业务代码不用每次重复一长串 SQL。</li>
+<li><strong>增加数据安全性</strong>。只把允许看的列暴露给视图，比如给客服的视图里不放身份证号和工资，隐藏敏感数据。</li>
+<li><strong>提高表的逻辑独立性</strong>。基表结构变化时，可以调整视图定义来适配旧接口，外部查询不必跟着改，相当于加了一层隔离。</li>
+<li><strong>统一查询口径</strong>。所有人都从同一个视图取数，避免各写各的 SQL 导致统计口径不一致。</li>
+</ol>
+<h3 id="4-3-创建视图"><a href="#4-3-创建视图" class="headerlink" title="4.3 创建视图"></a>4.3 创建视图</h3><p>创建视图需要相应的权限。可以先查一下当前用户是否具备：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看指定用户的查询权和建视图权；Y 表示有，N 表示没有</span></span><br><span class="line"><span class="keyword">SELECT</span> Select_priv, Create_view_priv <span class="keyword">FROM</span> mysql.user <span class="keyword">WHERE</span> <span class="keyword">user</span> <span class="operator">=</span> <span class="string">&#x27;root&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 创建视图：把销售明细封装成只含三列的简单视图</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">VIEW</span> view_sales <span class="keyword">AS</span></span><br><span class="line"><span class="keyword">SELECT</span> product, category, amount <span class="keyword">FROM</span> sales;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 不确定视图是否已存在时，用 OR REPLACE：存在就直接替换</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> REPLACE <span class="keyword">VIEW</span> view_sales <span class="keyword">AS</span></span><br><span class="line"><span class="keyword">SELECT</span> product, amount <span class="keyword">FROM</span> sales;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：<code>SELECT * FROM view_sales;</code> 就能像查普通表一样拿到结果，但数据库里并没有另存一份数据。OR REPLACE 在脚本重复执行时特别有用，不会因为”视图已存在”而中断。</p>
+<h3 id="4-4-修改与删除视图"><a href="#4-4-修改与删除视图" class="headerlink" title="4.4 修改与删除视图"></a>4.4 修改与删除视图</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 修改视图定义：只保留金额大于 200 的商品</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">VIEW</span> view_sales <span class="keyword">AS</span></span><br><span class="line"><span class="keyword">SELECT</span> product, amount <span class="keyword">FROM</span> sales <span class="keyword">WHERE</span> amount <span class="operator">&gt;</span> <span class="number">200</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 删除视图；IF EXISTS 避免视图不存在时报错</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">VIEW</span> IF <span class="keyword">EXISTS</span> view_sales;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看库里哪些是表、哪些是视图</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">TABLE</span> STATUS;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：ALTER VIEW 改变的是视图的定义而非数据，DROP VIEW 删除的也只是定义，基表和其中的数据完全不受影响。这里要区分两个”删除”：<code>DROP</code> 删的是表或视图这样的<strong>对象</strong>，而 <code>DELETE FROM 表名 WHERE ...</code> 删的是表里的<strong>数据行</strong>——前者连结构一起消失，后者只清内容。</p>
+<p>执行 <code>SHOW TABLE STATUS</code> 时，表和视图会一起列出来，通过 Comment 列可以区分：视图的 Comment 显示为 VIEW。</p>
+<h3 id="4-5-使用视图的几个注意事项"><a href="#4-5-使用视图的几个注意事项" class="headerlink" title="4.5 使用视图的几个注意事项"></a>4.5 使用视图的几个注意事项</h3><ul>
+<li>视图名不能和同一库里的表名重名，否则创建会失败。</li>
+<li>包含聚合函数、DISTINCT、GROUP BY、UNION 或涉及多表的视图，通常是<strong>不可更新</strong>的，只能用来查询，别指望通过它改基表。</li>
+<li>视图本身不提供性能加速。复杂视图每次被查询都要执行背后的 SELECT，嵌套多层视图反而可能变慢，必要时可以用物化汇总表替代。</li>
+<li>权限要单独管理：视图定义者拥有访问基表的权限，但使用视图的人只需要有视图的查询权，这正是视图能隐藏敏感数据的原因。</li>
+</ul>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>函数负责”加工数据”：COUNT、SUM、MAX、MIN、AVG 把多行聚成一行统计，row_number() over() 在不丢明细的前提下分组编号和排名，ASCII、CHAR_LENGTH、CONCAT 等字符串函数处理文本拼接与截取。视图负责”封装查询”：它只存定义不存数据，却能简化操作、隐藏敏感列、隔离基表变化。实际项目里两者常常搭配——把带聚合函数或窗口函数的复杂查询做成视图，上层应用只面对一张干净的”虚拟表”，既好维护也更安全。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/linux%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%8E%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/mysql%E6%9D%83%E9%99%90%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

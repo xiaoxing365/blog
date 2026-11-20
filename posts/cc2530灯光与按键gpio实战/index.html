@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="CC2530 串口通信是物联网设备与电脑、模组交换数据的基础通道。本文从并行通信与串行通信的差异讲起，说明 USART0 与 USART1 在两种引脚位置下的映射关系，逐项解析 UxCSR、UxUCR、UxGCR、UxDBUF、UxBAUD 五个寄存器的作用，给出波特率计算公式与常用组合以及可运行的收发例程。后半部分按功能模块整理常用寄存器的中英文对照速查表，保留英文原名，方便对照芯片数据手册查阅，是 CC2530 开发过程中的实用参考。">
+
+
+    
+  <meta name="keywords" content="CC2530,串口通信,USART,UART,PERCFG,波特率,UxDBUF,寄存器速查">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>cc2530串口通信与寄存器速查</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#CC2530"
+                           title="CC2530">CC2530</a>
+                        
+                        <a class="tag" href="/tags/#串口通信"
+                           title="串口通信">串口通信</a>
+                        
+                        <a class="tag" href="/tags/#USART"
+                           title="USART">USART</a>
+                        
+                        <a class="tag" href="/tags/#寄存器"
+                           title="寄存器">寄存器</a>
+                        
+                    </div>
+                    <h1>cc2530串口通信与寄存器速查</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-07-19
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>设备采集到温湿度、按键状态之后，怎么把数据送到电脑上查看？最常用、也最容易上手的方式就是串口。一根 USB 转 TTL 线，加上几行初始化代码，就能让开发板和电脑”对话”。这一章先把串口通信的原理和配置讲清楚，再把开发中经常要查的寄存器整理成速查表，写程序时随时翻一翻能省不少事。</p>
+<h2 id="并行通信与串行通信"><a href="#并行通信与串行通信" class="headerlink" title="并行通信与串行通信"></a>并行通信与串行通信</h2><p>微控制器和外设之间交换数据，按连线方式分为并行通信和串行通信两种。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>并行通信</th>
+<th>串行通信</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>传送方式</td>
+<td>数据的多位同时发送或接收，每位一根线</td>
+<td>数据一位接一位顺序传送</td>
+</tr>
+<tr>
+<td>传输速度</td>
+<td>快、效率高</td>
+<td>相对慢</td>
+</tr>
+<tr>
+<td>所需线缆</td>
+<td>多，成本高</td>
+<td>少，成本低</td>
+</tr>
+<tr>
+<td>典型场景</td>
+<td>早期打印机并口、芯片内部总线</td>
+<td>串口、USB、网络通信</td>
+</tr>
+</tbody></table>
+<p>CC2530 对外通信主要靠串行接口，内部则大量使用并行总线，两者各司其职。</p>
+<h2 id="CC2530-的-USART-模块与引脚映射"><a href="#CC2530-的-USART-模块与引脚映射" class="headerlink" title="CC2530 的 USART 模块与引脚映射"></a>CC2530 的 USART 模块与引脚映射</h2><p>CC2530 有两个串行通信接口 USART0 和 USART1，它们都能工作在异步 <strong>UART</strong> 模式或同步 <strong>SPI</strong> 模式。异步 UART 靠双方约定好的波特率来同步，只需要两根线（TX 发送、RX 接收）；同步 SPI 则额外有一根时钟线。物联网开发中最常用的就是 UART 模式。</p>
+<p>同一个 USART 可以接到不同的引脚组合上，这由 PERCFG 寄存器决定：</p>
+<table>
+<thead>
+<tr>
+<th>引脚位置</th>
+<th>USART0</th>
+<th>USART1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>位置 1</td>
+<td>RX0 → P0_2，TX0 → P0_3</td>
+<td>RX1 → P0_5，TX1 → P0_4</td>
+</tr>
+<tr>
+<td>位置 2</td>
+<td>RX0 → P1_4，TX0 → P1_5</td>
+<td>RX1 → P1_7，TX1 → P1_6</td>
+</tr>
+</tbody></table>
+<p>选好位置后，还要通过 PxSEL 把对应引脚设为<strong>外设功能</strong>（SEL 置 1），并按需用 P2DIR 设定 USART 的端口优先级。例如用 USART0 的位置 1，就要让 P0_2、P0_3 处于外设功能状态。</p>
+<h2 id="五个核心寄存器"><a href="#五个核心寄存器" class="headerlink" title="五个核心寄存器"></a>五个核心寄存器</h2><p>对 USART 编程，本质就是配置下面五个寄存器（x 为 0 或 1，分别对应 USART0 和 USART1）：</p>
+<table>
+<thead>
+<tr>
+<th>寄存器</th>
+<th>英文全称</th>
+<th>中文名称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UxCSR</td>
+<td>USARTx Control and Status Register</td>
+<td>控制和状态寄存器</td>
+<td>选择 UART 或 SPI 模式、使能接收、查看收发状态</td>
+</tr>
+<tr>
+<td>UxUCR</td>
+<td>USARTx UART Control Register</td>
+<td>UART 控制寄存器</td>
+<td>设置数据位、停止位、校验位和硬件流控</td>
+</tr>
+<tr>
+<td>UxGCR</td>
+<td>USARTx Generic Control Register</td>
+<td>通用控制寄存器</td>
+<td>设置波特率指数，也用于 SPI 时钟极性</td>
+</tr>
+<tr>
+<td>UxDBUF</td>
+<td>USARTx Receive&#x2F;Transmit Data Buffer</td>
+<td>收发数据缓冲寄存器</td>
+<td>写入即发送，收到的数据从这里读出</td>
+</tr>
+<tr>
+<td>UxBAUD</td>
+<td>USARTx Baud Rate Control</td>
+<td>波特率控制寄存器</td>
+<td>设置波特率尾数，与 UxGCR 共同决定波特率</td>
+</tr>
+</tbody></table>
+<p>UxCSR 的几个常用位：MODE（第 7 位）为 1 选 UART、为 0 选 SPI；RE（第 6 位）为 1 使能接收；RX_BYTE（第 0 位）为 1 表示收到一个字节。UxDBUF 是双缓冲结构，写入一个字节后硬件立即开始发送，同时允许把下一个字节装入缓冲，因此连续发送时效率较高。</p>
+<h2 id="TTL-与-RS232-电平及波特率"><a href="#TTL-与-RS232-电平及波特率" class="headerlink" title="TTL 与 RS232 电平及波特率"></a>TTL 与 RS232 电平及波特率</h2><p>电脑的串口遵循 RS-232 标准，而 CC2530 的 UART 引脚输出的是 TTL 电平，两者电气规范不同，直接相连会损坏芯片，必须经过电平转换，常用 MAX232 这类芯片完成转换。两种电平的定义如下：</p>
+<table>
+<thead>
+<tr>
+<th>电平标准</th>
+<th>逻辑 0</th>
+<th>逻辑 1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TTL</td>
+<td>低于 0.8V</td>
+<td>高于 2.4V</td>
+</tr>
+<tr>
+<td>RS232</td>
+<td>+5V 至 +15V</td>
+<td>-5V 至 -15V</td>
+</tr>
+</tbody></table>
+<p>另外要注意 DB9 接口的公头和母头引脚排列顺序不同，接线时别接反。</p>
+<p>波特率指每秒传送的码元数，通信双方必须设成一致。CC2530 的波特率由 UxBAUD（尾数 BAUD_M）和 UxGCR 的低 5 位（指数 BAUD_E）共同决定，计算关系为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">波特率 = (256 + BAUD_M) × 2^BAUD_E × 系统时钟频率 / 2^28</span><br></pre></td></tr></table></figure>
+
+<p>以 32MHz 系统时钟为例，两组常用配置是：9600 波特率取 BAUD_M&#x3D;59、BAUD_E&#x3D;8；115200 波特率取 BAUD_M&#x3D;216、BAUD_E&#x3D;11。换用其他主频时要重新计算或查数据手册的波特率表。</p>
+<h2 id="串口收发例程"><a href="#串口收发例程" class="headerlink" title="串口收发例程"></a>串口收发例程</h2><p>要解决什么：让 USART0 工作在 UART 模式，以 115200 波特率接收电脑发来的数据，收到后立即回传，形成一个简单的回显测试。这里用接收中断，避免主程序一直轮询。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;ioCC2530.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> rxFlag = <span class="number">0</span>;     <span class="comment">/* 接收完成标志 */</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> rxData = <span class="number">0</span>;     <span class="comment">/* 暂存收到的字节 */</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Init_UART0</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    PERCFG &amp;= ~<span class="number">0x01</span>;          <span class="comment">/* USART0 选用位置 1：RX0-P0_2，TX0-P0_3 */</span></span><br><span class="line">    P0SEL |= <span class="number">0x0C</span>;            <span class="comment">/* 0000 1100：P0_2、P0_3 设为外设功能 */</span></span><br><span class="line">    P2DIR &amp;= ~<span class="number">0xC0</span>;           <span class="comment">/* 端口优先级：USART0 优先 */</span></span><br><span class="line"></span><br><span class="line">    U0CSR |= <span class="number">0x80</span>;            <span class="comment">/* MODE=1，选择 UART 模式 */</span></span><br><span class="line">    U0CSR |= <span class="number">0x40</span>;            <span class="comment">/* RE=1，使能接收 */</span></span><br><span class="line">    U0UCR = <span class="number">0x00</span>;             <span class="comment">/* 8 数据位、1 停止位、无校验、无流控 */</span></span><br><span class="line"></span><br><span class="line">    U0BAUD = <span class="number">216</span>;             <span class="comment">/* 波特率尾数 BAUD_M */</span></span><br><span class="line">    U0GCR  = (U0GCR &amp; <span class="number">0xE0</span>) | <span class="number">11</span>;  <span class="comment">/* 低 5 位写指数 BAUD_E，合起来 115200 */</span></span><br><span class="line"></span><br><span class="line">    URX0IF = <span class="number">0</span>;               <span class="comment">/* 先清接收中断标志 */</span></span><br><span class="line">    URX0IE = <span class="number">1</span>;               <span class="comment">/* 使能 USART0 接收中断 */</span></span><br><span class="line">    EA = <span class="number">1</span>;                   <span class="comment">/* 打开总中断 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* USART0 接收完成中断服务函数，向量 URX0_VECTOR = 0x13 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> vector = URX0_VECTOR</span></span><br><span class="line">__interrupt <span class="type">void</span> <span class="title function_">UART0_RX_ISR</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    URX0IF = <span class="number">0</span>;               <span class="comment">/* 必须手动清除接收中断标志 */</span></span><br><span class="line">    rxData = U0DBUF;          <span class="comment">/* 从缓冲寄存器读走数据 */</span></span><br><span class="line">    rxFlag = <span class="number">1</span>;               <span class="comment">/* 通知主函数已收到数据 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 发送单个字节 */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">SendByte</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> dat)</span></span><br><span class="line">&#123;</span><br><span class="line">    U0DBUF = dat;             <span class="comment">/* 写入缓冲即启动发送 */</span></span><br><span class="line">    <span class="keyword">while</span> (!UTX0IF);          <span class="comment">/* 等待发送完成标志置位 */</span></span><br><span class="line">    UTX0IF = <span class="number">0</span>;               <span class="comment">/* 清除发送完成标志 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 发送字符串 */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">SendString</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> *str)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> (*str != <span class="string">&#x27;\0&#x27;</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        SendByte(*str++);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Init_UART0();</span><br><span class="line">    SendString(<span class="string">&quot;UART0 ready\r\n&quot;</span>);   <span class="comment">/* 上电后发一句提示 */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (rxFlag)                  <span class="comment">/* 收到数据 */</span></span><br><span class="line">        &#123;</span><br><span class="line">            rxFlag = <span class="number">0</span>;</span><br><span class="line">            SendByte(rxData);        <span class="comment">/* 原样回传 */</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里补充一个容易混淆的点：<strong>URX0_VECTOR（0x13）是接收完成中断向量，UTX0_VECTOR（0x3B）才是发送完成中断向量</strong>，接收服务函数要对应 URX0_VECTOR，并在函数里清除 URX0IF。预期效果：打开串口助手，设置 115200、8 数据位、1 停止位、无校验，发送任意字符，电脑都能收到同样的字符回显。</p>
+<h2 id="常用寄存器速查表"><a href="#常用寄存器速查表" class="headerlink" title="常用寄存器速查表"></a>常用寄存器速查表</h2><p>下面按功能模块整理开发中常用的寄存器，保留英文原名，方便对照数据手册。修改寄存器时优先使用位操作 <code>|=</code> 或 <code>&amp;= ~</code>，避免覆盖其他配置位。</p>
+<h3 id="端口与中断寄存器"><a href="#端口与中断寄存器" class="headerlink" title="端口与中断寄存器"></a>端口与中断寄存器</h3><table>
+<thead>
+<tr>
+<th>缩写</th>
+<th>英文全称</th>
+<th>中文名称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0 &#x2F; P1 &#x2F; P2</td>
+<td>Port 0&#x2F;1&#x2F;2</td>
+<td>端口数据寄存器</td>
+<td>读取或设置各端口引脚电平</td>
+</tr>
+<tr>
+<td>P0SEL &#x2F; P1SEL &#x2F; P2SEL</td>
+<td>Port Function Select</td>
+<td>端口功能选择</td>
+<td>0&#x3D;通用 IO，1&#x3D;外设功能</td>
+</tr>
+<tr>
+<td>P0DIR &#x2F; P1DIR &#x2F; P2DIR</td>
+<td>Port Direction</td>
+<td>端口方向寄存器</td>
+<td>0&#x3D;输入，1&#x3D;输出</td>
+</tr>
+<tr>
+<td>P0INP &#x2F; P1INP &#x2F; P2INP</td>
+<td>Port Input Mode</td>
+<td>端口输入模式</td>
+<td>设置上拉、下拉或三态</td>
+</tr>
+<tr>
+<td>PICTL</td>
+<td>Port Interrupt Control</td>
+<td>端口中断控制</td>
+<td>设置各端口中断触发沿，0&#x3D;上升沿，1&#x3D;下降沿</td>
+</tr>
+<tr>
+<td>P0IEN &#x2F; P1IEN &#x2F; P2IEN</td>
+<td>Port Interrupt Mask</td>
+<td>引脚中断使能</td>
+<td>使能端口内具体引脚的中断</td>
+</tr>
+<tr>
+<td>P0IE &#x2F; P1IE &#x2F; P2IE</td>
+<td>Port Interrupt Enable</td>
+<td>端口中断使能位</td>
+<td>使能整个端口的中断</td>
+</tr>
+<tr>
+<td>P0IFG &#x2F; P1IFG &#x2F; P2IFG</td>
+<td>Port Interrupt Flag</td>
+<td>引脚中断标志</td>
+<td>标记哪个引脚触发了中断，需手动清除</td>
+</tr>
+<tr>
+<td>P0IF &#x2F; P1IF &#x2F; P2IF</td>
+<td>Port Interrupt Flag Bit</td>
+<td>端口中断标志位</td>
+<td>端口级中断标志，需手动清除</td>
+</tr>
+<tr>
+<td>IEN0 &#x2F; IEN1 &#x2F; IEN2</td>
+<td>Interrupt Enable Register</td>
+<td>中断使能寄存器</td>
+<td>各中断源使能开关，EA 在 IEN0 中</td>
+</tr>
+<tr>
+<td>IRCON &#x2F; IRCON2</td>
+<td>Interrupt Request Control</td>
+<td>中断请求控制寄存器</td>
+<td>保存定时器、端口、USART 等中断标志</td>
+</tr>
+<tr>
+<td>IP0 &#x2F; IP1</td>
+<td>Interrupt Priority</td>
+<td>中断优先级寄存器</td>
+<td>设置中断优先级</td>
+</tr>
+<tr>
+<td>EA</td>
+<td>Enable All Interrupt</td>
+<td>总中断使能位</td>
+<td>全局中断总开关</td>
+</tr>
+</tbody></table>
+<p>说明：中断触发边沿由 PICTL 统一配置，部分资料中出现的 PxIES 并非 CC2530 的独立寄存器，查阅时以 PICTL 为准。</p>
+<h3 id="定时器寄存器"><a href="#定时器寄存器" class="headerlink" title="定时器寄存器"></a>定时器寄存器</h3><table>
+<thead>
+<tr>
+<th>缩写</th>
+<th>英文全称</th>
+<th>中文名称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>T1CTL</td>
+<td>Timer 1 Control</td>
+<td>定时器 1 控制</td>
+<td>工作模式、时钟源、分频与启停</td>
+</tr>
+<tr>
+<td>T1STAT</td>
+<td>Timer 1 Status</td>
+<td>定时器 1 状态</td>
+<td>各通道中断标志，需手动清除</td>
+</tr>
+<tr>
+<td>T1CCTL0&#x2F;1&#x2F;2</td>
+<td>Timer 1 Channel Control</td>
+<td>定时器 1 通道控制</td>
+<td>设置通道的比较&#x2F;捕获模式与中断</td>
+</tr>
+<tr>
+<td>T1CCxH &#x2F; T1CCxL</td>
+<td>Timer 1 Capture&#x2F;Compare</td>
+<td>定时器 1 捕获比较值</td>
+<td>存放最大计数值或比较值的高低字节</td>
+</tr>
+<tr>
+<td>T1CNTH &#x2F; T1CNTL</td>
+<td>Timer 1 Counter</td>
+<td>定时器 1 计数器</td>
+<td>读取当前计数值</td>
+</tr>
+<tr>
+<td>T2CTL</td>
+<td>Timer 2 Control</td>
+<td>定时器 2 控制</td>
+<td>MAC 定时器的分频、模式与中断</td>
+</tr>
+<tr>
+<td>T3CTL &#x2F; T4CTL</td>
+<td>Timer 3&#x2F;4 Control</td>
+<td>定时器 3&#x2F;4 控制</td>
+<td>8 位定时器的运行、溢出中断与分频</td>
+</tr>
+<tr>
+<td>T3CCTL0 &#x2F; T4CCTL0</td>
+<td>Timer 3&#x2F;4 Channel Control</td>
+<td>定时器通道控制</td>
+<td>8 位定时器通道工作模式与中断</td>
+</tr>
+<tr>
+<td>TIMIF</td>
+<td>Timer Interrupt Flag</td>
+<td>定时器中断标志</td>
+<td>定时器 1&#x2F;3&#x2F;4 的中断使能与标志</td>
+</tr>
+</tbody></table>
+<h3 id="ADC-与射频寄存器"><a href="#ADC-与射频寄存器" class="headerlink" title="ADC 与射频寄存器"></a>ADC 与射频寄存器</h3><table>
+<thead>
+<tr>
+<th>缩写</th>
+<th>英文全称</th>
+<th>中文名称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ADCCON1&#x2F;2&#x2F;3</td>
+<td>ADC Control</td>
+<td>ADC 控制寄存器</td>
+<td>启动转换、选择通道、设置参考电压</td>
+</tr>
+<tr>
+<td>ADCL &#x2F; ADCH</td>
+<td>ADC Data Low&#x2F;High</td>
+<td>ADC 数据寄存器</td>
+<td>存放 12 位转换结果的低 8 位与高 4 位</td>
+</tr>
+<tr>
+<td>APCFG</td>
+<td>Analog Peripheral Config</td>
+<td>模拟外设配置</td>
+<td>选择哪些引脚作为模拟输入</td>
+</tr>
+<tr>
+<td>RFIRQF0 &#x2F; RFIRQF1</td>
+<td>RF Interrupt Flag</td>
+<td>射频中断标志</td>
+<td>标记发送完成、接收完成、错误等事件</td>
+</tr>
+<tr>
+<td>RFIM</td>
+<td>RF Interrupt Mask</td>
+<td>射频中断屏蔽</td>
+<td>使能或禁用射频中断源</td>
+</tr>
+<tr>
+<td>RFST</td>
+<td>RF Command Strobe</td>
+<td>射频命令寄存器</td>
+<td>发送 IDLE、TX、RX、FLUSH 等命令</td>
+</tr>
+<tr>
+<td>FSMSTAT0 &#x2F; FSMSTAT1</td>
+<td>Finite State Machine Status</td>
+<td>状态机状态</td>
+<td>查看射频状态机当前状态</td>
+</tr>
+<tr>
+<td>RSSI</td>
+<td>Received Signal Strength</td>
+<td>接收信号强度</td>
+<td>读取当前信号强度指示</td>
+</tr>
+</tbody></table>
+<h3 id="时钟、电源与-USART-寄存器"><a href="#时钟、电源与-USART-寄存器" class="headerlink" title="时钟、电源与 USART 寄存器"></a>时钟、电源与 USART 寄存器</h3><table>
+<thead>
+<tr>
+<th>缩写</th>
+<th>英文全称</th>
+<th>中文名称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CLKCONCMD</td>
+<td>Clock Control Command</td>
+<td>时钟控制命令</td>
+<td>切换时钟源、设置分频</td>
+</tr>
+<tr>
+<td>CLKCONSTA</td>
+<td>Clock Control Status</td>
+<td>时钟控制状态</td>
+<td>查看当前时钟系统状态</td>
+</tr>
+<tr>
+<td>SLEEPCMD &#x2F; SLEEPSTA</td>
+<td>Sleep Command&#x2F;Status</td>
+<td>睡眠控制与状态</td>
+<td>控制进入 PM1 至 PM3 低功耗模式</td>
+</tr>
+<tr>
+<td>PCON</td>
+<td>Power Control</td>
+<td>电源控制</td>
+<td>控制掉电模式</td>
+</tr>
+<tr>
+<td>WDCTL</td>
+<td>WatchDog Control</td>
+<td>看门狗控制</td>
+<td>设置看门狗间隔、复位或中断模式</td>
+</tr>
+<tr>
+<td>MEMCTR</td>
+<td>Memory Control</td>
+<td>内存控制</td>
+<td>控制 XDATA 访问时序</td>
+</tr>
+<tr>
+<td>U0CSR &#x2F; U1CSR</td>
+<td>USART Control and Status</td>
+<td>USART 控制状态</td>
+<td>设置模式、接收使能与状态查询</td>
+</tr>
+<tr>
+<td>U0UCR &#x2F; U1UCR</td>
+<td>USART UART Control</td>
+<td>USART UART 控制</td>
+<td>设置数据位、停止位、校验与流控</td>
+</tr>
+<tr>
+<td>U0GCR &#x2F; U1GCR</td>
+<td>USART Generic Control</td>
+<td>USART 通用控制</td>
+<td>设置波特率指数与 SPI 参数</td>
+</tr>
+<tr>
+<td>U0BAUD &#x2F; U1BAUD</td>
+<td>USART Baud Rate</td>
+<td>USART 波特率</td>
+<td>设置波特率尾数</td>
+</tr>
+<tr>
+<td>U0DBUF &#x2F; U1DBUF</td>
+<td>USART Data Buffer</td>
+<td>USART 数据缓冲</td>
+<td>收发数据的缓冲寄存器</td>
+</tr>
+<tr>
+<td>PERCFG</td>
+<td>Peripheral I&#x2F;O Control</td>
+<td>外设 IO 控制</td>
+<td>设置外设引脚映射位置</td>
+</tr>
+</tbody></table>
+<p>把这几张表打印出来贴在桌边，调试寄存器时按”先选功能、再定方向、后设参数、最后清标志”的顺序操作，绝大多数串口和端口问题都能快速定位。串口打通之后，设备就能和电脑、NB-IoT 模组乃至云平台交换数据了；下一章以 NB-IoT 模组为例，完整走一遍通过 AT 指令联网拨号的过程。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/cc2530%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%80%9F%E6%9F%A5/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/nbiot%E6%A8%A1%E7%BB%84at%E6%8C%87%E4%BB%A4%E8%81%94%E7%BD%91/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

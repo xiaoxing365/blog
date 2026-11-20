@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="定时器是单片机实现精准时序的核心外设。本文从定时器与计数器的本质关系讲起，说明当计数脉冲来自周期时钟时计数器就成了定时器，随后介绍 CC2530 四个定时器的特点与定时器1的三种工作模式。文章给出最大计数值的计算公式和具体算例，解释 T1CC0H/L、T1CCTL0 输出比较模式和 T1STAT 标志位的配置要点，最后提供一份可直接运行的定时器中断代码，帮助读者实现精确到毫秒级的定时控制。">
+
+
+    
+  <meta name="keywords" content="CC2530,定时器,定时器中断,模模式,T1CC0,输出比较,T1STAT,分频系数">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>cc2530定时器与定时器中断</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#CC2530"
+                           title="CC2530">CC2530</a>
+                        
+                        <a class="tag" href="/tags/#单片机"
+                           title="单片机">单片机</a>
+                        
+                        <a class="tag" href="/tags/#定时器"
+                           title="定时器">定时器</a>
+                        
+                        <a class="tag" href="/tags/#定时器中断"
+                           title="定时器中断">定时器中断</a>
+                        
+                    </div>
+                    <h1>cc2530定时器与定时器中断</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-07-16
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>如果想让一盏灯精确地每秒闪烁一次，用前面学过的空循环延时也能凑合，但它有两个毛病：一是时间不准，循环次数受编译器和主频影响；二是 CPU 全程被占用，什么别的事都干不了。定时器就是芯片内部专门的”硬件闹钟”：设好时间它就自己数数，到点了主动提醒 CPU，期间 CPU 该干嘛干嘛。</p>
+<h2 id="定时器与计数器的关系"><a href="#定时器与计数器的关系" class="headerlink" title="定时器与计数器的关系"></a>定时器与计数器的关系</h2><p>先纠正一个常见的错误说法——“定时器是计数器的总特例”，这个表述并不准确。准确的说法是：<strong>定时器本质上是计数器，当计数脉冲来自周期性的时钟信号时，它就变成了定时器</strong>。两者是同一个硬件模块在不同使用场景下的叫法。</p>
+<p>可以这样理解：计数器负责”数脉冲”，来一个脉冲就加一。如果这些脉冲是规律的、每个间隔都一样，那么数了多少个脉冲就等于过了多少时间，计数器顺理成章地成了定时器。反过来，如果脉冲来自外部的随机事件（比如统计产品经过传感器的次数），那它就是纯粹的计数器。</p>
+<p>工作过程大致是：周期性或非周期性信号作为计数脉冲送入计数器，计数器向上累加直到达到最大计数值，然后溢出并产生中断请求。向上计数是逐次加一，向下计数则逐次减一，本系列实验采用的是向上计数。定时时长的计算方法很简单：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">定时时长 = 计数周期 × 计数值</span><br><span class="line">最大计数值 = 定时时长 ÷ 定时器计数周期</span><br></pre></td></tr></table></figure>
+
+<h2 id="CC2530-的四个定时器"><a href="#CC2530-的四个定时器" class="headerlink" title="CC2530 的四个定时器"></a>CC2530 的四个定时器</h2><p>CC2530 内部有四个通用定时&#x2F;计数器，它们的分工如下：</p>
+<table>
+<thead>
+<tr>
+<th>定时器</th>
+<th>位数</th>
+<th>主要特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>定时器 1（T1）</td>
+<td>16 位</td>
+<td>功能最全，5 个独立捕获&#x2F;比较通道，支持 PWM 和 DMA 触发，优先选用</td>
+</tr>
+<tr>
+<td>定时器 2（T2）</td>
+<td>—</td>
+<td>MAC 定时器，主要为 Zigbee 协议提供时序基准</td>
+</tr>
+<tr>
+<td>定时器 3（T3）</td>
+<td>8 位</td>
+<td>通用定时&#x2F;计数，带捕获比较功能</td>
+</tr>
+<tr>
+<td>定时器 4（T4）</td>
+<td>8 位</td>
+<td>通用定时&#x2F;计数，带捕获比较功能</td>
+</tr>
+</tbody></table>
+<p>日常应用首选定时器 1，它是 16 位的，计数范围大，还支持间隔定时、输入捕获、输出比较、PWM 输出等多种功能，有自由运行、模、正计数&#x2F;倒计数三种工作模式。下面都以它为例。</p>
+<h2 id="定时器-1-的三种工作模式"><a href="#定时器-1-的三种工作模式" class="headerlink" title="定时器 1 的三种工作模式"></a>定时器 1 的三种工作模式</h2><table>
+<thead>
+<tr>
+<th>模式</th>
+<th>计数过程</th>
+<th>计数周期</th>
+<th>溢出标志</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>自由运行模式</td>
+<td>从 0x0000 加一到 0xFFFF 后溢出，再回到 0x0000</td>
+<td>固定为 0xFFFF</td>
+<td>T1IF、OVFIF 置位</td>
+</tr>
+<tr>
+<td>模模式</td>
+<td>从 0x0000 加一到 T1CC0 的值后溢出，再重新开始</td>
+<td>由 T1CC0 决定，用户可调</td>
+<td>T1IF、OVFIF 置位</td>
+</tr>
+<tr>
+<td>正计数&#x2F;倒计数模式</td>
+<td>从 0x0000 加到 T1CC0，再倒着数回 0x0000</td>
+<td>由 T1CC0 决定</td>
+<td>达到最终值时置位</td>
+</tr>
+</tbody></table>
+<p>自由运行模式周期固定，没得调；模模式最常用，因为只要改 T1CC0 的值就能得到想要的定时长度；正计数&#x2F;倒计数模式适合产生对称波形，做 PWM 时比较有用。</p>
+<p>定时器 1 有 5 对 T1CCxH 和 T1CCxL 寄存器，分别对应通道 0 到通道 4，其中 H 存高 8 位、L 存低 8 位。用作定时功能时，用 <strong>T1CC0H 和 T1CC0L</strong> 这一对来存放最大计数值。</p>
+<p>举个例子：系统主频 16MHz，采用 128 分频，那么计数周期为 <code>128 ÷ 16MHz = 8μs</code>。如果想定时 100ms，需要的计数值就是 <code>100000μs ÷ 8μs = 12500</code>，换算成十六进制是 <code>0x30D4</code>。于是把 T1CC0H 设为 <code>0x30</code>、T1CC0L 设为 <code>0xD4</code> 即可。这个 100ms 再配上软件计数，就能拼出 1 秒、10 秒等更长的定时。</p>
+<h2 id="输出比较模式与-T1STAT-标志"><a href="#输出比较模式与-T1STAT-标志" class="headerlink" title="输出比较模式与 T1STAT 标志"></a>输出比较模式与 T1STAT 标志</h2><p>模模式下有一个特别重要的细节：<strong>必须开启通道 0 的输出比较模式，否则计数器达到 T1CC0 后不会产生溢出中断</strong>。这是因为模模式依靠通道 0 的比较事件来触发溢出，开启方法是把 T1CCTL0 寄存器的第 2 位置 1，即 <code>T1CCTL0 |= 0x04</code>。</p>
+<p>判断中断是否发生，要看 T1STAT 状态寄存器。它的第 0 位对应通道 0 的中断标志，进入中断服务函数后必须手动清除，写成 <code>T1STAT &amp;= ~0x01</code>。此外还要设置 T1IE（定时器 1 中断使能）和 T1OVFIM（溢出中断使能），并确保总中断 EA 打开。定时器产生中断请求的情况有三种：计数器达到最终值而溢出、输入捕获事件、输出比较事件。</p>
+<h2 id="定时器中断例程"><a href="#定时器中断例程" class="headerlink" title="定时器中断例程"></a>定时器中断例程</h2><p>要解决什么：让接在 P1_3 的 LED5 每 1 秒闪烁一次，接在 P1_4 的 LED6 每 10 秒闪烁一次。思路是用定时器产生 100ms 的周期性中断，在中断里累加计数变量，数到 10 次就是 1 秒，数到 100 次就是 10 秒。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;ioCC2530.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED5 P1_3</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LED6 P1_4</span></span><br><span class="line"></span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> count = <span class="number">0</span>;       <span class="comment">/* 中断累加计数，每次约 100ms */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 定时器 1 初始化 */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Init_Timer1</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    T1CC0L = <span class="number">0xD4</span>;             <span class="comment">/* 最大计数值低 8 位，0x30D4 = 12500 */</span></span><br><span class="line">    T1CC0H = <span class="number">0x30</span>;             <span class="comment">/* 最大计数值高 8 位 */</span></span><br><span class="line">    T1CCTL0 |= <span class="number">0x04</span>;           <span class="comment">/* 开启通道 0 输出比较模式，模模式必须开 */</span></span><br><span class="line">    T1IE = <span class="number">1</span>;                  <span class="comment">/* 使能定时器 1 中断 */</span></span><br><span class="line">    T1OVFIM = <span class="number">1</span>;               <span class="comment">/* 使能定时器 1 溢出中断 */</span></span><br><span class="line">    EA = <span class="number">1</span>;                    <span class="comment">/* 打开总中断 */</span></span><br><span class="line">    T1CTL = <span class="number">0x0E</span>;              <span class="comment">/* 128 分频 + 模模式，并启动定时器 */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 定时器 1 中断服务函数 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> vector = T1_VECTOR</span></span><br><span class="line">__interrupt <span class="type">void</span> <span class="title function_">Timer1_Service</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    T1STAT &amp;= ~<span class="number">0x01</span>;           <span class="comment">/* 第一步：清除通道 0 中断标志 */</span></span><br><span class="line">    count++;                   <span class="comment">/* 每次中断累加一次，约 100ms */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (count % <span class="number">10</span> == <span class="number">0</span>)       <span class="comment">/* 累加 10 次约 1 秒 */</span></span><br><span class="line">    &#123;</span><br><span class="line">        LED5 = ~LED5;          <span class="comment">/* 翻转 LED5 */</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (count == <span class="number">100</span>)          <span class="comment">/* 累加 100 次约 10 秒 */</span></span><br><span class="line">    &#123;</span><br><span class="line">        LED6 = ~LED6;          <span class="comment">/* 翻转 LED6 */</span></span><br><span class="line">        count = <span class="number">0</span>;             <span class="comment">/* 计数清零，进入下一轮 */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Init_Port</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    P1SEL &amp;= ~<span class="number">0x18</span>;            <span class="comment">/* 0001 1000：P1_3、P1_4 设为普通 IO */</span></span><br><span class="line">    P1DIR |= <span class="number">0x18</span>;             <span class="comment">/* 设为输出 */</span></span><br><span class="line">    LED5 = <span class="number">0</span>;</span><br><span class="line">    LED6 = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Init_Port();               <span class="comment">/* 初始化端口 */</span></span><br><span class="line">    Init_Timer1();             <span class="comment">/* 初始化定时器 1 */</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>);                 <span class="comment">/* 主程序空闲，定时由中断完成 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码里 <code>T1CTL = 0x0E</code> 拆开看：低两位 <code>10</code> 选择模模式，第 3、2 位 <code>11</code> 选择 128 分频，合起来就是 <code>0x0E</code>。预期效果：LED5 每秒亮灭切换一次，LED6 每 10 秒切换一次，主循环里没有任何延时代码，CPU 空闲时间可以用来处理其他任务。</p>
+<p>如果定时时间明显不对，优先检查三项：主频假设是否和实际时钟一致、分频系数是否设对、T1CC0H&#x2F;L 的高低字节有没有写反。把这三处核对清楚，定时器就能给出相当稳定的时序。</p>
+<p>有了定时器，设备就能”按时做事”；但如果还希望能和电脑或云平台”说话”，就得用上串口通信。下一章把 USART 的配置方法和常用寄存器整理成一份速查资料，方便写程序时随时对照。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/nbiot%E6%A8%A1%E7%BB%84at%E6%8C%87%E4%BB%A4%E8%81%94%E7%BD%91/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/cc2530%E4%B8%AD%E6%96%AD%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

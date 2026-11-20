@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="NB-IoT 模组是低功耗广域物联网的常见选择，而 AT 指令是主控 MCU 与模组对话的通用语言。本文按照实际拨号顺序，把 AT 指令划分为基础查询、网络注册、数据收发三组，逐条给出指令写法、作用说明和预期响应，涵盖测试串口链路、关闭回显、查询 IMEI、检测 SIM 卡、查询信号强度、网络附着、运营商识别、APN 设置、本地 IP 获取以及 socket 连接与数据收发等关键步骤，并整理移动、联通、电信三大运营商 APN 和主流厂商的指令差异。">
+
+
+    
+  <meta name="keywords" content="NB-IoT,AT指令,IMEI,APN,CSQ,CREG,QIOPEN,物联网模组">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>nbiot模组at指令联网</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#NB-IoT"
+                           title="NB-IoT">NB-IoT</a>
+                        
+                        <a class="tag" href="/tags/#AT指令"
+                           title="AT指令">AT指令</a>
+                        
+                        <a class="tag" href="/tags/#物联网"
+                           title="物联网">物联网</a>
+                        
+                        <a class="tag" href="/tags/#模组"
+                           title="模组">模组</a>
+                        
+                    </div>
+                    <h1>nbiot模组at指令联网</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-07-17
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>智能水表、电表、烟感这些设备往往分布在地下室、管道井等信号不好的地方，还要靠电池工作好几年。NB-IoT（窄带物联网）正是为这类场景设计的：覆盖深、功耗低、连接多。主控芯片要让模组干活，靠的是一种非常古老却依然通用的语言——AT 指令。一条条文本命令通过串口发过去，模组就完成联网、连接服务器、收发数据等动作。</p>
+<h2 id="串口链路准备：先把话说明白"><a href="#串口链路准备：先把话说明白" class="headerlink" title="串口链路准备：先把话说明白"></a>串口链路准备：先把话说明白</h2><p>在发任何业务指令之前，得先确认串口通道是通的，并让模组进入一个”安静、可解析”的状态。模组厂商很多，比如利尔达、移远、SIMCOM、美格等，但下面这几条基础指令基本通用。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>指令</th>
+<th>作用</th>
+<th>预期响应</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>测试链路</td>
+<td><code>AT</code></td>
+<td>探测模组是否上电并响应</td>
+<td><code>OK</code> 或回显 <code>AT</code></td>
+</tr>
+<tr>
+<td>关闭回显</td>
+<td><code>ATE0</code></td>
+<td>关闭串口回显，减少带宽占用和解析干扰</td>
+<td><code>OK</code></td>
+</tr>
+<tr>
+<td>开启回显</td>
+<td><code>ATE1</code></td>
+<td>调试初期可打开，发送什么就返回什么</td>
+<td><code>OK</code></td>
+</tr>
+<tr>
+<td>查询模组名称</td>
+<td><code>AT+CGMM</code></td>
+<td>读取模组型号，便于驱动兼容不同模组</td>
+<td>返回模组名称字符串</td>
+</tr>
+<tr>
+<td>获取 IMEI</td>
+<td><code>AT+CGSN</code></td>
+<td>读取国际移动设备识别码，相当于模组身份证</td>
+<td>返回 15 位 IMEI 号</td>
+</tr>
+</tbody></table>
+<p>这里有几个实务经验。模组启动时间因厂商而异，有的 cold start 要十几秒，开机后应周期性发送 <code>AT</code>，直到收到响应再继续，不要一上电就猛发指令。回显在开发初期开着方便调试，进入正式产品后要关掉，否则返回数据里混着命令本身，解析程序容易出错。IMEI 号要像身份证号一样妥善保管，NB-IoT 模组在连接 socket 前通常需要用它做认证。</p>
+<h2 id="网络注册：让模组真正入网"><a href="#网络注册：让模组真正入网" class="headerlink" title="网络注册：让模组真正入网"></a>网络注册：让模组真正入网</h2><p>确认模组能对话后，接下来要检查 SIM 卡、信号质量和网络注册状态，并配置运营商参数。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>指令</th>
+<th>作用</th>
+<th>预期响应</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>检测 SIM 卡</td>
+<td><code>AT+CPIN?</code></td>
+<td>查询 SIM 卡是否就绪</td>
+<td><code>+CPIN: READY</code></td>
+</tr>
+<tr>
+<td>查询信号强度</td>
+<td><code>AT+CSQ</code></td>
+<td>读取当前信号质量</td>
+<td><code>+CSQ: 29,99</code></td>
+</tr>
+<tr>
+<td>设置网络附着</td>
+<td><code>AT+CREG=1</code></td>
+<td>开启网络注册状态上报</td>
+<td><code>OK</code></td>
+</tr>
+<tr>
+<td>查询网络附着</td>
+<td><code>AT+CREG?</code></td>
+<td>查询是否已注册到网络</td>
+<td><code>+CREG: 1,1</code> 表示已注册</td>
+</tr>
+<tr>
+<td>查询运营商</td>
+<td><code>AT+COPS?</code></td>
+<td>读取当前运营商信息，供下一步设 APN</td>
+<td><code>+COPS: 0,0,&quot;CHN-TELECOM&quot;,7</code></td>
+</tr>
+<tr>
+<td>设置 APN</td>
+<td><code>AT+QICSGP=1,1,&quot;cmnet&quot;,&quot;card&quot;,&quot;card&quot;,3</code></td>
+<td>配置接入点名称及账号密码</td>
+<td><code>OK</code></td>
+</tr>
+<tr>
+<td>查询本地 IP</td>
+<td><code>AT+CGDCONT?</code></td>
+<td>确认是否已获取 IP 地址</td>
+<td><code>+CGDCONT: 1,&quot;IP&quot;,&quot;CMIOT&quot;,&quot;10.139.210.85&quot;,0,0</code></td>
+</tr>
+<tr>
+<td>IMEI 认证</td>
+<td><code>AT+EGMR=1,7,&quot;123456789012345&quot;</code></td>
+<td>NB 模组手动写入并认证 IMEI</td>
+<td><code>OK</code></td>
+</tr>
+</tbody></table>
+<p><code>AT+CSQ</code> 返回的第一个数字是信号强度等级，取值范围 0 至 31，数值越大信号越好，99 表示未知；第二个参数是误码率。把这条指令放在空闲线程里周期性查询，可以监控设备所处的信号环境。</p>
+<p>网络注册部分各厂商差异最大：<code>AT+CREG</code> 是参考写法，有的模组用 <code>AT+CGREG</code> 或 <code>AT+CEREG</code>，返回格式也可能略有不同，第二位为 1 通常表示已注册到本地网络，为 3 表示注册被拒绝。<code>AT+COPS?</code> 拿到的运营商信息主要用于下一步配置 APN，如果产品只用固定一家运营商的卡，这一步可以简化。</p>
+<h3 id="三大运营商-APN-对照"><a href="#三大运营商-APN-对照" class="headerlink" title="三大运营商 APN 对照"></a>三大运营商 APN 对照</h3><p>APN（接入点名称）是模组接入运营商移动网络的”大门”，不同运营商的设置不同。专网卡还需要运营商提供专门的用户名和密码。</p>
+<table>
+<thead>
+<tr>
+<th>运营商</th>
+<th>非专网 APN</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>中国移动</td>
+<td><code>cmnet</code></td>
+</tr>
+<tr>
+<td>中国联通</td>
+<td><code>3gnet</code></td>
+</tr>
+<tr>
+<td>中国电信</td>
+<td><code>ctlte</code></td>
+</tr>
+</tbody></table>
+<p>设置示例：电信卡可写成下面这条命令，复制后把 APN 换成自己卡对应的值即可：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AT+QICSGP=1,1,&quot;ctlte&quot;,&quot;card&quot;,&quot;card&quot;,3</span><br></pre></td></tr></table></figure>
+
+<p>注意 APN 要与 SIM 卡所属运营商匹配，填错会导致拿不到 IP。拿到本地 IP 是重要里程碑——它意味着模组已经接入运营商移动网络，离建立 TCP 连接只差一步。</p>
+<h2 id="数据收发：建立-socket-并传数据"><a href="#数据收发：建立-socket-并传数据" class="headerlink" title="数据收发：建立 socket 并传数据"></a>数据收发：建立 socket 并传数据</h2><p>网络就绪后，就可以连接远端服务器并收发数据了。这一步同样存在明显的厂商差异，下面给出几种常见写法。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>指令示例</th>
+<th>作用</th>
+<th>预期响应</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>建立连接</td>
+<td><code>AT+MIPCALL=1</code></td>
+<td>激活移动场景，建立网络连接</td>
+<td><code>+MIPCALL:1,10.13.44.170</code></td>
+</tr>
+<tr>
+<td>打开 socket</td>
+<td><code>AT+QIOPEN=1,1,&quot;TCP&quot;,&quot;20.10.150.154&quot;,6201,10000,1</code></td>
+<td>以 TCP 方式连接指定服务器和端口</td>
+<td><code>OK</code></td>
+</tr>
+<tr>
+<td>发送数据</td>
+<td><code>AT+QISEND=...</code></td>
+<td>把数据发到已建立的 socket</td>
+<td><code>OK</code> 及发送确认</td>
+</tr>
+<tr>
+<td>接收数据</td>
+<td>无需指令，模组主动上报</td>
+<td>模组主动输出带标识的数据帧</td>
+<td>见下方 URC 帧格式</td>
+</tr>
+<tr>
+<td>关闭 socket</td>
+<td><code>AT+QICLOSE=1</code></td>
+<td>断开 socket 连接</td>
+<td><code>OK</code></td>
+</tr>
+</tbody></table>
+<p>建立连接这一步有的模组不单独提供指令，而是和”打开 socket”合并完成；适合自己的模组，要以对应厂商的 AT 手册为准。发送数据时要注意数据格式：有的模组用同一条指令、通过配置在十六进制和 ASCII 码之间切换，有的则提供两条独立指令，写错格式服务器会收到乱码。</p>
+<p>接收数据不用主动查询，模组会把网络数据主动输出到串口，这种带特定标识的上报叫 <strong>URC 帧</strong>，程序收到后解析出有效载荷即可。不同厂商的 URC 前缀不同：</p>
+<table>
+<thead>
+<tr>
+<th>厂商</th>
+<th>接收数据 URC 示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>移远</td>
+<td><code>+QIURC: &quot;recv&quot;,1,20</code></td>
+</tr>
+<tr>
+<td>SIMCOM</td>
+<td><code>+RECEIVE,1,20</code></td>
+</tr>
+<tr>
+<td>美格</td>
+<td><code>+MIPRTCP=1,20</code></td>
+</tr>
+</tbody></table>
+<p>关闭 socket 的指令也大同小异，按模组厂商选用（从名字就能分辨出来）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AT+QICLOSE=1     # 移远 Quectel</span><br><span class="line">AT+NETCLOSE=1    # SIMCOM</span><br><span class="line">AT+MIPCLOSE=1    # 美格</span><br></pre></td></tr></table></figure>
+
+<p>把上面三个阶段串起来，NB-IoT 模组的完整拨号顺序是：测试串口链路 → 关闭回显 → 查询模组名称 → 获取 IMEI → 检测 SIM 卡 → 查询信号强度 → 设置网络附着 → 查询网络附着 → 查询运营商 → 设置 APN → 查询本地 IP → IMEI 认证 → 建立连接 → 打开 socket → 收发数据 → 关闭 socket。实际调试时建议逐条发送、逐条确认响应，哪一步卡住就重点排查那一步——比如拿不到 IP 先查 APN 和信号，连不上服务器先查 IP 和端口。等整条链路稳定跑通，设备数据就能顺利到达云端了。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/cc2530%E7%81%AF%E5%85%89%E4%B8%8E%E6%8C%89%E9%94%AEgpio%E5%AE%9E%E6%88%98/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/cc2530%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%8E%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

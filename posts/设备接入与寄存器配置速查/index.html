@@ -1,0 +1,895 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="设备接入网关常查寄存器起始地址、功能码、数据长度和采样公式。本文横向合并同类设备，先给出账号、IP、端口及云平台参数，再分类列出 IOT 采集器、百叶箱、多合一、二氧化碳、水浸、超声波、直流电机、北斗、RGB、RFID、4G 与 UWB 的寄存器及改址指令；最后整理 JY-DAM404D/0404 继电器映射、联动模式与闪开闪断，以及 ZigBee、多联继电器、四输入电流的组网与 485 接线。">
+
+
+    
+  <meta name="keywords" content="物联网设备接入,Modbus寄存器,起始地址,功能码,采样公式,继电器模块,网关配置,485接线">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>设备接入与寄存器配置速查</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#寄存器"
+                           title="寄存器">寄存器</a>
+                        
+                        <a class="tag" href="/tags/#物联网设备"
+                           title="物联网设备">物联网设备</a>
+                        
+                        <a class="tag" href="/tags/#Modbus"
+                           title="Modbus">Modbus</a>
+                        
+                        <a class="tag" href="/tags/#网关接入"
+                           title="网关接入">网关接入</a>
+                        
+                    </div>
+                    <h1>设备接入与寄存器配置速查</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <p>物联网设备接入网关时最常查的是寄存器起始地址、功能码、数据长度和采样公式，其次是账号、IP 与端口。本文按”设备 → 接线&#x2F;参数 → 关键寄存器 → 配置值”横向合并同类设备，便于现场直接对照。</p>
+<h2 id="平台与网关接入基线"><a href="#平台与网关接入基线" class="headerlink" title="平台与网关接入基线"></a>平台与网关接入基线</h2><h3 id="默认账号密码速查"><a href="#默认账号密码速查" class="headerlink" title="默认账号密码速查"></a>默认账号密码速查</h3><table>
+<thead>
+<tr>
+<th>平台 &#x2F; 设备</th>
+<th>账号</th>
+<th>密码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>智慧工厂</td>
+<td>admin</td>
+<td>1</td>
+</tr>
+<tr>
+<td>智能市政</td>
+<td>admin</td>
+<td>123</td>
+</tr>
+<tr>
+<td>新零售门店网页端</td>
+<td>admin</td>
+<td>admin</td>
+</tr>
+<tr>
+<td>摄像头网页版</td>
+<td>admin</td>
+<td>admin</td>
+</tr>
+<tr>
+<td>中心网关 &#x2F; 边缘中心网关</td>
+<td>newland</td>
+<td>newland</td>
+</tr>
+<tr>
+<td>Ubuntu Linux</td>
+<td>newland</td>
+<td>newland</td>
+</tr>
+<tr>
+<td>SQL Server</td>
+<td>sa</td>
+<td>123456</td>
+</tr>
+<tr>
+<td>UWB 网关</td>
+<td>root</td>
+<td>000997</td>
+</tr>
+<tr>
+<td>4G 通讯终端</td>
+<td>root</td>
+<td>000997</td>
+</tr>
+<tr>
+<td>4G 终端平台配置页</td>
+<td>newland</td>
+<td>newland</td>
+</tr>
+<tr>
+<td>大华模块</td>
+<td>admin</td>
+<td>Newland123</td>
+</tr>
+<tr>
+<td>小条屏</td>
+<td>—</td>
+<td>88888</td>
+</tr>
+<tr>
+<td>LEDCenter 硬件参数</td>
+<td>—</td>
+<td>888</td>
+</tr>
+</tbody></table>
+<h3 id="默认-IP-与端口速查"><a href="#默认-IP-与端口速查" class="headerlink" title="默认 IP 与端口速查"></a>默认 IP 与端口速查</h3><table>
+<thead>
+<tr>
+<th>设备</th>
+<th>默认 IP</th>
+<th>端口 &#x2F; 接入方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>中心网关</td>
+<td>192.168.1.100</td>
+<td>newland &#x2F; newland</td>
+</tr>
+<tr>
+<td>IOT 物联网采集器</td>
+<td><a target="_blank" rel="noopener" href="http://nld-edu/">http://nld-edu/</a></td>
+<td>502，关闭 DHCP 后保存重启</td>
+</tr>
+<tr>
+<td>410S 串口服务器</td>
+<td>192.168.0.7</td>
+<td>admin &#x2F; admin；本地 57500，远程 8800</td>
+</tr>
+<tr>
+<td>串口服务器（通用）</td>
+<td>192.168.14.200</td>
+<td>8400，改 IP 前先把电脑设到 14 网段</td>
+</tr>
+<tr>
+<td>UWB 网关</td>
+<td>192.168.14.200（部分资料记为 192.168.10.200）</td>
+<td>57500，root &#x2F; 000997</td>
+</tr>
+<tr>
+<td>4G 模块</td>
+<td>192.168.14.200</td>
+<td>8400，root &#x2F; 000997</td>
+</tr>
+<tr>
+<td>大华模块</td>
+<td>lan1 192.168.1.108；lan2 192.168.2.108</td>
+<td>端口 3777，admin &#x2F; Newland123</td>
+</tr>
+<tr>
+<td>路由器</td>
+<td>192.168.0.1 或 192.168.1.1</td>
+<td>普联科技域名 tplogin.cn</td>
+</tr>
+</tbody></table>
+<p>常用波特率：LED 显示屏 115200；灯带、UHF 读写器、ZigBee、多合一、北斗、超声波、直流电机、UWB 均为 9600；水浸 4800。</p>
+<h3 id="云平台接入参数"><a href="#云平台接入参数" class="headerlink" title="云平台接入参数"></a>云平台接入参数</h3><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>平台</td>
+<td><a target="_blank" rel="noopener" href="http://www.nlecloud.com/">http://www.nlecloud.com</a> 注册账号，结构为项目 → 设备 → 传感器</td>
+</tr>
+<tr>
+<td>通讯协议</td>
+<td>TCP &#x2F; MQTT &#x2F; CoAP &#x2F; HTTP，记录设备标识 device 与密钥 key</td>
+</tr>
+<tr>
+<td>接入服务器</td>
+<td>ndp.nlecloud.com 或 117.78.1.201，TCP 8600 &#x2F; 8700 &#x2F; 8800</td>
+</tr>
+<tr>
+<td>TLS 加密</td>
+<td>端口 8601，需下载根证书</td>
+</tr>
+<tr>
+<td>心跳包</td>
+<td><code>$#AT#</code></td>
+</tr>
+<tr>
+<td>上报注意</td>
+<td>ping 平台域名取 IP 作远程主机地址；JSON 中 device 为项目识别码、key 为密钥；发送数据不能带空格</td>
+</tr>
+</tbody></table>
+<p>鉴权分两种：简单方式把平台生成的 32 位 SecretKey 直接作为 key；安全方式计算 token。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">token = device &amp; projectId &amp; method &amp; timestamp &amp; sign</span><br><span class="line">method 支持 md5 / sha1 / sha256</span><br><span class="line">sign = sha256(&quot;mydevice50023sha2561566276142807a5528869647040b4a88bb61dcb566eee&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>timestamp 为访问过期时间戳，过期后平台拒绝访问；sign 由五个参数按固定顺序拼接后加签。</p>
+<h2 id="传感器接入与寄存器速查"><a href="#传感器接入与寄存器速查" class="headerlink" title="传感器接入与寄存器速查"></a>传感器接入与寄存器速查</h2><h3 id="IOT-网络数据采集器（nld-edu）"><a href="#IOT-网络数据采集器（nld-edu）" class="headerlink" title="IOT 网络数据采集器（nld-edu）"></a>IOT 网络数据采集器（nld-edu）</h3><p>网线连接路由器（不能直连电脑），访问 <code>http://nld-edu/</code> 查看分配的 IP，关闭 DHCP、设静态 IP 后保存重启；端口 502，绿灯为网络指示灯。网关侧连接类型选 Modbus over TCP，modbus 类型选 NLE MODBUS COMMON。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">请求：01 06 07 D2 00 04 29 44</span><br><span class="line">响应：01 06 07 D2 00 04 29 44</span><br></pre></td></tr></table></figure>
+
+<p>指令中 07D2 为寄存器地址，0004 为修改后地址；改完断电重新上电，用【读取 Modbus 从机地址】确认。</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>通道</th>
+<th>起始地址</th>
+<th>数据长度</th>
+<th>功能码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DI 数字量输入</td>
+<td>1~8</td>
+<td>03E9~03F0</td>
+<td>0001</td>
+<td>02</td>
+</tr>
+<tr>
+<td>DO 数字量输出</td>
+<td>1~8</td>
+<td>0001~0008</td>
+<td>0001</td>
+<td>01</td>
+</tr>
+<tr>
+<td>AI 电流</td>
+<td>1~3</td>
+<td>0DAD~0DAF</td>
+<td>0001</td>
+<td>04</td>
+</tr>
+<tr>
+<td>AI 电压</td>
+<td>1~3</td>
+<td>0BB9~0BBB</td>
+<td>0001</td>
+<td>04</td>
+</tr>
+</tbody></table>
+<p>采样示例：红灯 502 &#x2F; 从机 01 &#x2F; 功能 01 &#x2F; 起始 0001；光照 502 &#x2F; 从机 01 &#x2F; 功能 02 &#x2F; 起始 03E9 &#x2F; 长度 0001；噪声 502 &#x2F; 从机 01 &#x2F; 功能 04 &#x2F; 起始 0DAD &#x2F; 长度 0001，公式 <code>6.25×R0/1000-5</code>。</p>
+<h3 id="环境监测类传感器"><a href="#环境监测类传感器" class="headerlink" title="环境监测类传感器"></a>环境监测类传感器</h3><p>百叶箱传感类型选 modbus rtu 传感器，从机地址为查询到的地址，功能号 03。</p>
+<table>
+<thead>
+<tr>
+<th>传感器</th>
+<th>起始地址</th>
+<th>数据长度</th>
+<th>功能码</th>
+<th>采样公式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>温度</td>
+<td>01F5</td>
+<td>0001</td>
+<td>03</td>
+<td>R0&#x2F;10</td>
+</tr>
+<tr>
+<td>湿度</td>
+<td>01F4</td>
+<td>0001</td>
+<td>03</td>
+<td>R0&#x2F;10</td>
+</tr>
+<tr>
+<td>噪声</td>
+<td>01F6</td>
+<td>0001</td>
+<td>03</td>
+<td>R0&#x2F;10</td>
+</tr>
+</tbody></table>
+<p>多合一传感器波特率 9600，先设从机地址；连接器选 NLE MODBUS-RTU，经串口服务器接入。</p>
+<table>
+<thead>
+<tr>
+<th>传感器</th>
+<th>起始地址</th>
+<th>数据长度</th>
+<th>功能码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PM2.5</td>
+<td>0065</td>
+<td>0001</td>
+<td>04</td>
+</tr>
+<tr>
+<td>空气质量</td>
+<td>0001</td>
+<td>0001</td>
+<td>03</td>
+</tr>
+<tr>
+<td>温度</td>
+<td>0002</td>
+<td>0002</td>
+<td>03</td>
+</tr>
+<tr>
+<td>湿度</td>
+<td>0003</td>
+<td>0002</td>
+<td>03</td>
+</tr>
+<tr>
+<td>人体</td>
+<td>0004</td>
+<td>0001</td>
+<td>03</td>
+</tr>
+<tr>
+<td>大气压</td>
+<td>0066</td>
+<td>0001</td>
+<td>04</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>不同固件寄存器略有差异，部分资料把湿度记为 0066，配置前先读取确认。</p>
+</blockquote>
+<p>二氧化碳变送器通过广播地址改址：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">修改指令：FE 06 00 00 00 02   （末字节为新地址）</span><br><span class="line">格式：广播地址 FE + 功能码 06 + 三个预留字节 00 + 新地址 + CRC16</span><br><span class="line">返回示例：01 06 00 02 39 49</span><br></pre></td></tr></table></figure>
+
+<p>寄存器起始 0000、长度 0001、功能码 03；连接器选 Modbus over serial，串口服务器端口 6003，设备地址 01，标识 co2，传感类型 485 型二氧化碳。</p>
+<h3 id="水浸、超声波与直流电机"><a href="#水浸、超声波与直流电机" class="headerlink" title="水浸、超声波与直流电机"></a>水浸、超声波与直流电机</h3><table>
+<thead>
+<tr>
+<th>设备</th>
+<th>接线 &#x2F; 参数</th>
+<th>改址指令</th>
+<th>关键寄存器</th>
+<th>配置值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>水浸传感器</td>
+<td>485 转 232 接 PC，用 485 参数配置工具 V3.3 改地址与波特率；默认地址 1、波特率 4800</td>
+<td>—</td>
+<td>起始 0000，长度 0001，功能 03</td>
+<td>从机 01，modbus rtu 传感器</td>
+</tr>
+<tr>
+<td>超声波</td>
+<td>波特率 9600</td>
+<td><code>01 06 02 00 00 05 48 71</code>（旧址 01 → 新址 05）</td>
+<td>起始 0100，长度 0001，功能 03</td>
+<td>从机 02，连接器 MODBUS-RTU</td>
+</tr>
+<tr>
+<td>直流电机</td>
+<td>波特率 9600，校验 CRC16 for MODBUS；读地址 00 20，写地址 00 10 00</td>
+<td>—</td>
+<td>起始 0005，功能 03，公式 value</td>
+<td>从机 01，modbus rtu 执行器</td>
+</tr>
+</tbody></table>
+<h3 id="定位与识别类设备"><a href="#定位与识别类设备" class="headerlink" title="定位与识别类设备"></a>定位与识别类设备</h3><table>
+<thead>
+<tr>
+<th>设备</th>
+<th>接线 &#x2F; 参数</th>
+<th>关键配置值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>北斗定位</td>
+<td>波特率 9600，先查询地址</td>
+<td>连接器 Modbus over Serial，端口 6005，标识 GPS，传感类型 485 型北斗</td>
+</tr>
+<tr>
+<td>UWB 定位</td>
+<td>IP 192.168.14.200，root &#x2F; 000997；WAN 改静态，端口转发 TCP 外部 57500 &#x2F; 内部 57500</td>
+<td>连接器 NLE SERIAL-BUS NL-UWB，串口 9600，IP 填 WAN 口 IP；宽&#x3D;左右定位器间距，高&#x3D;上下间距</td>
+</tr>
+<tr>
+<td>RFID 一体机</td>
+<td>串口服务器接入，UHF 读写器波特率 9600</td>
+<td>连接器 HUF RFID reader，端口 6001，标识 uhf，传感类型 rfid 超高频</td>
+</tr>
+<tr>
+<td>LED 显示屏</td>
+<td>新屏波特率 115200，小条屏工具密码 88888</td>
+<td>连接器 LEDSCREEN FOUR LINE，序列号 1，LEDCenter 硬件参数密码 888</td>
+</tr>
+<tr>
+<td>摄像头</td>
+<td>IP 用 Search Tool 查询，RTSP 端口 554、参数 11</td>
+<td>添加网关选 IPC（不是 Camera），账号密码默认 admin</td>
+</tr>
+</tbody></table>
+<p>UWBSETTING 参数需与标签一致：PANID 两字节、信道号一字节、设备号两字节（0000~0003，0000 逆时针摆放），标签的 PANID 与信道号写死。</p>
+<h3 id="串口服务器与继电器（410S-404D）"><a href="#串口服务器与继电器（410S-404D）" class="headerlink" title="串口服务器与继电器（410S &#x2F; 404D）"></a>串口服务器与继电器（410S &#x2F; 404D）</h3><p>410S 默认 IP 192.168.0.7、admin &#x2F; admin；RS485 设为 TCP Client，远程服务器填网关地址，本地&#x2F;远程端口 57500 &#x2F; 8800，注册类型选 MAC 注册包。网关侧加网络设备，连接器 NLE_MODBUS-RTU，端口 8800，采集间隔 3 秒，MAC 地址取 410S 配置界面。按 RGB 方式接入时连接器选 MODBUS-RTU、端口 6002、从机 07、公式 value。</p>
+<p>404D 拨码 1~5 对应 1、2、4、8、16，全 ON 为 31、全 OFF 为 0。</p>
+<table>
+<thead>
+<tr>
+<th>通道</th>
+<th>起始地址</th>
+<th>功能码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IN1~IN4</td>
+<td>0000~0003</td>
+<td>02</td>
+</tr>
+<tr>
+<td>OUT1~OUT4</td>
+<td>0000~0003</td>
+<td>01</td>
+</tr>
+</tbody></table>
+<p>添加时传感类型选 modbus rtu 执行器，功能号 01，起始地址 0000。</p>
+<h3 id="网络设备（4G-大华）"><a href="#网络设备（4G-大华）" class="headerlink" title="网络设备（4G &#x2F; 大华）"></a>网络设备（4G &#x2F; 大华）</h3><table>
+<thead>
+<tr>
+<th>设备</th>
+<th>配置要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>4G 通讯终端</td>
+<td>登录 192.168.14.200:8400；固件烧写走 系统 → 备份&#x2F;升级 → 刷写新固件，可 ping IP 判断；设 IP 走 网络 → 修改 lan；云平台新增设备，标识为 4GMT 开头的 11 位数字；终端设域名 ndp.nlecloud.com、端口 8600、TCP，粘贴设备标识与密钥。执行器每次终端重启后重置</td>
+</tr>
+<tr>
+<td>大华模块</td>
+<td>lan1 192.168.1.108、lan2 192.168.2.108，admin &#x2F; Newland123；改 IP 报错加 IPv6 DNS <code>2400::6001</code>；连接器 ADAHUA ALARM，设备类型大华 8 路报警控制器，端口 3777，通道号按接线选</td>
+</tr>
+</tbody></table>
+<p>4G 排障：SIM 卡异常多为未插卡；基站无法连接通常是机卡绑定失败或信号弱。</p>
+<h2 id="继电器模块配置速查（JY-DAM404D-0404）"><a href="#继电器模块配置速查（JY-DAM404D-0404）" class="headerlink" title="继电器模块配置速查（JY-DAM404D &#x2F; 0404）"></a>继电器模块配置速查（JY-DAM404D &#x2F; 0404）</h2><h3 id="主要参数与接线"><a href="#主要参数与接线" class="headerlink" title="主要参数与接线"></a>主要参数与接线</h3><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>供电</td>
+<td>DC 7~30V，触点隔离</td>
+</tr>
+<tr>
+<td>接口</td>
+<td>RS485 或 RS232，标准 Modbus RTU &#x2F; ASCII</td>
+</tr>
+<tr>
+<td>波特率</td>
+<td>2400 &#x2F; 4800 &#x2F; 9600 &#x2F; 19200 &#x2F; 38400，默认 9600，格式 9600,n,8,1</td>
+</tr>
+<tr>
+<td>地址</td>
+<td>0<del>255 可设；5 位拨码设 1</del>31，大于 31 用软件设</td>
+</tr>
+<tr>
+<td>通道</td>
+<td>四路继电器输出 + 四路开关量输入</td>
+</tr>
+<tr>
+<td>触点容量</td>
+<td>10A&#x2F;30VDC、10A&#x2F;250VAC，耐久 10 万次</td>
+</tr>
+<tr>
+<td>工作温度</td>
+<td>工业级 -40℃ ~ 85℃</td>
+</tr>
+<tr>
+<td>选型</td>
+<td>DAM0404-RS485：Modbus &#x2F; RS485 &#x2F; 继电器 4 &#x2F; 输入 4</td>
+</tr>
+</tbody></table>
+<p>接线采用电脑 RS232 经 232-485 转换器（建议有源隔离）转出，A 接 A 端子、B 接 B 端子、屏蔽接 GND；多设备用双绞屏蔽线组成链型网络。地址规则为”设备地址 &#x3D; 拨码地址 + 偏移地址”，出厂地址 0，通讯用广播地址 254。测试时把地址改为 254 再”读取地址”，读到 0 即通讯成功。</p>
+<h3 id="Modbus-寄存器映射"><a href="#Modbus-寄存器映射" class="headerlink" title="Modbus 寄存器映射"></a>Modbus 寄存器映射</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>地址</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>线圈（01）</td>
+<td>0x0001~0x0004</td>
+<td>第 1~4 路继电器输出</td>
+</tr>
+<tr>
+<td>离散输入（02）</td>
+<td>1x0001~1x0004</td>
+<td>第 1~4 路开关量输入</td>
+</tr>
+<tr>
+<td>保持寄存器</td>
+<td>4x1001</td>
+<td>通讯波特率，默认 0，支持 0~5</td>
+</tr>
+<tr>
+<td>保持寄存器</td>
+<td>4x1002</td>
+<td>备用，用户不可写</td>
+</tr>
+<tr>
+<td>保持寄存器</td>
+<td>4x1003</td>
+<td>偏移地址，设备地址 &#x3D; 偏移地址 + 拨码地址</td>
+</tr>
+<tr>
+<td>保持寄存器</td>
+<td>4x1004</td>
+<td>工作模式，用户可存数据</td>
+</tr>
+<tr>
+<td>保持寄存器</td>
+<td>4x1005</td>
+<td>延迟时间，用户可存数据</td>
+</tr>
+</tbody></table>
+<p>地址分区：00001<del>09999 线圈、10001</del>19999 离散输入、30001<del>39999 输入寄存器、40001</del>49999 保持寄存器。</p>
+<table>
+<thead>
+<tr>
+<th>波特率数值</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>对应波特率</td>
+<td>38400</td>
+<td>2400</td>
+<td>4800</td>
+<td>9600</td>
+<td>19200</td>
+<td>38400</td>
+</tr>
+</tbody></table>
+<p>改波特率或偏移地址后需重启设备并同步修改电脑串口设置。</p>
+<h3 id="常用-RTU-指令（广播地址-FE）"><a href="#常用-RTU-指令（广播地址-FE）" class="headerlink" title="常用 RTU 指令（广播地址 FE）"></a>常用 RTU 指令（广播地址 FE）</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">查询四路状态  FE 01 00 00 00 04 29 C6</span><br><span class="line">查询返回      FE 01 01 00 61 9C</span><br><span class="line">第一路开      FE 05 00 00 FF 00 98 35</span><br><span class="line">第二路开      FE 05 00 01 FF 00 C9 F5</span><br><span class="line">第二路关      FE 05 00 01 00 00 88 05</span><br><span class="line">第三路开      FE 05 00 02 FF 00 39 F5</span><br><span class="line">第三路关      FE 05 00 02 00 00 78 05</span><br><span class="line">第四路开      FE 05 00 03 FF 00 68 35</span><br><span class="line">第四路关      FE 05 00 03 00 00 29 C5</span><br><span class="line">读第一路光耦  FE 02 00 00 00 01 AD C5</span><br><span class="line">读第二路光耦  FE 02 00 01 00 01 FC 05</span><br><span class="line">读第三路光耦  FE 02 00 02 00 01 0C 05</span><br><span class="line">读第四路光耦  FE 02 00 03 00 01 5D C5</span><br></pre></td></tr></table></figure>
+
+<p>指令格式为地址 FE + 功能码 05 + 寄存器地址 + FF00（开）&#x2F;0000（关）+ CRC16；RS232 为 1 对 1 总线，只有 RS485 可挂多设备。</p>
+<h3 id="联动模式"><a href="#联动模式" class="headerlink" title="联动模式"></a>联动模式</h3><table>
+<thead>
+<tr>
+<th>模式</th>
+<th>光耦信号生效</th>
+<th>信号取消</th>
+<th>延迟</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>非锁联动</td>
+<td>对应继电器吸合</td>
+<td>对应继电器断开</td>
+<td>≤ 0.05s</td>
+</tr>
+<tr>
+<td>自锁联动</td>
+<td>继电器翻转</td>
+<td>不动作</td>
+<td>≤ 0.05s</td>
+</tr>
+<tr>
+<td>互锁模式</td>
+<td>对应路启动，其他路停止</td>
+<td>不动作</td>
+<td>≤ 0.05s</td>
+</tr>
+<tr>
+<td>双击非锁联动</td>
+<td>模块 1 输入使模块 2 继电器吸合</td>
+<td>断开</td>
+<td>≤ 0.1s（9600）</td>
+</tr>
+</tbody></table>
+<p>非锁模式下串口操作可能被光耦状态覆盖，属正常现象。</p>
+<h3 id="闪开闪断"><a href="#闪开闪断" class="headerlink" title="闪开闪断"></a>闪开闪断</h3><table>
+<thead>
+<tr>
+<th>模式</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>手动模式</td>
+<td>每操作一次，继电器翻转一次</td>
+</tr>
+<tr>
+<td>闪开模式</td>
+<td>每操作一次闭合一次，时间 &#x3D; 设置值 × 0.1 秒，随后断开</td>
+</tr>
+<tr>
+<td>闪断模式</td>
+<td>每操作一次断开 1 秒（可调），随后闭合</td>
+</tr>
+</tbody></table>
+<p>设置入口为聚英翱翔 DAM 调试软件的”继电器模式”下拉框。闪断闪开不能写入芯片，选定后对所有通道生效，可单独发送单通道指令。RGB 控制盒偏移地址等于设备地址，从机 07、端口 6002，红&#x2F;黄&#x2F;蓝对应 0000&#x2F;0001&#x2F;0002，功能 03、公式 value；3.0 设备不能用 JYDAM。</p>
+<h2 id="ZigBee-与无线模块组网速查"><a href="#ZigBee-与无线模块组网速查" class="headerlink" title="ZigBee 与无线模块组网速查"></a>ZigBee 与无线模块组网速查</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>组网参数</td>
+<td>Channel、PAN ID、设备 ID、RS485 波特率；Channel 与 PAN ID 必须全网一致</td>
+</tr>
+<tr>
+<td>设备 ID</td>
+<td>范围 0x0000~0x00FF，同网唯一，超出会异常</td>
+</tr>
+<tr>
+<td>节点盒</td>
+<td>1 路 RS485 + 1 路 USB 串口，5 路开关量输入、5 路数字量输出</td>
+</tr>
+<tr>
+<td>出厂状态</td>
+<td>路由设备，ID 默认 0x0001，RS485 默认 9600-8-N-1</td>
+</tr>
+<tr>
+<td>协调器</td>
+<td>用 ZigBeeConfigTool.exe 配置后 ID 固定 0x0000 不可改</td>
+</tr>
+<tr>
+<td>指示灯</td>
+<td>链接灯常亮&#x3D;已入网，长灭&#x3D;未入网；通讯灯闪一次&#x3D;收到网络</td>
+</tr>
+<tr>
+<td>功能键</td>
+<td>短按切换允许入网；长按 3 秒释放后路由退网、协调器重建网络</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多联继电器</td>
+<td>先烧写 relay多联.hex（SmartRF Flash Programmer），旧设备白盒子、新设备 Telink；channel 与 PAN ID 同协调器；K1&#x2F;K2 从左往右为 IN&#x2F;COM&#x2F;OUT&#x2F;COM，IN 火线、COM 零线、OUT 输出；插串口线供电会失控，需拔电重启重新配对</td>
+</tr>
+<tr>
+<td>四输入电流</td>
+<td>较多联继电器短，无蓝色中继块；与 NS 同时出现，烧写用普通传感器固件、组网用四通道电流；端子为 GND、IN1~IN4</td>
+</tr>
+<tr>
+<td>NB-IoT</td>
+<td>烧写用 Flash Loader Demonstrator，拨码拨到”下载”，参数选 128K；两个模块分别烧一氧化碳与甲烷；网关协议选 LWM2M；屏显 0 未连云、1 已连，必须装天线</td>
+</tr>
+<tr>
+<td>LoRa</td>
+<td>模块挨着排列 7、8，频段一致，网络 ID 在五个设备间保持一致；NS 断电后环境云数据消失</td>
+</tr>
+</tbody></table>
+<h2 id="485-接线速查"><a href="#485-接线速查" class="headerlink" title="485 接线速查"></a>485 接线速查</h2><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>接法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JY-DAM 与电脑</td>
+<td>RS232 经 232-485 转换器转出，A 接 A、B 接 B、屏蔽接 GND；多设备用双绞屏蔽线链型连接</td>
+</tr>
+<tr>
+<td>水浸传感器</td>
+<td>485 转 232 接 PC，用 485 参数配置工具 V3.3 改址与波特率</td>
+</tr>
+<tr>
+<td>ZigBee 节点盒</td>
+<td>USB 转 485 线接 PC，用 ZigBeeConfigTool.exe 配置或透传</td>
+</tr>
+<tr>
+<td>直连与虚拟串口</td>
+<td>直接用线连电脑选 485 连接器，经虚拟串口连接选 232 接口</td>
+</tr>
+<tr>
+<td>串口服务器改 IP</td>
+<td>先把电脑设到同网段（如 192.168.14.x），连接后改 IP 并重启</td>
+</tr>
+<tr>
+<td>IP 冲突</td>
+<td>串口服务器与 UWB 网关 IP、端口相同，需让其中一个断网断电再改</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>GND 是地线接地端的缩写，对电源而言就是电源负极，不要接到真正的保护地。</p>
+</blockquote>
+<p>实际配置以设备上电读取到的地址和波特率为准，表中默认值仅作初始参考。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%95%85%E9%9A%9C%E9%80%9F%E6%9F%A5/" >&larr; Previous Post</a>
+                </li>
+                
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

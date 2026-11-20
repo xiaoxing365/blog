@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="从建表插入数据开始，系统梳理 MySQL 查询语句：WHERE 条件与 LIKE 模糊匹配的 % 通配符、UNION 合并、ORDER BY 排序、GROUP BY 与 WITH ROLLUP 汇总，再到 INNER/LEFT/RIGHT/FULL 四种 JOIN、主键与外键区别、NULL 判断、ALTER TABLE 修改结构以及六类约束的写法，适合想从会写 SQL 进阶到写对 SQL 的读者。">
+
+
+    
+  <meta name="keywords" content="MySQL查询语句,CRUD操作,LIKE模糊匹配,GROUP BY分组,JOIN多表连接,主键与外键,MySQL约束,utf8mb4字符集">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>mysql查询进阶</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#MySQL"
+                           title="MySQL">MySQL</a>
+                        
+                        <a class="tag" href="/tags/#SQL查询"
+                           title="SQL查询">SQL查询</a>
+                        
+                        <a class="tag" href="/tags/#多表连接"
+                           title="多表连接">多表连接</a>
+                        
+                        <a class="tag" href="/tags/#数据库约束"
+                           title="数据库约束">数据库约束</a>
+                        
+                    </div>
+                    <h1>mysql查询进阶</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <h2 id="一、从一张表开始：单表查询与-CRUD"><a href="#一、从一张表开始：单表查询与-CRUD" class="headerlink" title="一、从一张表开始：单表查询与 CRUD"></a>一、从一张表开始：单表查询与 CRUD</h2><p>把数据库想成一个管理有序的仓库：库（database）是厂房，表（table）是一排排货架，行是货架上的一件件货，列则是每件货上的标签。写 SQL 无非就是”盖厂房、摆货架、放货、找货、改货、清货”这几件事。本节先只作用于一张表，把最常用的语句走一遍。</p>
+<h3 id="1-1-创建数据库与数据表，以及常见数据类型"><a href="#1-1-创建数据库与数据表，以及常见数据类型" class="headerlink" title="1.1 创建数据库与数据表，以及常见数据类型"></a>1.1 创建数据库与数据表，以及常见数据类型</h3><p>动手之前先有地方放数据。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 创建数据库；IF NOT EXISTS 避免重复创建时报错</span></span><br><span class="line"><span class="keyword">CREATE</span> DATABASE IF <span class="keyword">NOT</span> <span class="keyword">EXISTS</span> company <span class="keyword">DEFAULT</span> <span class="keyword">CHARACTER SET</span> utf8mb4;</span><br><span class="line"><span class="comment">-- 切换到这个库，后续表名就可以直接写</span></span><br><span class="line">USE company;</span><br></pre></td></tr></table></figure>
+
+<p>创建表时要为每个字段指定数据类型，类型选得合适，既省空间又避免诡异错误。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 创建员工表：ID 自增主键，姓名最长 20 个字符</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> employee (</span><br><span class="line">    id <span class="type">INT</span> <span class="keyword">PRIMARY KEY</span> AUTO_INCREMENT,   <span class="comment">-- 主键 + 自动递增，常用于代理主键</span></span><br><span class="line">    name <span class="type">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT NULL</span>,           <span class="comment">-- 变长字符串，比 CHAR 更省空间</span></span><br><span class="line">    age <span class="type">INT</span>,</span><br><span class="line">    salary <span class="keyword">DOUBLE</span>,</span><br><span class="line">    hire_date <span class="type">DATE</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p><strong>要解决什么</strong>：字段类型决定了能存什么、占多少空间。把字符串一律写全 <code>VARCHAR(255)</code> 看似省事，其实会浪费内存和索引空间；该存日期的字段用字符串，后面按时间范围查询就会很痛苦。</p>
+<p>常见数据类型速查：</p>
+<table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>含义</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>int &#x2F; integer</td>
+<td>整数类型</td>
+<td>编号、年龄、数量</td>
+</tr>
+<tr>
+<td>float</td>
+<td>单精度浮点数</td>
+<td>精度要求不高的近似小数</td>
+</tr>
+<tr>
+<td>double</td>
+<td>双精度浮点数</td>
+<td>比 float 精度更高的小数</td>
+</tr>
+<tr>
+<td>char</td>
+<td>定长字符串</td>
+<td>性别、状态码等长度固定的短值</td>
+</tr>
+<tr>
+<td>varchar(n)</td>
+<td>最长 n 个字符的变长字符串</td>
+<td>姓名、标题、地址</td>
+</tr>
+<tr>
+<td>text</td>
+<td>不限长度的大文本</td>
+<td>文章内容、备注</td>
+</tr>
+<tr>
+<td>date</td>
+<td>日期，格式 YYYY-MM-DD</td>
+<td>生日、入职日</td>
+</tr>
+<tr>
+<td>time</td>
+<td>时间，格式 HH:MM:SS</td>
+<td>打卡时间</td>
+</tr>
+<tr>
+<td>year</td>
+<td>年份，格式 YYYY</td>
+<td>成立年份</td>
+</tr>
+<tr>
+<td>datetime</td>
+<td>日期+时间，YYYY-MM-DD HH:MM:SS</td>
+<td>创建时间、支付时间</td>
+</tr>
+</tbody></table>
+<p>像 <code>int(10)</code> 这种括号里的数字只是显示宽度，并不限制能存多大整数（整数范围由类型本身决定），实际开发中通常没必要写。<code>AUTO_INCREMENT</code> 必须用在有索引的列上，一般配合主键使用，插入时不给值就会自动递增。</p>
+<h3 id="1-2-CRUD：增删改查四件套"><a href="#1-2-CRUD：增删改查四件套" class="headerlink" title="1.2 CRUD：增删改查四件套"></a>1.2 CRUD：增删改查四件套</h3><p>CRUD 就是 Create（增）、Read（查）、Update（改）、Delete（删）的缩写，是最基本的四类操作。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 增：指定列插入；列名和值必须一一对应</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> employee (name, age, salary, hire_date)</span><br><span class="line"><span class="keyword">VALUES</span> (<span class="string">&#x27;张三&#x27;</span>, <span class="number">28</span>, <span class="number">12000.50</span>, <span class="string">&#x27;2023-06-01&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查：只取需要的列，别动不动 SELECT *</span></span><br><span class="line"><span class="keyword">SELECT</span> id, name, salary <span class="keyword">FROM</span> employee;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 改：务必带 WHERE，否则全表都会被更新</span></span><br><span class="line"><span class="keyword">UPDATE</span> employee <span class="keyword">SET</span> salary <span class="operator">=</span> <span class="number">13500.00</span> <span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 删：同样务必带 WHERE</span></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> employee <span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：INSERT 添加一条记录，SELECT 把它读出来，UPDATE 修改工资，DELETE 移除指定行。一个高频事故是 UPDATE 或 DELETE 忘了写 WHERE——执行前先在脑子里过一遍”条件命中几行”，必要时先用相同条件的 SELECT 确认范围。</p>
+<p>这里顺便区分两个”删除”：<code>DELETE FROM 表名</code> 是清空表里的数据行，表结构还在，可以配合 WHERE 按条件删；<code>DROP TABLE 表名</code> 是把整张表连同结构一起删掉，表就没了。要特别注意：DROP TABLE 不支持 WHERE 子句，只有 DELETE 才支持，别把两者混用，这个细节要记牢。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 删除表（谨慎！表结构也会消失）</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> IF <span class="keyword">EXISTS</span> employee_backup;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-WHERE-条件与-LIKE-模糊匹配（-通配符）"><a href="#1-3-WHERE-条件与-LIKE-模糊匹配（-通配符）" class="headerlink" title="1.3 WHERE 条件与 LIKE 模糊匹配（% 通配符）"></a>1.3 WHERE 条件与 LIKE 模糊匹配（% 通配符）</h3><p>精确查找用 <code>=</code>，范围查找用比较运算符，而”包含某个关键词”这类需求要靠 LIKE。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查 30 岁以上的员工</span></span><br><span class="line"><span class="keyword">SELECT</span> name, age <span class="keyword">FROM</span> employee <span class="keyword">WHERE</span> age <span class="operator">&gt;</span> <span class="number">30</span>;</span><br><span class="line"><span class="comment">-- 模糊匹配：姓&quot;张&quot;的员工，% 代表任意多个字符（也可以是 0 个）</span></span><br><span class="line"><span class="keyword">SELECT</span> name <span class="keyword">FROM</span> employee <span class="keyword">WHERE</span> name <span class="keyword">LIKE</span> <span class="string">&#x27;张%&#x27;</span>;</span><br><span class="line"><span class="comment">-- 名字里含&quot;小&quot;的员工</span></span><br><span class="line"><span class="keyword">SELECT</span> name <span class="keyword">FROM</span> employee <span class="keyword">WHERE</span> name <span class="keyword">LIKE</span> <span class="string">&#x27;%小%&#x27;</span>;</span><br><span class="line"><span class="comment">-- _ 代表恰好一个字符：查两个字的姓&quot;李&quot;的员工</span></span><br><span class="line"><span class="keyword">SELECT</span> name <span class="keyword">FROM</span> employee <span class="keyword">WHERE</span> name <span class="keyword">LIKE</span> <span class="string">&#x27;李_&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>要解决什么</strong>：当搜索词只有一部分时，比如”找出姓名里带’小’的人”，等值匹配无能为力，LIKE 配合通配符就能搞定。<code>%</code> 是通配符，表示”任意长度的字符”，不要把它误当成正则表达式——LIKE 的模式语法和正则完全是两回事。</p>
+<h3 id="1-4-UNION-合并多个结果集"><a href="#1-4-UNION-合并多个结果集" class="headerlink" title="1.4 UNION 合并多个结果集"></a>1.4 UNION 合并多个结果集</h3><p>当两张结构相同的表要合并展示，或者同一个表的两类筛选结果要拼在一起，就用 UNION。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 合并正式员工和实习生两张表的姓名；默认去重</span></span><br><span class="line"><span class="keyword">SELECT</span> name <span class="keyword">FROM</span> employee</span><br><span class="line"><span class="keyword">UNION</span></span><br><span class="line"><span class="keyword">SELECT</span> name <span class="keyword">FROM</span> intern;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- UNION ALL 保留重复行，性能通常更好</span></span><br><span class="line"><span class="keyword">SELECT</span> name <span class="keyword">FROM</span> employee</span><br><span class="line"><span class="keyword">UNION</span> <span class="keyword">ALL</span></span><br><span class="line"><span class="keyword">SELECT</span> name <span class="keyword">FROM</span> intern_backup;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：返回两个 SELECT 结果的并集。前提是上下两段查询的列数必须一致，对应列的类型也要兼容。UNION 默认去掉重复行，如果确认不需要去重，用 UNION ALL 更快。</p>
+<h3 id="1-5-ORDER-BY-排序"><a href="#1-5-ORDER-BY-排序" class="headerlink" title="1.5 ORDER BY 排序"></a>1.5 ORDER BY 排序</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 按工资降序，工资相同再按入职日期升序</span></span><br><span class="line"><span class="keyword">SELECT</span> name, salary, hire_date <span class="keyword">FROM</span> employee</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>, hire_date <span class="keyword">ASC</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：先按工资从高到低排，工资一样的再按入职时间从早到晚排。ASC 是升序（默认），DESC 是降序。排序可以指定多列，用逗号隔开，每一列各自决定升降。</p>
+<h3 id="1-6-GROUP-BY-分组与-WITH-ROLLUP-汇总"><a href="#1-6-GROUP-BY-分组与-WITH-ROLLUP-汇总" class="headerlink" title="1.6 GROUP BY 分组与 WITH ROLLUP 汇总"></a>1.6 GROUP BY 分组与 WITH ROLLUP 汇总</h3><p>分组用于”按某个维度统计”，比如每个部门多少人、每个城市销售额多少。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 按部门分组，统计人数和平均工资</span></span><br><span class="line"><span class="keyword">SELECT</span> dept_id, <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">AS</span> 人数, <span class="built_in">AVG</span>(salary) <span class="keyword">AS</span> 平均工资</span><br><span class="line"><span class="keyword">FROM</span> employee</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> dept_id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- WITH ROLLUP：在分组结果末尾再加一行总计</span></span><br><span class="line"><span class="keyword">SELECT</span> dept_id, <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">AS</span> 人数, <span class="built_in">SUM</span>(salary) <span class="keyword">AS</span> 工资总额</span><br><span class="line"><span class="keyword">FROM</span> employee</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> dept_id <span class="keyword">WITH</span> <span class="keyword">ROLLUP</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>要解决什么</strong>：分组把相同 dept_id 的行聚成一组，COUNT、SUM、AVG 这类聚合函数分别对每组计算。加上 WITH ROLLUP 后，数据库会在最后多出一行”所有组合计”，做报表时特别方便。注意 SELECT 列表里的普通列要么出现在 GROUP BY 中，要么被聚合函数包住，否则结果没有意义。分组前筛行用 WHERE，分组后筛组用 HAVING。</p>
+<h3 id="1-7-NULL-的判断：为什么-NULL-不工作"><a href="#1-7-NULL-的判断：为什么-NULL-不工作" class="headerlink" title="1.7 NULL 的判断：为什么 = NULL 不工作"></a>1.7 NULL 的判断：为什么 <code>= NULL</code> 不工作</h3><p>NULL 表示”未知&#x2F;没有值”，它不是 0，也不是空字符串。在 SQL 里 <code>NULL = NULL</code> 的结果既不是 true 也不是 false，而是”未知”，所以用 <code>=</code> 判断 NULL 永远查不出东西。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 正确写法：IS NULL 判断为空</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> employee <span class="keyword">WHERE</span> salary <span class="keyword">IS</span> <span class="keyword">NULL</span>;</span><br><span class="line"><span class="comment">-- IS NOT NULL 判断不为空</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> employee <span class="keyword">WHERE</span> salary <span class="keyword">IS</span> <span class="keyword">NOT NULL</span>;</span><br><span class="line"><span class="comment">-- &lt;=&gt; 是安全等于运算符：两边都 NULL 时也返回 true</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> employee <span class="keyword">WHERE</span> salary <span class="operator">&lt;=&gt;</span> <span class="keyword">NULL</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：能正确找出工资未录入的员工。<code>IS NULL</code>、<code>IS NOT NULL</code> 和 <code>&lt;=&gt;</code> 是 MySQL 处理 NULL 的三大运算符，其中最常用的是前两个。注意表名与 WHERE 关键字之间要保留空格（不过 DROP TABLE 并不支持 WHERE 子句，见 1.2 节）。</p>
+<h3 id="1-8-ALTER-TABLE-修改表结构"><a href="#1-8-ALTER-TABLE-修改表结构" class="headerlink" title="1.8 ALTER TABLE 修改表结构"></a>1.8 ALTER TABLE 修改表结构</h3><p>需求变了要加字段、改类型、改名字，都靠 ALTER TABLE。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 添加列</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> employee <span class="keyword">ADD</span> <span class="keyword">COLUMN</span> email <span class="type">VARCHAR</span>(<span class="number">50</span>);</span><br><span class="line"><span class="comment">-- 只修改列的数据类型（注意是 ALTER TABLE，不是 ALTER 表名）</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> employee MODIFY <span class="keyword">COLUMN</span> email <span class="type">VARCHAR</span>(<span class="number">100</span>);</span><br><span class="line"><span class="comment">-- 同时修改列名和类型</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> employee CHANGE <span class="keyword">COLUMN</span> email email_addr <span class="type">VARCHAR</span>(<span class="number">100</span>);</span><br><span class="line"><span class="comment">-- 删除列</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> employee <span class="keyword">DROP</span> <span class="keyword">COLUMN</span> email_addr;</span><br><span class="line"><span class="comment">-- 修改表名</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> employee RENAME <span class="keyword">TO</span> staff;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：表结构按命令逐项变更。MODIFY 只改类型不改名字，CHANGE 名字和类型一起改，两者别混用；生产环境改结构前先备份，避免误操作丢数据。</p>
+<h2 id="二、多表查询：JOIN-把分散的数据拼起来"><a href="#二、多表查询：JOIN-把分散的数据拼起来" class="headerlink" title="二、多表查询：JOIN 把分散的数据拼起来"></a>二、多表查询：JOIN 把分散的数据拼起来</h2><p>真实业务里数据不会挤在一张表。员工表里存部门编号，部门表里存部门名称，要同时看到”员工姓名 + 部门名称”，就得把两张表按关联字段拼起来，这就是 JOIN。</p>
+<h3 id="2-1-四种-JOIN-的区别"><a href="#2-1-四种-JOIN-的区别" class="headerlink" title="2.1 四种 JOIN 的区别"></a>2.1 四种 JOIN 的区别</h3><table>
+<thead>
+<tr>
+<th>连接类型</th>
+<th>返回什么</th>
+<th>语法骨架</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>INNER JOIN（内连接）</td>
+<td>只返回两表中匹配成功的行</td>
+<td><code>A INNER JOIN B ON A.key = B.key</code></td>
+</tr>
+<tr>
+<td>LEFT JOIN（左连接）</td>
+<td>返回左表全部行，右表没匹配上的补 NULL</td>
+<td><code>A LEFT JOIN B ON ...</code></td>
+</tr>
+<tr>
+<td>RIGHT JOIN（右连接）</td>
+<td>返回右表全部行，左表没匹配上的补 NULL</td>
+<td><code>A RIGHT JOIN B ON ...</code></td>
+</tr>
+<tr>
+<td>FULL JOIN（全连接）</td>
+<td>只要一边有匹配就返回</td>
+<td>标准 SQL 有，MySQL 不直接支持，用 LEFT UNION RIGHT 模拟</td>
+</tr>
+</tbody></table>
+<p>准备两张演示表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> dept (</span><br><span class="line">    id <span class="type">INT</span> <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    dept_name <span class="type">VARCHAR</span>(<span class="number">20</span>)</span><br><span class="line">);</span><br><span class="line"><span class="keyword">INSERT INTO</span> dept <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="string">&#x27;技术部&#x27;</span>), (<span class="number">2</span>, <span class="string">&#x27;市场部&#x27;</span>), (<span class="number">3</span>, <span class="string">&#x27;财务部&#x27;</span>);</span><br><span class="line"><span class="comment">-- 注意：员工表里故意让 3 号部门没有员工，用来观察 LEFT/RIGHT 的差别</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> employee (name, age, salary, hire_date, dept_id) <span class="keyword">VALUES</span></span><br><span class="line">(<span class="string">&#x27;张三&#x27;</span>, <span class="number">28</span>, <span class="number">12000</span>, <span class="string">&#x27;2023-06-01&#x27;</span>, <span class="number">1</span>),</span><br><span class="line">(<span class="string">&#x27;李四&#x27;</span>, <span class="number">32</span>, <span class="number">15000</span>, <span class="string">&#x27;2022-03-15&#x27;</span>, <span class="number">2</span>),</span><br><span class="line">(<span class="string">&#x27;王五&#x27;</span>, <span class="number">25</span>, <span class="number">9000</span>,  <span class="string">&#x27;2024-01-10&#x27;</span>, <span class="keyword">NULL</span>);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>说明：上面 INSERT 用到了 <code>dept_id</code> 列，请先添加该列再执行插入：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER TABLE</span> employee <span class="keyword">ADD</span> <span class="keyword">COLUMN</span> dept_id <span class="type">INT</span>;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- INNER JOIN：只显示有部门、且部门存在的员工</span></span><br><span class="line"><span class="keyword">SELECT</span> e.name, d.dept_name</span><br><span class="line"><span class="keyword">FROM</span> employee e</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> dept d <span class="keyword">ON</span> e.dept_id <span class="operator">=</span> d.id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- LEFT JOIN：显示所有员工，没部门的显示 NULL</span></span><br><span class="line"><span class="keyword">SELECT</span> e.name, d.dept_name</span><br><span class="line"><span class="keyword">FROM</span> employee e</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> dept d <span class="keyword">ON</span> e.dept_id <span class="operator">=</span> d.id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- RIGHT JOIN：显示所有部门，没员工的部门员工名为 NULL</span></span><br><span class="line"><span class="keyword">SELECT</span> e.name, d.dept_name</span><br><span class="line"><span class="keyword">FROM</span> employee e</span><br><span class="line"><span class="keyword">RIGHT</span> <span class="keyword">JOIN</span> dept d <span class="keyword">ON</span> e.dept_id <span class="operator">=</span> d.id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- MySQL 模拟 FULL JOIN：左连接和右连接各取一次再合并</span></span><br><span class="line"><span class="keyword">SELECT</span> e.name, d.dept_name <span class="keyword">FROM</span> employee e <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> dept d <span class="keyword">ON</span> e.dept_id <span class="operator">=</span> d.id</span><br><span class="line"><span class="keyword">UNION</span></span><br><span class="line"><span class="keyword">SELECT</span> e.name, d.dept_name <span class="keyword">FROM</span> employee e <span class="keyword">RIGHT</span> <span class="keyword">JOIN</span> dept d <span class="keyword">ON</span> e.dept_id <span class="operator">=</span> d.id;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：INNER JOIN 只返回张三、李四；LEFT JOIN 还多出王五，其部门名为 NULL；RIGHT JOIN 还会多出没有员工的财务部；UNION 模拟的 FULL JOIN 则把两边都保留。给表起别名（如 <code>employee e</code>）能让 SQL 短很多。</p>
+<h3 id="2-2-主键与外键的区别"><a href="#2-2-主键与外键的区别" class="headerlink" title="2.2 主键与外键的区别"></a>2.2 主键与外键的区别</h3><p>JOIN 之所以能关联，靠的是主键和外键这套”锚点”机制。</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>主键（PRIMARY KEY）</th>
+<th>外键（FOREIGN KEY）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>作用</td>
+<td>唯一标识表中的每一行</td>
+<td>建立表与表之间的关系，保证引用完整性</td>
+</tr>
+<tr>
+<td>唯一性</td>
+<td>值必须唯一，不能重复</td>
+<td>可以重复，多个行可以引用同一个主键</td>
+</tr>
+<tr>
+<td>是否可为空</td>
+<td>不能为 NULL</td>
+<td>可以为 NULL，表示该行没有关联对象</td>
+</tr>
+<tr>
+<td>数量限制</td>
+<td>一张表至多一个主键（可由多列组成复合主键）</td>
+<td>一张表可以有多个外键</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>一旦确定就不应修改</td>
+<td>可随业务关联变化而调整</td>
+</tr>
+<tr>
+<td>典型例子</td>
+<td>员工编号、学号</td>
+<td>员工表的部门编号、订单表的用户编号</td>
+</tr>
+</tbody></table>
+<p>简单记：主键回答”我是谁”，外键回答”我属于谁”。主键所在的表叫主表（父表），外键所在的表叫从表（子表）。外键要求引用的值必须存在于主表对应列中，从而避免”部门编号 99 却找不到这个部门”这种脏数据。</p>
+<h3 id="2-3-字符集-utf8mb4-与”Incorrect-string-value”错误"><a href="#2-3-字符集-utf8mb4-与”Incorrect-string-value”错误" class="headerlink" title="2.3 字符集 utf8mb4 与”Incorrect string value”错误"></a>2.3 字符集 utf8mb4 与”Incorrect string value”错误</h3><p>表设计里还有个绕不开的话题：字符集。MySQL 里的 <code>utf8</code> 是个”精简版”，最多只支持 3 字节字符，而 emoji 表情、部分生僻字需要 4 字节；<code>utf8mb4</code> 才是真正的完整 UTF-8，它是 utf8 的超集，能存所有 Unicode 字符。简单说，utf8mb4 包含 utf8。</p>
+<p>往默认字符集为 utf8 的列里插入表情时，会看到这样的错误：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1366 - Incorrect string value: &#x27;\xF0\x9F\x98\x82&#x27; for column &#x27;name&#x27; at row 1</span><br></pre></td></tr></table></figure>
+
+<p>排查与修复：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看当前字符集相关变量</span></span><br><span class="line"><span class="keyword">SHOW</span> VARIABLES <span class="keyword">LIKE</span> <span class="string">&#x27;character\_set\_%&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 会话级别临时改成 utf8mb4</span></span><br><span class="line"><span class="keyword">SET</span> character_set_client <span class="operator">=</span> utf8mb4;</span><br><span class="line"><span class="keyword">SET</span> character_set_connection <span class="operator">=</span> utf8mb4;</span><br><span class="line"><span class="keyword">SET</span> character_set_database <span class="operator">=</span> utf8mb4;</span><br><span class="line"><span class="keyword">SET</span> character_set_results <span class="operator">=</span> utf8mb4;</span><br><span class="line"><span class="keyword">SET</span> character_set_server <span class="operator">=</span> utf8mb4;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 永久方案：把整张表转成 utf8mb4</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> employee <span class="keyword">CONVERT</span> <span class="keyword">TO</span> <span class="keyword">CHARACTER SET</span> utf8mb4 <span class="keyword">COLLATE</span> utf8mb4_unicode_ci;</span><br><span class="line"><span class="comment">-- 也可以只改某一列</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> employee MODIFY <span class="keyword">COLUMN</span> name <span class="type">VARCHAR</span>(<span class="number">50</span>)</span><br><span class="line">    <span class="keyword">CHARACTER SET</span> utf8mb4 <span class="keyword">COLLATE</span> utf8mb4_unicode_ci;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：表情符号能正常写入和读出。更根本的做法是在 my.ini 或 my.cnf 里设置 <code>character-set-server=utf8mb4</code>，新项目一开始就别用 utf8。</p>
+<h2 id="三、约束与设计：让数据自己”守规矩”"><a href="#三、约束与设计：让数据自己”守规矩”" class="headerlink" title="三、约束与设计：让数据自己”守规矩”"></a>三、约束与设计：让数据自己”守规矩”</h2><p>约束是写在表结构上的规则，数据库会替你挡住不合法的数据。MySQL 主要有六种约束。</p>
+<h3 id="3-1-六种约束速查"><a href="#3-1-六种约束速查" class="headerlink" title="3.1 六种约束速查"></a>3.1 六种约束速查</h3><table>
+<thead>
+<tr>
+<th>约束</th>
+<th>名称</th>
+<th>作用</th>
+<th>典型场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NOT NULL</td>
+<td>非空约束</td>
+<td>字段值不能为空</td>
+<td>姓名、学号必须有</td>
+</tr>
+<tr>
+<td>DEFAULT</td>
+<td>默认值约束</td>
+<td>不填值时自动填入预设值</td>
+<td>性别默认”未知”、状态默认 0</td>
+</tr>
+<tr>
+<td>PRIMARY KEY</td>
+<td>主键约束</td>
+<td>值唯一且非空，一张表最多一个</td>
+<td>学号、员工编号</td>
+</tr>
+<tr>
+<td>UNIQUE</td>
+<td>唯一约束</td>
+<td>值不能重复，可以有多个，允许为 NULL</td>
+<td>座位号、手机号</td>
+</tr>
+<tr>
+<td>CHECK</td>
+<td>检查约束</td>
+<td>检查字段值是否有效</td>
+<td>年龄大于 0、性别只能是男女</td>
+</tr>
+<tr>
+<td>FOREIGN KEY</td>
+<td>外键约束</td>
+<td>值必须来自主表关联列，维护一致性</td>
+<td>员工表的部门编号</td>
+</tr>
+</tbody></table>
+<p>按作用范围又分列级约束和表级约束：NOT NULL、DEFAULT、PRIMARY KEY、UNIQUE、CHECK 可以直接写在字段后面当列级约束；PRIMARY KEY、UNIQUE、CHECK、FOREIGN KEY 也可以写在一行里用 <code>CONSTRAINT</code> 开头当表级约束。CHECK 约束在 MySQL 5.7 里只是语法上接受、实际不生效，8.0.16 起才真正执行。</p>
+<h3 id="3-2-主键的创建、添加与删除"><a href="#3-2-主键的创建、添加与删除" class="headerlink" title="3.2 主键的创建、添加与删除"></a>3.2 主键的创建、添加与删除</h3><p>列级写法最简单，在字段后直接跟 <code>PRIMARY KEY</code>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> student (</span><br><span class="line">    id <span class="type">INT</span> <span class="keyword">PRIMARY KEY</span>,          <span class="comment">-- 单列主键</span></span><br><span class="line">    age <span class="type">INT</span>,</span><br><span class="line">    name <span class="type">VARCHAR</span>(<span class="number">20</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>表级写法把所有字段写完再声明主键，复合主键也靠它：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> score (</span><br><span class="line">    student_id <span class="type">INT</span>,</span><br><span class="line">    course_id <span class="type">INT</span>,</span><br><span class="line">    grade <span class="type">INT</span>,</span><br><span class="line">    <span class="keyword">PRIMARY KEY</span> (student_id, course_id)  <span class="comment">-- 两个字段合起来做主键</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：student 表的 id 不能重复也不能为空；score 表里同一学生同一门课只能有一条成绩，但不同学生或不同课程可以重复。注意字段之间要用逗号分隔、主键列必须真实存在，上面已给出可直接运行的写法。</p>
+<p>建表后再补主键或外键：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 建表后添加主键</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> student <span class="keyword">ADD</span> <span class="keyword">PRIMARY KEY</span> (id);</span><br><span class="line"><span class="comment">-- 建表后添加外键</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> employee <span class="keyword">ADD CONSTRAINT</span> fk_dept</span><br><span class="line">    <span class="keyword">FOREIGN KEY</span> (dept_id) <span class="keyword">REFERENCES</span> dept(id);</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-外键的创建、添加与删除"><a href="#3-3-外键的创建、添加与删除" class="headerlink" title="3.3 外键的创建、添加与删除"></a>3.3 外键的创建、添加与删除</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 建表时声明外键：子表的 dept_id 引用主表 dept 的 id</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> employee2 (</span><br><span class="line">    id <span class="type">INT</span> <span class="keyword">NOT NULL</span>,</span><br><span class="line">    dept_id <span class="type">INT</span>,</span><br><span class="line">    <span class="keyword">PRIMARY KEY</span> (id),</span><br><span class="line">    <span class="keyword">CONSTRAINT</span> fk_emp_dept <span class="keyword">FOREIGN KEY</span> (dept_id) <span class="keyword">REFERENCES</span> dept(id)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>删除时要注意顺序：有外键依赖的主键不能直接删，要先删外键再删主键。删除外键用的是<strong>约束名</strong>，不是字段名，约束名可以用 <code>SHOW CREATE TABLE</code> 查到。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看建表语句，从中找到外键约束名</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">CREATE TABLE</span> employee2;</span><br><span class="line"><span class="comment">-- 删除外键：fk_emp_dept 是约束名</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> employee2 <span class="keyword">DROP</span> <span class="keyword">FOREIGN KEY</span> fk_emp_dept;</span><br><span class="line"><span class="comment">-- 删除主键：主键没有名字，直接删</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> employee2 <span class="keyword">DROP</span> <span class="keyword">PRIMARY KEY</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：外键解除后，两张表的关联不再强制校验，此时才能安全地调整主键。原文关于”套娃式删除所有外键”的说法可以理解为：按依赖顺序从最末端的子表开始逐层解除，别试图一步到位。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>写 SQL 的能力可以分三层：第一层是单表 CRUD，配合 WHERE、LIKE、ORDER BY、GROUP BY 把一张表玩熟，尤其留意 NULL 要用 IS 判断、UPDATE&#x2F;DELETE 必须带 WHERE；第二层是多表 JOIN，理解 INNER 取交集、LEFT&#x2F;RIGHT 保单边，MySQL 没有原生 FULL JOIN 就用 UNION 拼；第三层是约束与表设计，用主键唯一标识、外键维护关系、六类约束兜底数据质量，再加上 utf8mb4 字符集避免乱码。三层都扎实了，查询的准确性和可维护性会有明显提升，后面学函数、视图和性能优化也会顺很多。</p>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/mysql%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/python%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%E4%B8%8E%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>

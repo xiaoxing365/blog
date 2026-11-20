@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+
+<!-- Head -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+  <meta name="description" content="面向运维与开发人员的 MySQL 权限备份与性能诊断指南，涵盖 CREATE USER 建用户与加密插件切换、8.0 角色批量授权、GRANT/REVOKE/FLUSH PRIVILEGES、核心权限精简说明，以及 mysqldump/source/LOAD DATA LOCAL INFILE 导入导出、忘记 root 密码重置、存储引擎对比和 sys Schema 快速定位慢 SQL 的方法。">
+
+
+    
+  <meta name="keywords" content="MySQL权限管理,GRANT授权,mysqldump备份,忘记root密码,MySQL存储引擎,sys Schema,性能诊断">
+
+    <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+    <title>mysql权限备份与性能诊断</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+    <!-- Plugin CSS -->
+
+
+    <!-- Custom CSS -->
+    <!-- ↓这是styles文件 -->
+    
+<link rel="stylesheet" href="/./css/style.css">
+
+    
+<link rel="stylesheet" href="/./css/home.css">
+
+    
+<link rel="stylesheet" href="/./css/highlight.css">
+
+    
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body></body>
+
+
+<body>
+
+<!-- Header -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+     background-image: url('https://uapis.cn/api/v1/image/bing-daily');
+        /*post*/
+    
+    }
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#MySQL"
+                           title="MySQL">MySQL</a>
+                        
+                        <a class="tag" href="/tags/#权限管理"
+                           title="权限管理">权限管理</a>
+                        
+                        <a class="tag" href="/tags/#数据备份"
+                           title="数据备份">数据备份</a>
+                        
+                        <a class="tag" href="/tags/#性能诊断"
+                           title="性能诊断">性能诊断</a>
+                        
+                    </div>
+                    <h1>mysql权限备份与性能诊断</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2025-01-01
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <script async="async" data-cfasync="false" src="https://bauval.org/21/d965ab7ff1d035e63702c8036ebc5f14"></script>
+            <div id="container-d965ab7ff1d035e63702c8036ebc5f14"></div>
+
+            <h2 id="一、用户管理：让该进来的人进来"><a href="#一、用户管理：让该进来的人进来" class="headerlink" title="一、用户管理：让该进来的人进来"></a>一、用户管理：让该进来的人进来</h2><p>数据库装好之后，不能所有人都用 root 为所欲为。给每个应用、每个人分配独立账号，是安全的第一步。MySQL 里的账号不是光写一个用户名就完事，而是由”用户名 + 允许登录的主机”共同组成，写作 <code>&#39;用户名&#39;@&#39;主机&#39;</code>。同一个用户名，来自不同主机的连接会被当作不同账号对待。</p>
+<h3 id="1-1-创建用户"><a href="#1-1-创建用户" class="headerlink" title="1.1 创建用户"></a>1.1 创建用户</h3><p>创建用户的基本语法是：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">USER</span> <span class="string">&#x27;用户名&#x27;</span>@<span class="string">&#x27;主机&#x27;</span> IDENTIFIED [<span class="keyword">WITH</span> 加密插件] <span class="keyword">BY</span> <span class="string">&#x27;密码&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>IDENTIFIED</code> 可以理解为连接符，方括号里的加密插件是可选项。主机部分支持几种写法：<code>localhost</code> 表示只能本机连接，具体 IP 表示只允许该机器，<code>%</code> 是通配符表示任意主机，<code>10.0.0.%</code> 则允许整个 10.0.0.0&#x2F;24 网段。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 允许任意主机连接的账号；% 是通配符，生产环境慎用</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">USER</span> <span class="string">&#x27;test02&#x27;</span>@<span class="string">&#x27;%&#x27;</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">&#x27;123456&#x27;</span>;</span><br><span class="line"><span class="comment">-- 只允许 10.0.0 网段连接的账号，比 &#x27;%&#x27; 安全得多</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">USER</span> <span class="string">&#x27;test03&#x27;</span>@<span class="string">&#x27;10.0.0.%&#x27;</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">&#x27;123456&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：mysql.user 系统表里多出两条记录，这两个账号可以拿密码登录，但此时还没有任何业务库的操作权限，需要后续 GRANT 授权。</p>
+<h3 id="1-2-删除用户"><a href="#1-2-删除用户" class="headerlink" title="1.2 删除用户"></a>1.2 删除用户</h3><p>推荐直接用 DROP USER，它会把账号及其相关权限记录一起清理干净。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 推荐：删除账号，级联清理其权限</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">USER</span> <span class="string">&#x27;test02&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br><span class="line"><span class="comment">-- 不推荐：直接操作系统表，权限残留风险高，改完还必须 FLUSH PRIVILEGES</span></span><br><span class="line"><span class="comment">-- DELETE FROM mysql.user WHERE User = &#x27;test02&#x27; AND Host = &#x27;%&#x27;;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-修改密码"><a href="#1-3-修改密码" class="headerlink" title="1.3 修改密码"></a>1.3 修改密码</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 修改指定账号的密码，8.0 与 5.7 通用</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">USER</span> <span class="string">&#x27;test03&#x27;</span>@<span class="string">&#x27;10.0.0.%&#x27;</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">&#x27;NewPass@123&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-4-加密插件的选择"><a href="#1-4-加密插件的选择" class="headerlink" title="1.4 加密插件的选择"></a>1.4 加密插件的选择</h3><p>密码在 MySQL 里不是明文保存，而是经过加密插件处理后存储。常见的两种插件是：</p>
+<ul>
+<li><code>caching_sha2_password</code>：MySQL 8.0 的默认插件，采用 SHA-2 算法，安全性更高。</li>
+<li><code>mysql_native_password</code>：老版本（5.7）的默认插件，兼容性好。</li>
+</ul>
+<p>如果老客户端连 8.0 时报”找不到 caching_sha2_password 插件”之类的错误，把对应用户切回老插件即可：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 指定 mysql_native_password 插件，兼容旧版客户端</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">USER</span> <span class="string">&#x27;test03&#x27;</span>@<span class="string">&#x27;10.0.0.%&#x27;</span></span><br><span class="line">    IDENTIFIED <span class="keyword">WITH</span> mysql_native_password <span class="keyword">BY</span> <span class="string">&#x27;NewPass@123&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-5-锁定与解锁用户"><a href="#1-5-锁定与解锁用户" class="headerlink" title="1.5 锁定与解锁用户"></a>1.5 锁定与解锁用户</h3><p>删除账号之前，可以先把它锁一段时间，确认确实没人再用，再彻底删除，避免误删影响业务。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 锁定账号：暂时禁止登录</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">USER</span> <span class="string">&#x27;test03&#x27;</span>@<span class="string">&#x27;10.0.0.%&#x27;</span> ACCOUNT LOCK;</span><br><span class="line"><span class="comment">-- 解锁账号：注意这里是 UNLOCK，不是 LOCK</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">USER</span> <span class="string">&#x27;test03&#x27;</span>@<span class="string">&#x27;10.0.0.%&#x27;</span> ACCOUNT UNLOCK;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：LOCK 后该账号连接被拒绝，UNLOCK 后恢复正常。很多笔记把解锁用户的示例写错了，正确的解锁关键字是 <code>ACCOUNT UNLOCK</code>，千万别和锁定混用。</p>
+<h2 id="二、角色：MySQL-8-0-的权限批量管理工具"><a href="#二、角色：MySQL-8-0-的权限批量管理工具" class="headerlink" title="二、角色：MySQL 8.0 的权限批量管理工具"></a>二、角色：MySQL 8.0 的权限批量管理工具</h2><p>角色是 MySQL 8.0 引入的新特性，可以把它理解为”权限的容器”。用生活化的类比：用户是员工（能登录系统），角色是职位（比如财务、管理员），权限是能做的事情（比如查看工资表）。一个员工可以担任多个职位，从而拿到对应的权限；给十个人配相同的权限，不必重复执行十条 GRANT，只要把角色分配给这十个人即可。MySQL 5.7 没有角色功能，只能逐个用户授权。</p>
+<h3 id="2-1-用户与角色的主要区别"><a href="#2-1-用户与角色的主要区别" class="headerlink" title="2.1 用户与角色的主要区别"></a>2.1 用户与角色的主要区别</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>用户（User）</th>
+<th>角色（Role）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>能否登录</td>
+<td>可以，需要用户名和密码</td>
+<td>不能，没有密码，仅用于权限管理</td>
+</tr>
+<tr>
+<td>能否被授予权限</td>
+<td>可以</td>
+<td>可以，作为权限集合</td>
+</tr>
+<tr>
+<td>能否被多个对象复用</td>
+<td>不能被其他用户继承</td>
+<td>可以分配给多个用户</td>
+</tr>
+<tr>
+<td>主机限制</td>
+<td>支持 <code>&#39;user&#39;@&#39;host&#39;</code> 格式</td>
+<td>同样支持 <code>&#39;role&#39;@&#39;host&#39;</code> 格式</td>
+</tr>
+<tr>
+<td>是否需要激活</td>
+<td>不适用</td>
+<td>用户获得角色后通常要激活才生效</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-创建角色、授权、分配与激活"><a href="#2-2-创建角色、授权、分配与激活" class="headerlink" title="2.2 创建角色、授权、分配与激活"></a>2.2 创建角色、授权、分配与激活</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 创建角色</span></span><br><span class="line"><span class="keyword">CREATE</span> ROLE <span class="string">&#x27;app_reader&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br><span class="line"><span class="comment">-- 2. 给角色授予查询权限：company 库下所有表可读</span></span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ON</span> company.<span class="operator">*</span> <span class="keyword">TO</span> <span class="string">&#x27;app_reader&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br><span class="line"><span class="comment">-- 3. 把角色分配给用户</span></span><br><span class="line"><span class="keyword">GRANT</span> <span class="string">&#x27;app_reader&#x27;</span>@<span class="string">&#x27;%&#x27;</span> <span class="keyword">TO</span> <span class="string">&#x27;test02&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br><span class="line"><span class="comment">-- 4. 让所有用户登录后自动激活已分配的角色</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> activate_all_roles_on_login <span class="operator">=</span> <span class="keyword">ON</span>;</span><br></pre></td></tr></table></figure>
+
+<p>也可以只给某个用户设置默认角色，影响范围更小：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 为 test02 设置默认角色，登录后自动生效</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">DEFAULT</span> ROLE <span class="string">&#x27;app_reader&#x27;</span>@<span class="string">&#x27;%&#x27;</span> <span class="keyword">TO</span> <span class="string">&#x27;test02&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：test02 登录后无需单独授权，就拥有 company 库的查询权；以后要批量调整这类用户的权限，只改角色一处即可。</p>
+<h2 id="三、权限授予与回收"><a href="#三、权限授予与回收" class="headerlink" title="三、权限授予与回收"></a>三、权限授予与回收</h2><h3 id="3-1-查看已有权限"><a href="#3-1-查看已有权限" class="headerlink" title="3.1 查看已有权限"></a>3.1 查看已有权限</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看某用户被授予了哪些权限</span></span><br><span class="line"><span class="keyword">SHOW</span> GRANTS <span class="keyword">FOR</span> <span class="string">&#x27;test02&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>结果里通常能看到一条 <code>USAGE</code>，它不代表真的有权限，只是说明账号可以连接。</p>
+<h3 id="3-2-授予权限-GRANT"><a href="#3-2-授予权限-GRANT" class="headerlink" title="3.2 授予权限 GRANT"></a>3.2 授予权限 GRANT</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 通用形式：在指定范围上授予若干权限给指定账号</span></span><br><span class="line"><span class="keyword">GRANT</span> [权限列表] <span class="keyword">ON</span> 库名.表名 <span class="keyword">TO</span> <span class="string">&#x27;用户&#x27;</span>@<span class="string">&#x27;主机&#x27;</span> [<span class="keyword">WITH</span> <span class="keyword">GRANT</span> OPTION];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>ALL PRIVILEGES</code> 表示所有权限。</li>
+<li><code>*.*</code> 中第一个 <code>*</code> 是所有库，第二个 <code>*</code> 是所有表；<code>company.*</code> 表示 company 库下的所有表。</li>
+<li><code>WITH GRANT OPTION</code> 允许该用户再把自己的权限转授给别人，风险很高，除非必要不要给。</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 给 test01 授予所有库表的全部权限，并允许转授（谨慎）</span></span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">ALL</span> PRIVILEGES <span class="keyword">ON</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">TO</span> <span class="string">&#x27;test01&#x27;</span>@<span class="string">&#x27;%&#x27;</span> <span class="keyword">WITH</span> <span class="keyword">GRANT</span> OPTION;</span><br><span class="line"><span class="comment">-- 只授予跨库查询权</span></span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ON</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">TO</span> <span class="string">&#x27;test01&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-让权限变更生效-FLUSH-PRIVILEGES"><a href="#3-3-让权限变更生效-FLUSH-PRIVILEGES" class="headerlink" title="3.3 让权限变更生效 FLUSH PRIVILEGES"></a>3.3 让权限变更生效 FLUSH PRIVILEGES</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
+
+<p><strong>要解决什么</strong>：当直接用 UPDATE、DELETE 改写了 mysql.user 等系统表时，内存中的权限缓存不会自动更新，需要 FLUSH PRIVILEGES 重新加载。通过 GRANT、REVOKE、CREATE USER 这类标准语句做的改动，MySQL 一般会自动生效，但执行一下也无妨，是常见的安全习惯。</p>
+<h3 id="3-4-核心权限精简表"><a href="#3-4-核心权限精简表" class="headerlink" title="3.4 核心权限精简表"></a>3.4 核心权限精简表</h3><p>MySQL 的权限种类很多，日常真正高频使用的其实是下面这些：</p>
+<table>
+<thead>
+<tr>
+<th>权限</th>
+<th>作用资源</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Select</td>
+<td>表</td>
+<td>读取数据，最常用</td>
+</tr>
+<tr>
+<td>Insert</td>
+<td>表</td>
+<td>向表中新增数据行</td>
+</tr>
+<tr>
+<td>Update</td>
+<td>表</td>
+<td>修改表中已有数据</td>
+</tr>
+<tr>
+<td>Delete</td>
+<td>表</td>
+<td>删除表中的数据行</td>
+</tr>
+<tr>
+<td>Alter</td>
+<td>表</td>
+<td>修改表结构，比如加字段</td>
+</tr>
+<tr>
+<td>Index</td>
+<td>表</td>
+<td>创建或删除索引</td>
+</tr>
+<tr>
+<td>Create</td>
+<td>库、表</td>
+<td>新建数据库和表</td>
+</tr>
+<tr>
+<td>Drop</td>
+<td>库、表</td>
+<td>删除数据库、表或视图</td>
+</tr>
+<tr>
+<td>Grant option</td>
+<td>库、表、函数、存储过程</td>
+<td>决定能否把权限再授予他人</td>
+</tr>
+<tr>
+<td>Usage</td>
+<td>服务器管理</td>
+<td>没有任何实质权限，只保留连接资格</td>
+</tr>
+</tbody></table>
+<p>还有三个特殊点值得单独记住：Usage 是所有用户天然自带的”仅能连接”权限；ALL 表示管理员身份的绝大多数权限，但<strong>不包含 Grant option</strong>；Grant option 必须单独授予，是 root 把转授权能力交给别人的开关。</p>
+<p>完整权限清单（包括各类服务器管理、复制、审计、加密相关权限）内容很多，本文不逐一罗列，请以 MySQL 官方文档为准：<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html">https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html</a> 。</p>
+<h3 id="3-5-回收权限-REVOKE"><a href="#3-5-回收权限-REVOKE" class="headerlink" title="3.5 回收权限 REVOKE"></a>3.5 回收权限 REVOKE</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 撤销 test01 对所有库表的查询权</span></span><br><span class="line"><span class="keyword">REVOKE</span> <span class="keyword">SELECT</span> <span class="keyword">ON</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">FROM</span> <span class="string">&#x27;test01&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>库名和表名都可以用 <code>*</code> 通配，写法与 GRANT 一致。<code>REVOKE ALL PRIVILEGES</code> 可以一次性收回全部权限。</p>
+<h2 id="四、备份与导入导出"><a href="#四、备份与导入导出" class="headerlink" title="四、备份与导入导出"></a>四、备份与导入导出</h2><p>数据无价，备份是底线操作。下面这几条命令建议收藏。</p>
+<h3 id="4-1-用-mysqldump-备份"><a href="#4-1-用-mysqldump-备份" class="headerlink" title="4.1 用 mysqldump 备份"></a>4.1 用 mysqldump 备份</h3><p>mysqldump 是 MySQL 自带的逻辑备份工具，导出的是可读的 SQL 文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 备份整个 company 库</span></span><br><span class="line">mysqldump -u root -p company &gt; company_dump.sql</span><br><span class="line"><span class="comment"># 只备份某张表</span></span><br><span class="line">mysqldump -u root -p company employee &gt; employee_dump.sql</span><br><span class="line"><span class="comment"># 还原：把 SQL 文件导入到一个新库</span></span><br><span class="line">mysql -u root -p company_new &lt; company_dump.sql</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：第一行生成包含建表语句和 INSERT 语句的脚本；最后一行把脚本重新执行，得到一份和原库结构、数据一致的新库。导出大库时可以加 <code>--single-transaction</code> 保证 InnoDB 数据一致性。</p>
+<h3 id="4-2-三种常用的导入方式"><a href="#4-2-三种常用的导入方式" class="headerlink" title="4.2 三种常用的导入方式"></a>4.2 三种常用的导入方式</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方式一：在命令行用重定向导入</span></span><br><span class="line">mysql -uroot -p company &lt; company_dump.sql</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 方式二：登录 MySQL 后用 source 命令导入；路径按实际修改</span></span><br><span class="line">USE company;</span><br><span class="line">SOURCE D:<span class="operator">/</span>backup<span class="operator">/</span>company_dump.sql;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 方式三：把字段以文本形式批量载入表中</span></span><br><span class="line">LOAD DATA <span class="keyword">LOCAL</span> INFILE <span class="string">&#x27;D:/backup/dump.txt&#x27;</span> <span class="keyword">INTO</span> <span class="keyword">TABLE</span> employee;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：三种方式都能把外部数据装进数据库。区别在于：命令行重定向和 source 适合导入 mysqldump 生成的 SQL 脚本；LOAD DATA LOCAL INFILE 适合导入按行排列的纯文本数据，速度比逐条 INSERT 快得多，但需要服务端开启 local_infile 支持。还有个命令行工具 <code>mysqlimport</code>，本质上是 LOAD DATA 的包装，例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqlimport -uroot -p --<span class="built_in">local</span> company dump.txt</span><br></pre></td></tr></table></figure>
+<p>导入 SQL 文件时注意编码要与库一致（utf8 或 utf8mb4），否则容易乱码。</p>
+<h2 id="五、忘记-root-密码怎么办"><a href="#五、忘记-root-密码怎么办" class="headerlink" title="五、忘记 root 密码怎么办"></a>五、忘记 root 密码怎么办</h2><p>忘记密码不必重装，思路是：先让 MySQL 跳过权限校验启动，登录后改密码，再正常重启恢复校验。</p>
+<h3 id="5-1-Linux-下重置"><a href="#5-1-Linux-下重置" class="headerlink" title="5.1 Linux 下重置"></a>5.1 Linux 下重置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 停掉服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl stop mysql</span><br><span class="line"><span class="comment"># 2. 跳过权限表启动；--skip-networking 防止此时被远程无密码接入</span></span><br><span class="line"><span class="built_in">sudo</span> mysqld --skip-grant-tables --skip-networking --user=mysql &amp;</span><br><span class="line"><span class="comment"># 3. 直接登录，无需密码</span></span><br><span class="line">mysql</span><br></pre></td></tr></table></figure>
+
+<p>进入后按版本执行不同语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- MySQL 5.7 及以下：用 PASSWORD() 函数更新 authentication_string</span></span><br><span class="line"><span class="keyword">UPDATE</span> mysql.user <span class="keyword">SET</span> authentication_string <span class="operator">=</span> PASSWORD(<span class="string">&#x27;root&#x27;</span>)</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">User</span> <span class="operator">=</span> <span class="string">&#x27;root&#x27;</span> <span class="keyword">AND</span> Host <span class="operator">=</span> <span class="string">&#x27;localhost&#x27;</span>;</span><br><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- MySQL 8.0 及以上：PASSWORD() 已被移除，改用 ALTER USER</span></span><br><span class="line">FLUSH PRIVILEGES;</span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">USER</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">&#x27;root&#x27;</span>;</span><br><span class="line"><span class="comment">-- 如需兼容旧客户端，再指定插件</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">USER</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span> IDENTIFIED <span class="keyword">WITH</span> mysql_native_password <span class="keyword">BY</span> <span class="string">&#x27;root&#x27;</span>;</span><br><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：root 密码被重置为 root。退出后杀掉跳过校验的进程，再 <code>sudo systemctl start mysql</code> 正常启动，用新密码登录验证。</p>
+<h3 id="5-2-Windows-下重置"><a href="#5-2-Windows-下重置" class="headerlink" title="5.2 Windows 下重置"></a>5.2 Windows 下重置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">:: 停掉服务</span><br><span class="line">net stop MySQL</span><br><span class="line">:: 进入 bin 目录，跳过权限表启动；--shared-memory 用于本地连接</span><br><span class="line"><span class="built_in">cd</span> D:\mysql-8.0.40-winx64\bin</span><br><span class="line">mysqld --skip-grant-tables --console --shared-memory</span><br></pre></td></tr></table></figure>
+
+<p>保持这个窗口不动，再开一个命令行窗口执行 <code>mysql</code> 登录，然后执行上面 5.1 中对应版本的改密 SQL。注意这里的参数要用双横线 <code>--skip-grant-tables</code>，写成单横线不会被识别。改完关闭跳过校验的进程，执行 <code>net start MySQL</code> 恢复正常服务。</p>
+<p><strong>安全提醒</strong>：跳过权限校验期间数据库门户大开，务必只在本机操作，并加上 <code>--skip-networking</code>（Linux）或 <code>--shared-memory</code>（Windows）限制连接方式，改完立即重启。</p>
+<h2 id="六、存储引擎简介"><a href="#六、存储引擎简介" class="headerlink" title="六、存储引擎简介"></a>六、存储引擎简介</h2><p>存储引擎决定表的数据怎么存、怎么索引、是否支持事务。查看当前支持的引擎：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 列出所有可用存储引擎及是否启用</span></span><br><span class="line"><span class="keyword">SHOW</span> ENGINES;</span><br><span class="line"><span class="comment">-- 查看默认存储引擎；从 5.5.5 起默认就是 InnoDB</span></span><br><span class="line"><span class="keyword">SHOW</span> VARIABLES <span class="keyword">LIKE</span> <span class="string">&#x27;default_storage_engine&#x27;</span>;</span><br><span class="line"><span class="comment">-- 看某张表的建表语句和当前引擎</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">CREATE TABLE</span> sales;</span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">TABLE</span> STATUS <span class="keyword">LIKE</span> <span class="string">&#x27;sales&#x27;</span> \G</span><br><span class="line"><span class="comment">-- 查看表结构</span></span><br><span class="line"><span class="keyword">DESC</span> sales;</span><br></pre></td></tr></table></figure>
+
+<p>常见引擎对比：</p>
+<table>
+<thead>
+<tr>
+<th>引擎</th>
+<th>主要特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>InnoDB</td>
+<td>MySQL 默认；支持事务、行级锁、外键和崩溃恢复</td>
+<td>订单、账户等要求数据安全和并发的场景</td>
+</tr>
+<tr>
+<td>MyISAM</td>
+<td>早期引擎；插入快、占用低，但不支持事务、行锁和外键</td>
+<td>读多写少、完整性要求低的场景</td>
+</tr>
+<tr>
+<td>MyISAM Merge</td>
+<td>把多个结构相同的 MyISAM 表合并成一张虚表</td>
+<td>日志、数据仓库</td>
+</tr>
+<tr>
+<td>Memory（HEAP）</td>
+<td>数据全放内存，存取极快，但断电丢失、表不能太大</td>
+<td>临时表、中间结果</td>
+</tr>
+<tr>
+<td>Archive</td>
+<td>只支持 SELECT 和 INSERT，不支持索引</td>
+<td>日志归档、聚合分析</td>
+</tr>
+</tbody></table>
+<p>建表时通过 <code>ENGINE</code> 指定引擎：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> log_archive (</span><br><span class="line">    id <span class="type">INT</span> <span class="keyword">NOT NULL</span>,</span><br><span class="line">    msg <span class="type">CHAR</span>(<span class="number">50</span>),</span><br><span class="line">    <span class="keyword">PRIMARY KEY</span> (id)</span><br><span class="line">) ENGINE <span class="operator">=</span> ARCHIVE;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：log_archive 使用 Archive 引擎，适合写入后极少修改的日志数据。绝大多数业务表用默认的 InnoDB 即可，不要随意改成 MyISAM，否则会丢掉事务和外键能力。</p>
+<h2 id="七、sys-Schema-性能诊断入门"><a href="#七、sys-Schema-性能诊断入门" class="headerlink" title="七、sys Schema 性能诊断入门"></a>七、sys Schema 性能诊断入门</h2><p>数据库变慢时该从哪里下手？MySQL 5.7 引入的 <code>sys</code> schema 就是官方给的”仪表盘”。它本身不采集数据，而是把 <code>performance_schema</code> 和 <code>information_schema</code> 里那些复杂难懂的性能数据，包装成更易读的视图、函数和存储过程，让性能诊断变得直观。</p>
+<h3 id="7-1-视图分类速览"><a href="#7-1-视图分类速览" class="headerlink" title="7.1 视图分类速览"></a>7.1 视图分类速览</h3><p>sys 里的视图分两类：友好格式视图（如 <code>host_summary</code>）会把时间、字节换算成毫秒、GB 等易读单位；以 <code>x$</code> 开头的原始视图（如 <code>x$host_summary</code>）提供皮秒、字节级别的原始数据，留给工具程序处理。</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>说明</th>
+<th>常用视图举例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主机相关</td>
+<td>按客户端 IP 汇总资源消耗</td>
+<td><code>host_summary</code>、<code>host_summary_by_file_io</code></td>
+</tr>
+<tr>
+<td>用户相关</td>
+<td>按用户汇总资源与语句统计</td>
+<td><code>user_summary</code>、<code>user_summary_by_statement_latency</code></td>
+</tr>
+<tr>
+<td>InnoDB 相关</td>
+<td>缓冲池状态与锁信息</td>
+<td><code>innodb_buffer_stats_by_schema</code>、<code>innodb_lock_waits</code></td>
+</tr>
+<tr>
+<td>I&#x2F;O 相关</td>
+<td>文件 I&#x2F;O 使用情况</td>
+<td><code>io_global_by_file_by_bytes</code>、<code>io_global_by_wait_by_latency</code></td>
+</tr>
+<tr>
+<td>内存相关</td>
+<td>多维度内存使用</td>
+<td><code>memory_by_host_by_current_bytes</code>、<code>memory_global_total</code></td>
+</tr>
+<tr>
+<td>语句相关</td>
+<td>SQL 执行情况，优化重点</td>
+<td><code>statement_analysis</code>、<code>statements_with_full_table_scans</code></td>
+</tr>
+<tr>
+<td>库表相关</td>
+<td>表与索引统计</td>
+<td><code>schema_table_statistics</code>、<code>schema_index_statistics</code></td>
+</tr>
+<tr>
+<td>会话与进程</td>
+<td>增强的会话、进程列表</td>
+<td><code>session</code>、<code>processlist</code></td>
+</tr>
+</tbody></table>
+<h3 id="7-2-几个立刻能用的诊断查询"><a href="#7-2-几个立刻能用的诊断查询" class="headerlink" title="7.2 几个立刻能用的诊断查询"></a>7.2 几个立刻能用的诊断查询</h3><p><strong>要解决什么</strong>：慢 SQL、冗余索引、锁等待是三类最常见的问题，sys 里都有现成视图，直接查即可。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 找出使用了全表扫描的语句，全表扫描是常见性能杀手</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> sys.statements_with_full_table_scans;</span><br><span class="line"><span class="comment">-- 找出冗余索引：浪费空间且拖慢写入</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> sys.schema_redundant_indexes;</span><br><span class="line"><span class="comment">-- 找出从未被使用的索引：纯累赘，可考虑删除</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> sys.schema_unused_indexes;</span><br><span class="line"><span class="comment">-- 看每个用户消耗了多少资源</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> sys.user_summary;</span><br><span class="line"><span class="comment">-- 看哪张表占用的缓冲池最大，了解内存热点</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> sys.innodb_buffer_stats_by_table <span class="keyword">ORDER</span> <span class="keyword">BY</span> allocated <span class="keyword">DESC</span> LIMIT <span class="number">10</span>;</span><br><span class="line"><span class="comment">-- 查看正在等待元数据锁的会话，诊断长事务导致的阻塞</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> sys.schema_table_lock_waits;</span><br></pre></td></tr></table></figure>
+
+<p><strong>预期效果</strong>：不用手写复杂的 performance_schema 联表查询，就能快速定位问题方向。比如第一条结果里出现了某条 SELECT，就优先考虑为它的 WHERE 条件建索引。</p>
+<h3 id="7-3-使用前提与性能开销"><a href="#7-3-使用前提与性能开销" class="headerlink" title="7.3 使用前提与性能开销"></a>7.3 使用前提与性能开销</h3><p>sys 的数据来自 performance_schema，因此要确保 <code>performance_schema=ON</code>，这是现代 MySQL 的默认设置。sys 视图本身是只读的，查询开销很小；但底层 performance_schema 开启后要持续收集大量性能数据，有资料提到可能带来约 10% 的性能影响。考虑到它带来的可观测性，这点开销在多数场景下是值得的。详细内容可参考 MySQL 5.7 官方手册：<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.7/en/sys-schema.html">https://dev.mysql.com/doc/refman/5.7/en/sys-schema.html</a> 。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>权限、备份、诊断是数据库稳定运行的三根支柱。用户用 <code>&#39;用户名&#39;@&#39;主机&#39;</code> 精确界定身份，8.0 的角色让批量授权变得轻松；GRANT 与 REVOKE 负责权限的收放，核心权限表覆盖了日常绝大多数需求，完整清单查官方文档。数据层面用 mysqldump 做逻辑备份，配合 source 或 LOAD DATA LOCAL INFILE 恢复。万一忘记 root 密码，跳过权限校验登录后按版本改密即可，但要记得限制连接方式。最后，遇到性能问题别急着瞎调参数，先用 sys Schema 把慢 SQL、冗余索引和锁等待找出来，再针对性优化。</p>
+<blockquote>
+<p>参考来源：用户与权限管理相关内容参考了 huangSir-devops 在博客园发表的文章《MySQL中用户及权限管理（mysql8.0版本）》<a target="_blank" rel="noopener" href="https://www.cnblogs.com/huangSir-devops/p/18856928">https://www.cnblogs.com/huangSir-devops/p/18856928</a> ，本文已按要求改写重述并精简为常用权限表，完整权限清单以 MySQL 官方文档 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html">https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html</a> 为准；sys Schema 部分参考 MySQL 5.7 官方参考手册 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.7/en/sys-schema.html">https://dev.mysql.com/doc/refman/5.7/en/sys-schema.html</a> 。</p>
+</blockquote>
+
+
+            <a href="https://araplhn.org/4/6f676af3b29b03b53d233be48e996773" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center;">支持我</a>
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/posts/mysql%E5%87%BD%E6%95%B0%E4%B8%8E%E8%A7%86%E5%9B%BE/" >&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/posts/mysql%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>
