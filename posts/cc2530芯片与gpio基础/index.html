@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<!-- Head -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<meta name="description" content="CC2530 的通用 I/O 端口是 ZigBee 与物联网开发最基础的外设。本文承接 CC2530 芯片与 GPIO 基础，先说明 PxSEL、PxDIR、PxINP、Px 等寄存器的作用，再演示如何用宏定义把 LED 和按键绑定到具体引脚，并用按位与、按位或、按位取反完成寄存器配置。随后重点区分 P1INP 与 P2INP 在上拉、下拉、三态配置中的分工，指出 P1_0、P1_1 只能三态且具备 20mA 高驱动输出这一硬件约束。最后给出按键检测例程，包含延时二次判断防抖、等待释放和 LED 状态取反闪烁，帮助读者把 GPIO 基础真正用到灯光与按键实战中。">
+
+
+
+<meta name="keywords" content="">
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+
+<title>cc2530芯片与gpio基础</title>
+<link rel="canonical" href="https://xiaoxing365.com/posts/cc2530%E8%8A%AF%E7%89%87%E4%B8%8Egpio%E5%9F%BA%E7%A1%80/">
+
+<!-- Bootstrap Core CSS -->
+<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+<!-- Custom Fonts -->
+<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+
+<!-- Plugin CSS -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
+
+<!-- Custom CSS -->
+<!-- ↓这是styles文件 -->
+
+<link rel="stylesheet" href="/./css/style.css">
+
+
+<link rel="stylesheet" href="/./css/home.css">
+
+
+<link rel="stylesheet" href="/./css/highlight.css">
+
+
+<link rel="stylesheet" href="/./css/toc.css">
+
+
+<!-- Google -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+  crossorigin="anonymous"></script>
+
+<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());</script>
+<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+
+<!-- Header -->
+<!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- 文章 -->
+                
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#CC2530"
+                           title="CC2530">CC2530</a>
+                        
+                        <a class="tag" href="/tags/#单片机"
+                           title="单片机">单片机</a>
+                        
+                        <a class="tag" href="/tags/#物联网"
+                           title="物联网">物联网</a>
+                        
+                        <a class="tag" href="/tags/#硬件"
+                           title="硬件">硬件</a>
+                        
+                    </div>
+                    <h1>cc2530芯片与gpio基础</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                            Posted by 小兴365 on
+                        2026-11-24
+                        </span>
+                </div>
+                <!-- 非文章 -->
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Nav -->
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">小兴365</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    
+                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<!-- Content -->
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post container -->
+
+        <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+
+            <blockquote>
+<p>看之前建议先去学一点C语言基础，因为很多代码都是C语言的，如果不懂C语言，可能会看不懂，但是也没什么事，到时候我会顺便解释，但是过于基础的就不说了</p>
+</blockquote>
+<h2 id="IAR与keil的区别"><a href="#IAR与keil的区别" class="headerlink" title="IAR与keil的区别"></a>IAR与keil的区别</h2><h2 id="IAR（IAR-Embedded-Workbench）"><a href="#IAR（IAR-Embedded-Workbench）" class="headerlink" title="IAR（IAR Embedded Workbench）"></a>IAR（IAR Embedded Workbench）</h2><p>IAR为第三方编写，支持多种处理器架构，应用范围比Keil要广，且支持层叠src，能清理层次架构；所用算法和容器不采用std命名空间，不符C99标准规范；有技术支持，但不如keil官方的支持广泛，且学习资源方面圈子较小，相关资源较少，在工程中链接器只能采用绝对路径。</p>
+<h2 id="Keil"><a href="#Keil" class="headerlink" title="Keil"></a>Keil</h2><p>Keil在8051上有较大优势，支持的架构要比IAR的少，不支持层叠，文件夹下一级必须是文件，灵活性相对较弱；在编译时只有level可选，而IAR有debug和release两种，但链接库简单；有std命名空间，更符合C++语法，且社区活跃，包含教程和官方技术支持。</p>
+<h2 id="zigbee"><a href="#zigbee" class="headerlink" title="zigbee"></a>zigbee</h2><p>zigbee开发分为两个模式：黑板版以及newlab版<br>黑板指的是zigbee协调器（简单直观，黑色的板子），newlab版指的是zigbee（蓝色盒子）<br>zigbee上的芯片是CC2530，有F64,F128,F256版，使用的是F256版</p>
+<p>创好项目以及工作空间（IAR,Keil）所要包含的IO：CC2530文件。</p>
+<hr>
+<p>发光二极管有单向导电特性，只有在正向电压下才能直通发光，P1_0引脚输出低电平时D1亮，P1_0输出高电平时D1熄灭。</p>
+<p>CC2530采用QFN40封装，有40个引脚；21个数字I&#x2F;O，P0&#x2F;P1是八个引脚，P2有5个引脚；实际可用的有17个。</p>
+<p>CC2530上面开发有3种端口，分别为P0,P1,P2，<br>P0为全部可用的端口，有<br>P0_0,P0_1,P0_2,P0_3,P0_4,P0_5,P0_6,P0_7;<br>P1也全部可用，有：<br>P1_0,P1_1,P1_2,P1_3,P1_4,P1_5,P1_6,P1_7;<br>P0_0和P1_0一般不用<br>P2只有5个端口：<br>P2_0,P2_1,P2_2,P2_3,P2_4;</p>
+<p>在P2端口的5个引脚中，有2个需要用作仿真，有2个需要用作晶振<br>在CC2530的开发中真正能够使用的只有17个引脚。</p>
+<p>至于其他的创建工程一类，这里不再赘述，可查：<a href="https://xiaoxing365.com/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/">cc2530开发入门与iar工程搭建</a></p>
+<p>P1_0和P1_1无上下拉动能力，但具备20mA高驱动输出，I&#x2F;O是4mA驱动。</p>
+<p>通用I&#x2F;O端口常用寄存器：</p>
+<ul>
+<li>PxSEL：端口功能选择，设置是通用还是外设功能端口；</li>
+<li>PxDIR：作为通用I&#x2F;O时，设置数据传输方向；</li>
+<li>PxINP：作为输入端是，选择输入模式：上拉、下拉还是三态；</li>
+<li>Px：数据端口，用来控制端口输入或获取输入。</li>
+</ul>
+<p><img src="/posts/cc2530%E8%8A%AF%E7%89%87%E4%B8%8Egpio%E5%9F%BA%E7%A1%80/tree.png" alt="image"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">P1SEL &amp;= ~<span class="number">0x5c</span>;        <span class="comment">//0101 1100</span></span><br><span class="line">P1DIR |= ~<span class="number">0x5c</span>;</span><br></pre></td></tr></table></figure>
+<p>先解释一下&amp;&#x3D;<br>简单理解一点+&#x3D;</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">a += <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+<p>等价于</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">a = a + <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>上面的双斜杠就不说了，是注释。&#x2F;&#x2F;不知道注释是啥？就是给你看的，机器不管他！</p>
+</blockquote>
+<p>然后是<code>~</code>，就是取反。<br>怎么看转化为二进制是多少？<br>按住你的windows键+r键，这个年代不要问我windows键是哪个<br>输入calc，打开计算器，点击左上角的三条横线，然后选程序员<br>然后就会看到：</p>
+<p><img loading="lazy" decoding="async" src="/posts/cc2530%E8%8A%AF%E7%89%87%E4%B8%8Egpio%E5%9F%BA%E7%A1%80/calc.png" alt="image"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0x5C = 0101 1100</span><br><span class="line">位号:  7 6 5 4 3 2 1 0</span><br><span class="line">值:    0 1 0 1 1 1 0 0</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>上方0为通用，1为外设功能</p>
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>P1DIR |= 0x5C;</code></td>
+<td>把 P1_6、P1_4、P1_3、P1_2 设为输出，其余位不变</td>
+</tr>
+<tr>
+<td><code>P1DIR &amp;= ~0x5C;	</code></td>
+<td>把这四个引脚设为输入，其余位不变</td>
+</tr>
+<tr>
+<td><code>P1SEL &amp;= ~0x5C;	</code></td>
+<td>把这四个引脚选为通用 I&#x2F;O</td>
+</tr>
+<tr>
+<td><code>P1SEL |= 0x5C;	</code></td>
+<td>把这四个引脚选为外设功能</td>
+</tr>
+<tr>
+<td><code>P1INP |= 0x5C;	</code></td>
+<td>把这四个引脚设为三态</td>
+</tr>
+<tr>
+<td><code>P1INP &amp;= ~0x5C;	</code></td>
+<td>把这四个引脚设为上下拉模式，具体上拉还是下拉由 P2INP 的 bit6 决定</td>
+</tr>
+</tbody></table>
+</blockquote>
+<p>例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">P1SEL &amp;= ~0x06;       //0000 0110</span><br><span class="line">P1DIR |= ~0x5C;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>P0、P1是否为上拉、下拉模式，要看P0INP、P1INP，但取决于P2INP</p>
+</blockquote>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="宏定义"><a href="#宏定义" class="headerlink" title="宏定义"></a>宏定义</h3><p>你是否见过这段代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>#号的意思，就是包含定义（宏），简单来说，就是把&lt;&gt;里面的文件名给替换成真实的文件。</p>
+<p>还不懂？再简单点来说，就是你写的这个是计划书，计划书上有你的名字，但是计划书上有你的名字没啥用啊，对吧，毕竟你的名字干不了事情。所以，到真正执行的时候，要把<code>#include&lt;stdio.h&gt;</code>替换成真实的文件内容。<br>简单来说就是把你叫过来！🙄</p>
+<p>初始化端口时，大部分为通用IO（为了省事，下面我把I&#x2F;O全部写为IO）<br>使用与（&amp;）、或（|）标志，将对应端口置0，即初始化INP，但最后都要初始化P2INP，因为P2INP是决定P0、P1是否为上拉、下拉模式的，不管用哪个拉杆。</p>
+<p>控制函数：1为点亮，0为熄灭，并用延时函数。<br>主函数：初始化后循环（while），一般是死循环，除非是有定时或定次循环即用for。为什么？因为他闪一下，有可能你都看不到。</p>
+<p>没有按下即为高电平，按下即为低电平，控制按键要判断低电平产生，并去掉电流抖动。</p>
+<p>初始化端口方案二：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">P1SEL &amp;= ~(<span class="number">1</span>&lt;&lt;<span class="number">4</span>);</span><br><span class="line">也就是</span><br><span class="line">     <span class="number">11111111</span>左移<span class="number">4</span>位，</span><br><span class="line">        <span class="number">10000</span></span><br><span class="line">~       <span class="number">01111</span></span><br><span class="line">P0DIR |= ~(<span class="number">1</span>&lt;&lt;<span class="number">4</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="中断系统"><a href="#中断系统" class="headerlink" title="中断系统"></a>中断系统</h2><p>内核与外设之间的主要互试交互方式有两种：轮询和中断。但轮询的效率很低，不能及时响应；中断使其具备了应对突发时间的能力。</p>
+<p>轮询：CPU不断地检查外设是否有数据，如果有数据，则处理数据，否则继续检查。<br>中断：外设在有数据时，向CPU发送中断请求，CPU接到中断请求后，处理数据，然后继续检查外设。</p>
+<blockquote>
+<p>通俗的来说，终端就是干一件事干了一半被拉去干一件急事，肝完后回来接着肝🤣</p>
+</blockquote>
+<p>中断服务函数:内核响免断后执行的相应处理程序。</p>
+<p>中断类型：</p>
+<ul>
+<li>外部中断：外部设备产生中断请求，如按键、串口、定时器、ADC等。</li>
+<li>内部中断：内部设备产生中断请求，如除法溢出、单步调试、硬件错误等。</li>
+</ul>
+<p>中断向量：中断程序的入地址，每个中断源对应一个固定地址。当内核中断请求时，就会暂停当前程序执行，然后到该入口地址执行代码。（我认为他应该叫终端指针。）</p>
+<p>cc2530有18个中断源，各对应一系列特殊寄存器来控制。<br>中断函数编写方法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> vector=&lt;中断向量&gt;     <span class="comment">//vector：C++的可伸缩容器</span></span></span><br><span class="line">__interrupt <span class="type">void</span> 函数名(<span class="type">void</span>)&#123;</span><br><span class="line">	pass;       <span class="comment">//这里是python的，懒得写注释了</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&lt;中断向量&gt;表示接下来要写的终端服务函数是为那个中断源服务的<br>e1:#pragma vector &#x3D; 0x7B;<br>e2:#pragme vector &#x3D; P1INT_VECTOR<br>__interrupt关键字表示该函数是一个中断函数，但是<strong>该函式无参数！！！无返回值！！！</strong></p>
+<p>P0,P1,P2的每个引脚都有中断输入功能，要对PXIEN寄存器、IEN寄存器和PICTL寄存器进行适当设置。</p>
+<h2 id="外部中断"><a href="#外部中断" class="headerlink" title="外部中断"></a>外部中断</h2><p>P0、P1和P2端口的每个引脚都具有脚外部中断输入功能,要使某些引脚有外都中断能，要对IEN寄存器、PxIEN寄存器和9LTL宰存器进行适当配置。除各个中断源都有随自己中断使船开关之外，还有一个总开关,以同“EA&#x3D;1”来打开总中断。</p>
+<p>使用P0IF、P1IF、P2IF作为中断标志位，任何一个端口上引脚产生外部中断时，都会将对应端口组的中断标志自动置位。<br>但外部中断标志必须在中断服务函数中手工清除，否则循环中断。<br>端口状态标志寄存器：P0IFG、P1IFG和P2IFG。当外部中断时，对应标志位自动置位，同样要手动清除。</p>
+<p><img loading="lazy" decoding="async" src="/posts/cc2530%E8%8A%AF%E7%89%87%E4%B8%8Egpio%E5%9F%BA%E7%A1%80/FCAD.png" alt="image"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">init_INTP()：设计外部中断初始化函数</span><br><span class="line">IENx寄存器：使端口组中断功能</span><br><span class="line">PxIEN寄存器：使能具体外部中断引脚</span><br><span class="line">PICTL寄存器：设置中断触引脚</span><br><span class="line"></span><br><span class="line">init_service()</span><br><span class="line">在编写中断服务时，指针不能错。</span><br><span class="line">特别注意：在函数里吧端口组和引脚标志清除，否则循环中断，要先清除引脚标志位PxIFG，再清除端口组标志位PxIF</span><br></pre></td></tr></table></figure>
+
+<h2 id="计数器"><a href="#计数器" class="headerlink" title="计数器"></a>计数器</h2><p>定时&#x2F;计数器，是一种对内部时钟信号或外部输入信号进行计数，当计数值达到设定要求时，向CPU提出中断请求。<br>基本工作原理时进行计数，无论定时器还是计数器，本质上都是计数器，可进行加减计数，每出现一个计数信号，就会自动加减，当从0变MAX或MAX变0时，会向CPU提出中断。</p>
+<p>CC2530共有5个计数器，其中定时器是一个16位的定时器，是功能最全的定时器，优先应用。工作模式有三种：</p>
+<ol>
+<li>自由运行模式：从0x0000开始，在每个活动时钟边沿增加1，当计数器值达到0xFFFF时，全新载入0x0000，并开始一轮新计数，该模式计数周期时固定0xFFFF，当达MAX时，标志位T1IF和OVEIF被设置。</li>
+<li>模模式：从0开始，当计数器达T1CC0保存的值时溢出，又将从0开始，计数周期可由用户设定。</li>
+<li>正计数&#x2F;倒计数模式：反复从0开始，正计数到T1CC0保存的最终计数值，然后倒回0，达到最终计数值时，标志位T1IF和OVEIF被设置。</li>
+</ol>
+<p>中断系统有三种情况：</p>
+<ol>
+<li>计数器达到最终值（溢出或到0）</li>
+<li>输入捕捉事件</li>
+<li>输出比较事件（模模式时使用）</li>
+</ol>
+<p>使用模模式时要注意，要开启通道0的输出比较模式，则不会中断。</p>
+<ul>
+<li>最大数值：定时时长&#x2F;定时计数周期。</li>
+</ul>
+<h2 id="通信"><a href="#通信" class="headerlink" title="通信"></a>通信</h2><ul>
+<li>异行通信：指数据的各位同时发送或接收，每个数据位使用单独的一条导线0传输速度快、效率高，但成本高。</li>
+<li>串行通信：指数据位一位接一位地按顺序发送或接受，成本低，效率低。</li>
+</ul>
+<p>CC2530有两个串行通信接口USART0和USART1，能够分别运行于异步UART或同步SPI。</p>
+<p>两个USART有相同功能，通过PERCFG可设置两个USART对应外部IO引脚的映射关系。</p>
+<ol>
+<li><p>RX0——-P0_2</p>
+</li>
+<li><p>TX0——-P0_3</p>
+</li>
+<li><p>RX1——-P0_5</p>
+</li>
+<li><p>TX1——-P1_4</p>
+</li>
+<li><p>RX0——-P1_4</p>
+</li>
+<li><p>TX0——-P1_5</p>
+</li>
+<li><p>RX1——-P1_7</p>
+</li>
+<li><p>TX1——-P1_6</p>
+</li>
+</ol>
+<p>对每个USART串行通信编程，本质是相关5个寄存器的配置。</p>
+<ol>
+<li>UxCSR:USARTx的<strong>控制和状态</strong>寄存器</li>
+<li>UxCSR:USARTx的<strong>UART模式</strong>寄存器</li>
+<li>UxGCR:USARTx的<strong>通用控制</strong>寄存器</li>
+<li>UxBRUF:USARTx的<strong>接收&#x2F;发送数据缓冲</strong>寄存器</li>
+<li>UxBAUD:USARTx的<strong>波特率</strong>寄存器</li>
+</ol>
+<p>TTL电平：     逻辑0————小于0.8V；逻辑1————大于2.4V<br>RS232电平：   逻辑0————5-15V；逻辑1————5-15V</p>
+<p><img loading="lazy" decoding="async" src="/posts/cc2530%E8%8A%AF%E7%89%87%E4%B8%8Egpio%E5%9F%BA%E7%A1%80/MAX232_%E4%B8%B2%E5%8F%A3%E6%8E%A5%E7%BA%BF%E5%9B%BE.png" alt="image"></p>
+<p>CC2530波特率由BAUD_E和BAUD_F共同决定：</p>
+<p><img loading="lazy" decoding="async" src="/posts/cc2530%E8%8A%AF%E7%89%87%E4%B8%8Egpio%E5%9F%BA%E7%A1%80/%E6%B3%A2%E7%89%B9%E7%8E%87.png" alt="image"></p>
+
+            
+            <!-- Pager -->
+            <ul class="pager">
+                
+                
+                <li class="next">
+                    <a href="/posts/ssd%E5%9B%BA%E6%80%81-%E6%9C%BA%E6%A2%B0%E6%AD%A3%E7%89%88%E9%AA%8C%E8%AF%81sn/" >Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+
+        </div>
+        <!-- Sidebar container-->
+        <div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+            <!-- toc -->
+            <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix-top" role="complementary">
+                <h4><i class="fa fa-bookmark"></i> Catalog</h4>
+                <ul class="nav bs-docs-sidenav">
+
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 小兴365 2026
+                    <br>
+                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/assets/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/./js/script.js"></script>
+
+
+
+
+
+</body>
+</html>
