@@ -2,54 +2,54 @@
 <html lang="zh-CN">
 
 <!-- Head -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  
-  <meta name="description" content="Hadoop三节点搭建入门教程：先讲vim阅读约定与PATH恢复，再完成主机名、JDK、Hadoop、Hive、MySQL环境变量与SSH免密同步；给出core-site.xml、hdfs-site.xml等配置写法、NameNode格式化与jps排查，并覆盖MySQL授权建库、Hive初始化0x8报错、Flume采集及数据清洗命令。">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<meta name="description" content="Hadoop三节点搭建入门教程：先讲vim阅读约定与PATH恢复，再完成主机名、JDK、Hadoop、Hive、MySQL环境变量与SSH免密同步；给出core-site.xml、hdfs-site.xml等配置写法、NameNode格式化与jps排查，并覆盖MySQL授权建库、Hive初始化0x8报错、Flume采集及数据清洗命令。">
 
 
-    
-  <meta name="keywords" content="Hadoop三节点集群,Hive环境搭建,MySQL安装配置,SSH免密登录,Hadoop核心配置,hdfs namenode format,Flume数据采集,数据清洗命令">
 
-  <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<meta name="keywords" content="Hadoop三节点集群,Hive环境搭建,MySQL安装配置,SSH免密登录,Hadoop核心配置,hdfs namenode format,Flume数据采集,数据清洗命令">
 
-  <title>hadoop与mysql与hive三节点搭建</title>
-  <link rel="canonical" href="https://xiaoxing365.com/posts/hadoop%E4%B8%8Emysql%E4%B8%8Ehive%E4%B8%89%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/">
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
-  <!-- Bootstrap Core CSS -->
-  <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<title>hadoop与mysql与hive三节点搭建</title>
+<link rel="canonical" href="https://xiaoxing365.com/posts/hadoop%E4%B8%8Emysql%E4%B8%8Ehive%E4%B8%89%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/">
 
-  <!-- Custom Fonts -->
-  <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Bootstrap Core CSS -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-  <!-- Plugin CSS -->
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
+<!-- Custom Fonts -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-  <!-- Custom CSS -->
-  <!-- ↓这是styles文件 -->
-  
+<!-- Plugin CSS -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
+
+<!-- Custom CSS -->
+<!-- ↓这是styles文件 -->
+
 <link rel="stylesheet" href="/./css/style.css">
 
-  
+
 <link rel="stylesheet" href="/./css/home.css">
 
-  
+
 <link rel="stylesheet" href="/./css/highlight.css">
 
-  
+
 <link rel="stylesheet" href="/./css/toc.css">
 
 
-  <!-- Google -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
-    crossorigin="anonymous"></script>
+<!-- Google -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+  crossorigin="anonymous"></script>
 
-    <script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
   </script>
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -438,10 +438,10 @@
 </footer>
 
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+    <script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 
 <!-- Custom Theme JavaScript -->
 

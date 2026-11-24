@@ -2,54 +2,54 @@
 <html lang="zh-CN">
 
 <!-- Head -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  
-  <meta name="description" content="CC2530 串口通信是物联网设备与电脑、模组交换数据的基础通道。本文从并行通信与串行通信的差异讲起，说明 USART0 与 USART1 在两种引脚位置下的映射关系，逐项解析 UxCSR、UxUCR、UxGCR、UxDBUF、UxBAUD 五个寄存器的作用，给出波特率计算公式与常用组合以及可运行的收发例程。后半部分按功能模块整理常用寄存器的中英文对照速查表，保留英文原名，方便对照芯片数据手册查阅，是 CC2530 开发过程中的实用参考。">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<meta name="description" content="CC2530 串口通信是物联网设备与电脑、模组交换数据的基础通道。本文从并行通信与串行通信的差异讲起，说明 USART0 与 USART1 在两种引脚位置下的映射关系，逐项解析 UxCSR、UxUCR、UxGCR、UxDBUF、UxBAUD 五个寄存器的作用，给出波特率计算公式与常用组合以及可运行的收发例程。后半部分按功能模块整理常用寄存器的中英文对照速查表，保留英文原名，方便对照芯片数据手册查阅，是 CC2530 开发过程中的实用参考。">
 
 
-    
-  <meta name="keywords" content="CC2530,串口通信,USART,UART,PERCFG,波特率,UxDBUF,寄存器速查">
 
-  <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<meta name="keywords" content="CC2530,串口通信,USART,UART,PERCFG,波特率,UxDBUF,寄存器速查">
 
-  <title>cc2530串口通信与寄存器速查</title>
-  <link rel="canonical" href="https://xiaoxing365.com/posts/cc2530%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%80%9F%E6%9F%A5/">
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
-  <!-- Bootstrap Core CSS -->
-  <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<title>cc2530串口通信与寄存器速查</title>
+<link rel="canonical" href="https://xiaoxing365.com/posts/cc2530%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%80%9F%E6%9F%A5/">
 
-  <!-- Custom Fonts -->
-  <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Bootstrap Core CSS -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-  <!-- Plugin CSS -->
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
+<!-- Custom Fonts -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-  <!-- Custom CSS -->
-  <!-- ↓这是styles文件 -->
-  
+<!-- Plugin CSS -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
+
+<!-- Custom CSS -->
+<!-- ↓这是styles文件 -->
+
 <link rel="stylesheet" href="/./css/style.css">
 
-  
+
 <link rel="stylesheet" href="/./css/home.css">
 
-  
+
 <link rel="stylesheet" href="/./css/highlight.css">
 
-  
+
 <link rel="stylesheet" href="/./css/toc.css">
 
 
-  <!-- Google -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
-    crossorigin="anonymous"></script>
+<!-- Google -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+  crossorigin="anonymous"></script>
 
-    <script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
   </script>
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -625,10 +625,10 @@
 </footer>
 
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+    <script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 
 <!-- Custom Theme JavaScript -->
 

@@ -2,54 +2,54 @@
 <html lang="zh-CN">
 
 <!-- Head -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  
-  <meta name="description" content="Ubuntu安装与日常运维配置是Linux入门的必经之路。本文从VirtualBox创建虚拟机、挂载ISO镜像、安装系统讲到宿主机与虚拟机文件夹共享，接着整理tzselect设置时区、命令行与图形界面修改静态IP、ufw防火墙放行规则、密码有效期配置等基础操作，再用表格对比APT与Snap在依赖、更新、体积和适用场景上的差异，并解释s、t、i、a特殊权限和vi与vim的区别，最后按系统管理、磁盘、文档、网络等类别整理高频命令，适合新手系统上手。">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<meta name="description" content="Ubuntu安装与日常运维配置是Linux入门的必经之路。本文从VirtualBox创建虚拟机、挂载ISO镜像、安装系统讲到宿主机与虚拟机文件夹共享，接着整理tzselect设置时区、命令行与图形界面修改静态IP、ufw防火墙放行规则、密码有效期配置等基础操作，再用表格对比APT与Snap在依赖、更新、体积和适用场景上的差异，并解释s、t、i、a特殊权限和vi与vim的区别，最后按系统管理、磁盘、文档、网络等类别整理高频命令，适合新手系统上手。">
 
 
-    
-  <meta name="keywords" content="Ubuntu安装,VirtualBox,Linux命令,tzselect,ufw,APT与Snap,文件权限,系统运维">
 
-  <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<meta name="keywords" content="Ubuntu安装,VirtualBox,Linux命令,tzselect,ufw,APT与Snap,文件权限,系统运维">
 
-  <title>ubuntu安装与日常运维配置</title>
-  <link rel="canonical" href="https://xiaoxing365.com/posts/ubuntu%E5%AE%89%E8%A3%85%E4%B8%8E%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E9%85%8D%E7%BD%AE/">
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
-  <!-- Bootstrap Core CSS -->
-  <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<title>ubuntu安装与日常运维配置</title>
+<link rel="canonical" href="https://xiaoxing365.com/posts/ubuntu%E5%AE%89%E8%A3%85%E4%B8%8E%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E9%85%8D%E7%BD%AE/">
 
-  <!-- Custom Fonts -->
-  <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Bootstrap Core CSS -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-  <!-- Plugin CSS -->
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
+<!-- Custom Fonts -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-  <!-- Custom CSS -->
-  <!-- ↓这是styles文件 -->
-  
+<!-- Plugin CSS -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
+
+<!-- Custom CSS -->
+<!-- ↓这是styles文件 -->
+
 <link rel="stylesheet" href="/./css/style.css">
 
-  
+
 <link rel="stylesheet" href="/./css/home.css">
 
-  
+
 <link rel="stylesheet" href="/./css/highlight.css">
 
-  
+
 <link rel="stylesheet" href="/./css/toc.css">
 
 
-  <!-- Google -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
-    crossorigin="anonymous"></script>
+<!-- Google -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+  crossorigin="anonymous"></script>
 
-    <script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
   </script>
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -438,10 +438,10 @@
 </footer>
 
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+    <script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 
 <!-- Custom Theme JavaScript -->
 

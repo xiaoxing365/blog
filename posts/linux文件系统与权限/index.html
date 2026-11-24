@@ -2,54 +2,54 @@
 <html lang="zh-CN">
 
 <!-- Head -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  
-  <meta name="description" content="想彻底搞懂Linux文件系统与权限？本文从树形目录结构讲起，解释用户、用户组、UID/GID与root的关系，拆解rwx与755/644/777数字权限含义，给出chmod、chown、chgrp、useradd、usermod等命令的实用示例，并重点讲解Root与sudo、wheel/sudo组、visudo编辑和NOPASSWD风险，是Linux权限管理的完整指南。">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<meta name="description" content="想彻底搞懂Linux文件系统与权限？本文从树形目录结构讲起，解释用户、用户组、UID/GID与root的关系，拆解rwx与755/644/777数字权限含义，给出chmod、chown、chgrp、useradd、usermod等命令的实用示例，并重点讲解Root与sudo、wheel/sudo组、visudo编辑和NOPASSWD风险，是Linux权限管理的完整指南。">
 
 
-    
-  <meta name="keywords" content="Linux文件系统,Linux权限,chmod,sudo,用户组,Root权限,visudo,rwx">
 
-  <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<meta name="keywords" content="Linux文件系统,Linux权限,chmod,sudo,用户组,Root权限,visudo,rwx">
 
-  <title>linux文件系统与权限</title>
-  <link rel="canonical" href="https://xiaoxing365.com/posts/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E6%9D%83%E9%99%90/">
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
-  <!-- Bootstrap Core CSS -->
-  <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<title>linux文件系统与权限</title>
+<link rel="canonical" href="https://xiaoxing365.com/posts/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E6%9D%83%E9%99%90/">
 
-  <!-- Custom Fonts -->
-  <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Bootstrap Core CSS -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-  <!-- Plugin CSS -->
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
+<!-- Custom Fonts -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-  <!-- Custom CSS -->
-  <!-- ↓这是styles文件 -->
-  
+<!-- Plugin CSS -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
+
+<!-- Custom CSS -->
+<!-- ↓这是styles文件 -->
+
 <link rel="stylesheet" href="/./css/style.css">
 
-  
+
 <link rel="stylesheet" href="/./css/home.css">
 
-  
+
 <link rel="stylesheet" href="/./css/highlight.css">
 
-  
+
 <link rel="stylesheet" href="/./css/toc.css">
 
 
-  <!-- Google -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
-    crossorigin="anonymous"></script>
+<!-- Google -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+  crossorigin="anonymous"></script>
 
-    <script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
   </script>
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -427,10 +427,10 @@
 </footer>
 
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+    <script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 
 <!-- Custom Theme JavaScript -->
 

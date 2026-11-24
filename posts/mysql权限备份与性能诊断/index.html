@@ -2,54 +2,54 @@
 <html lang="zh-CN">
 
 <!-- Head -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  
-  <meta name="description" content="面向运维与开发人员的 MySQL 权限备份与性能诊断指南，涵盖 CREATE USER 建用户与加密插件切换、8.0 角色批量授权、GRANT/REVOKE/FLUSH PRIVILEGES、核心权限精简说明，以及 mysqldump/source/LOAD DATA LOCAL INFILE 导入导出、忘记 root 密码重置、存储引擎对比和 sys Schema 快速定位慢 SQL 的方法。">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<meta name="description" content="面向运维与开发人员的 MySQL 权限备份与性能诊断指南，涵盖 CREATE USER 建用户与加密插件切换、8.0 角色批量授权、GRANT/REVOKE/FLUSH PRIVILEGES、核心权限精简说明，以及 mysqldump/source/LOAD DATA LOCAL INFILE 导入导出、忘记 root 密码重置、存储引擎对比和 sys Schema 快速定位慢 SQL 的方法。">
 
 
-    
-  <meta name="keywords" content="MySQL权限管理,GRANT授权,mysqldump备份,忘记root密码,MySQL存储引擎,sys Schema,性能诊断">
 
-  <link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<meta name="keywords" content="MySQL权限管理,GRANT授权,mysqldump备份,忘记root密码,MySQL存储引擎,sys Schema,性能诊断">
 
-  <title>mysql权限备份与性能诊断</title>
-  <link rel="canonical" href="https://xiaoxing365.com/posts/mysql%E6%9D%83%E9%99%90%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/">
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
-  <!-- Bootstrap Core CSS -->
-  <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<title>mysql权限备份与性能诊断</title>
+<link rel="canonical" href="https://xiaoxing365.com/posts/mysql%E6%9D%83%E9%99%90%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/">
 
-  <!-- Custom Fonts -->
-  <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Bootstrap Core CSS -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-  <!-- Plugin CSS -->
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
+<!-- Custom Fonts -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-  <!-- Custom CSS -->
-  <!-- ↓这是styles文件 -->
-  
+<!-- Plugin CSS -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
+
+<!-- Custom CSS -->
+<!-- ↓这是styles文件 -->
+
 <link rel="stylesheet" href="/./css/style.css">
 
-  
+
 <link rel="stylesheet" href="/./css/home.css">
 
-  
+
 <link rel="stylesheet" href="/./css/highlight.css">
 
-  
+
 <link rel="stylesheet" href="/./css/toc.css">
 
 
-  <!-- Google -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
-    crossorigin="anonymous"></script>
+<!-- Google -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
+  crossorigin="anonymous"></script>
 
-    <script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
   </script>
 <meta name="generator" content="Hexo 7.3.0"></head>
 
@@ -426,7 +426,7 @@
                 
                 
                 <li class="next">
-                    <a href="/posts/mysql%E6%9F%A5%E8%AF%A2%E8%BF%9B%E9%98%B6/" >Next Post &rarr;</a>
+                    <a href="/posts/python%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%E4%B8%8E%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/" >Next Post &rarr;</a>
                 </li>
                 
             </ul>
@@ -480,10 +480,10 @@
 </footer>
 
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+    <script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 
 <!-- Custom Theme JavaScript -->
 
