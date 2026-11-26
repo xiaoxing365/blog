@@ -2,61 +2,132 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="theme-color" content="#667eea">
 
+
+
+<title>设备接入与寄存器配置速查 | 小兴365 - 个人技术博客</title>
 <meta name="description" content="设备接入网关常查寄存器起始地址、功能码、数据长度和采样公式。本文横向合并同类设备，先给出账号、IP、端口及云平台参数，再分类列出 IOT 采集器、百叶箱、多合一、二氧化碳、水浸、超声波、直流电机、北斗、RGB、RFID、4G 与 UWB 的寄存器及改址指令；最后整理 JY-DAM404D/0404 继电器映射、联动模式与闪开闪断，以及 ZigBee、多联继电器、四输入电流的组网与 485 接线。">
-
-
-
 <meta name="keywords" content="物联网设备接入,Modbus寄存器,起始地址,功能码,采样公式,继电器模块,网关配置,485接线">
+<meta name="robots" content="index,follow">
 
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
-
-<title>设备接入与寄存器配置速查</title>
 <link rel="canonical" href="https://xiaoxing365.com/posts/%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%85%8D%E7%BD%AE%E9%80%9F%E6%9F%A5/">
 
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="设备接入与寄存器配置速查 | 小兴365 - 个人技术博客">
+<meta property="og:description" content="设备接入网关常查寄存器起始地址、功能码、数据长度和采样公式。本文横向合并同类设备，先给出账号、IP、端口及云平台参数，再分类列出 IOT 采集器、百叶箱、多合一、二氧化碳、水浸、超声波、直流电机、北斗、RGB、RFID、4G 与 UWB 的寄存器及改址指令；最后整理 JY-DAM404D/0404 继电器映射、联动模式与闪开闪断，以及 ZigBee、多联继电器、四输入电流的组网与 485 接线。">
+<meta property="og:url" content="https://xiaoxing365.com/posts/%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%85%8D%E7%BD%AE%E9%80%9F%E6%9F%A5/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设备接入与寄存器配置速查 | 小兴365 - 个人技术博客">
+<meta name="twitter:description" content="设备接入网关常查寄存器起始地址、功能码、数据长度和采样公式。本文横向合并同类设备，先给出账号、IP、端口及云平台参数，再分类列出 IOT 采集器、百叶箱、多合一、二氧化碳、水浸、超声波、直流电机、北斗、RGB、RFID、4G 与 UWB 的寄存器及改址指令；最后整理 JY-DAM404D/0404 继电器映射、联动模式与闪开闪断，以及 ZigBee、多联继电器、四输入电流的组网与 485 接线。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+<meta property="article:published_time" content="2025-01-01T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-20T08:30:00.000Z">
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
+
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "设备接入与寄存器配置速查",
+  "description": "设备接入网关常查寄存器起始地址、功能码、数据长度和采样公式。本文横向合并同类设备，先给出账号、IP、端口及云平台参数，再分类列出 IOT 采集器、百叶箱、多合一、二氧化碳、水浸、超声波、直流电机、北斗、RGB、RFID、4G 与 UWB 的寄存器及改址指令；最后整理 JY-DAM404D/0404 继电器映射、联动模式与闪开闪断，以及 ZigBee、多联继电器、四输入电流的组网与 485 接线。",
+  "datePublished": "2025-01-01T01:00:00.000Z",
+  "dateModified": "2026-11-20T08:30:00.000Z",
+  "author": { "@type": "Person", "name": "小兴365" },
+  "publisher": { "@type": "Organization", "name": "小兴365 - 个人技术博客" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://xiaoxing365.com/posts/%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%85%8D%E7%BD%AE%E9%80%9F%E6%9F%A5/" }
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -65,26 +136,28 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#物联网"
-                           title="物联网">物联网</a>
-                        
-                        <a class="tag" href="/tags/#网络"
+                        <a class="tag" href="/tags/%E7%BD%91%E7%BB%9C/"
                            title="网络">网络</a>
+                        
+                        <a class="tag" href="/tags/%E7%89%A9%E8%81%94%E7%BD%91/"
+                           title="物联网">物联网</a>
                         
                     </div>
                     <h1>设备接入与寄存器配置速查</h1>
-                    <h2 class="subheading"></h2>
+                    <h2 class="subheading" data-daily-quote data-quote-fallback="Coding Create Life." data-quote-api=""></h2>
                     <span class="meta">
                             Posted by 小兴365 on
                         2025-01-01
                         </span>
                 </div>
-                <!-- 非文章 -->
+                <!-- 首页 / 归档 / 标签 / 分类 / 普通页面：统一用站点标语 -->
                 
             </div>
         </div>
     </div>
 </header>
+
+
 
 <!-- Nav -->
 <!-- Navigation -->
@@ -92,8 +165,8 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -111,11 +184,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -124,6 +201,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <!-- Content -->
@@ -425,10 +503,13 @@
 </tr>
 </tbody></table>
 <blockquote>
+<p>这里的「数据长度」单位是字节，2 字节正好一个寄存器，所以温度 0002、湿度 0003、人体 0004 看起来挨着但并不冲突。</p>
+</blockquote>
+<blockquote>
 <p>不同固件寄存器略有差异，部分资料把湿度记为 0066，配置前先读取确认。</p>
 </blockquote>
 <p>二氧化碳变送器通过广播地址改址：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">修改指令：FE 06 00 00 00 02   （末字节为新地址）</span><br><span class="line">格式：广播地址 FE + 功能码 06 + 三个预留字节 00 + 新地址 + CRC16</span><br><span class="line">返回示例：01 06 00 02 39 49</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">修改指令：FE 06 00 00 00 02   （末字节为新地址）</span><br><span class="line">格式：广播地址 FE + 功能码 06 + 三个预留字节 00 + 新地址 + CRC16</span><br><span class="line">返回示例：02 06 00 00 00 02 08 38（设备用改后的地址 02 回显写入内容；功能码 06 的应答是 8 字节，不是 6 字节）</span><br></pre></td></tr></table></figure>
 
 <p>寄存器起始 0000、长度 0001、功能码 03；连接器选 Modbus over serial，串口服务器端口 6003，设备地址 01，标识 co2，传感类型 485 型二氧化碳。</p>
 <h3 id="水浸、超声波与直流电机"><a href="#水浸、超声波与直流电机" class="headerlink" title="水浸、超声波与直流电机"></a>水浸、超声波与直流电机</h3><table>
@@ -588,12 +669,12 @@
 </thead>
 <tbody><tr>
 <td>线圈（01）</td>
-<td>0x0001~0x0004</td>
+<td>0x0000~0x0003</td>
 <td>第 1~4 路继电器输出</td>
 </tr>
 <tr>
 <td>离散输入（02）</td>
-<td>1x0001~1x0004</td>
+<td>1x0000~1x0003</td>
 <td>第 1~4 路开关量输入</td>
 </tr>
 <tr>
@@ -627,24 +708,23 @@
 <thead>
 <tr>
 <th>波特率数值</th>
-<th>0</th>
 <th>1</th>
 <th>2</th>
 <th>3</th>
 <th>4</th>
-<th>5</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>对应波特率</td>
-<td>38400</td>
 <td>2400</td>
 <td>4800</td>
 <td>9600</td>
 <td>19200</td>
-<td>38400</td>
 </tr>
 </tbody></table>
+<blockquote>
+<p>数值 0 和 5 在不同批次的说明书里含义不一样（有的写 38400，有的写 9600），我就先不列了。改之前翻一眼手上那本的寄存器表，别照抄网上的。</p>
+</blockquote>
 <p>改波特率或偏移地址后需重启设备并同步修改电脑串口设置。</p>
 <h3 id="常用-RTU-指令（广播地址-FE）"><a href="#常用-RTU-指令（广播地址-FE）" class="headerlink" title="常用 RTU 指令（广播地址 FE）"></a>常用 RTU 指令（广播地址 FE）</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">查询四路状态  FE 01 00 00 00 04 29 C6</span><br><span class="line">查询返回      FE 01 01 00 61 9C</span><br><span class="line">第一路开      FE 05 00 00 FF 00 98 35</span><br><span class="line">第二路开      FE 05 00 01 FF 00 C9 F5</span><br><span class="line">第二路关      FE 05 00 01 00 00 88 05</span><br><span class="line">第三路开      FE 05 00 02 FF 00 39 F5</span><br><span class="line">第三路关      FE 05 00 02 00 00 78 05</span><br><span class="line">第四路开      FE 05 00 03 FF 00 68 35</span><br><span class="line">第四路关      FE 05 00 03 00 00 29 C5</span><br><span class="line">读第一路光耦  FE 02 00 00 00 01 AD C5</span><br><span class="line">读第二路光耦  FE 02 00 01 00 01 FC 05</span><br><span class="line">读第三路光耦  FE 02 00 02 00 01 0C 05</span><br><span class="line">读第四路光耦  FE 02 00 03 00 01 5D C5</span><br></pre></td></tr></table></figure>
 
@@ -802,14 +882,28 @@
 </blockquote>
 <p>实际配置以设备上电读取到的地址和波特率为准，表中默认值仅作初始参考。</p>
 
+
+            <!-- 广告位：正文末尾（明确标注，不与正文混淆） -->
             
-            <!-- Pager -->
+
+
+
+            <!--
+                文章页上一篇 / 下一篇
+                Hexo 按日期倒序排文章，所以：
+                  page.prev —— 更新的那篇（左边，←）
+                  page.next —— 更早的那篇（右边，→）
+            -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%95%85%E9%9A%9C%E9%80%9F%E6%9F%A5/" >&larr; Previous Post</a>
+                    <a href="/posts/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E9%80%9F%E6%9F%A5%E4%B8%8Epythonre%E6%A8%A1%E5%9D%97/" >&larr; Newer Post</a>
                 </li>
                 
+                
+                <li class="next">
+                    <a href="/posts/%E7%89%A9%E8%81%94%E7%BD%91%E5%B9%B3%E5%8F%B0%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%95%85%E9%9A%9C%E9%80%9F%E6%9F%A5/" >Older Post &rarr;</a>
+                </li>
                 
             </ul>
 
@@ -843,34 +937,36 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 

@@ -2,61 +2,132 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="theme-color" content="#667eea">
 
+
+
+<title>mysql函数与视图 | 小兴365 - 个人技术博客</title>
 <meta name="description" content="从统计报表最常用的 count、sum、max、min、avg 讲起，比较 GROUP BY 与 row_number() over() 窗口函数的差别，给出 ASCII、CHAR_LENGTH、CONCAT 等常用字符串函数的函数作用示例速查表，并解释视图作为虚拟表的简化查询、安全与逻辑独立价值，覆盖创建、替换、修改、删除视图的完整写法。">
-
-
-
 <meta name="keywords" content="MySQL函数,聚合函数,row_number over,字符串函数,MySQL视图,虚拟表,创建视图">
+<meta name="robots" content="index,follow">
 
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
-
-<title>mysql函数与视图</title>
 <link rel="canonical" href="https://xiaoxing365.com/posts/mysql%E5%87%BD%E6%95%B0%E4%B8%8E%E8%A7%86%E5%9B%BE/">
 
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql函数与视图 | 小兴365 - 个人技术博客">
+<meta property="og:description" content="从统计报表最常用的 count、sum、max、min、avg 讲起，比较 GROUP BY 与 row_number() over() 窗口函数的差别，给出 ASCII、CHAR_LENGTH、CONCAT 等常用字符串函数的函数作用示例速查表，并解释视图作为虚拟表的简化查询、安全与逻辑独立价值，覆盖创建、替换、修改、删除视图的完整写法。">
+<meta property="og:url" content="https://xiaoxing365.com/posts/mysql%E5%87%BD%E6%95%B0%E4%B8%8E%E8%A7%86%E5%9B%BE/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mysql函数与视图 | 小兴365 - 个人技术博客">
+<meta name="twitter:description" content="从统计报表最常用的 count、sum、max、min、avg 讲起，比较 GROUP BY 与 row_number() over() 窗口函数的差别，给出 ASCII、CHAR_LENGTH、CONCAT 等常用字符串函数的函数作用示例速查表，并解释视图作为虚拟表的简化查询、安全与逻辑独立价值，覆盖创建、替换、修改、删除视图的完整写法。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+<meta property="article:published_time" content="2025-01-01T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-20T08:30:00.000Z">
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
+
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "mysql函数与视图",
+  "description": "从统计报表最常用的 count、sum、max、min、avg 讲起，比较 GROUP BY 与 row_number() over() 窗口函数的差别，给出 ASCII、CHAR_LENGTH、CONCAT 等常用字符串函数的函数作用示例速查表，并解释视图作为虚拟表的简化查询、安全与逻辑独立价值，覆盖创建、替换、修改、删除视图的完整写法。",
+  "datePublished": "2025-01-01T01:00:00.000Z",
+  "dateModified": "2026-11-20T08:30:00.000Z",
+  "author": { "@type": "Person", "name": "小兴365" },
+  "publisher": { "@type": "Organization", "name": "小兴365 - 个人技术博客" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://xiaoxing365.com/posts/mysql%E5%87%BD%E6%95%B0%E4%B8%8E%E8%A7%86%E5%9B%BE/" }
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -65,26 +136,28 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#MySQL"
+                        <a class="tag" href="/tags/MySQL/"
                            title="MySQL">MySQL</a>
                         
-                        <a class="tag" href="/tags/#数据库"
+                        <a class="tag" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"
                            title="数据库">数据库</a>
                         
                     </div>
                     <h1>mysql函数与视图</h1>
-                    <h2 class="subheading"></h2>
+                    <h2 class="subheading" data-daily-quote data-quote-fallback="Coding Create Life." data-quote-api=""></h2>
                     <span class="meta">
                             Posted by 小兴365 on
                         2025-01-01
                         </span>
                 </div>
-                <!-- 非文章 -->
+                <!-- 首页 / 归档 / 标签 / 分类 / 普通页面：统一用站点标语 -->
                 
             </div>
         </div>
     </div>
 </header>
+
+
 
 <!-- Nav -->
 <!-- Navigation -->
@@ -92,8 +165,8 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -111,11 +184,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -124,6 +201,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <!-- Content -->
@@ -331,17 +409,27 @@
 </ul>
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>函数负责”加工数据”：COUNT、SUM、MAX、MIN、AVG 把多行聚成一行统计，row_number() over() 在不丢明细的前提下分组编号和排名，ASCII、CHAR_LENGTH、CONCAT 等字符串函数处理文本拼接与截取。视图负责”封装查询”：它只存定义不存数据，却能简化操作、隐藏敏感列、隔离基表变化。实际项目里两者常常搭配——把带聚合函数或窗口函数的复杂查询做成视图，上层应用只面对一张干净的”虚拟表”，既好维护也更安全。</p>
 
+
+            <!-- 广告位：正文末尾（明确标注，不与正文混淆） -->
             
-            <!-- Pager -->
+
+
+
+            <!--
+                文章页上一篇 / 下一篇
+                Hexo 按日期倒序排文章，所以：
+                  page.prev —— 更新的那篇（左边，←）
+                  page.next —— 更早的那篇（右边，→）
+            -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/linux%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%8E%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/" >&larr; Previous Post</a>
+                    <a href="/posts/linux%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%8E%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/" >&larr; Newer Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/mysql%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96/" >Next Post &rarr;</a>
+                    <a href="/posts/mysql%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96/" >Older Post &rarr;</a>
                 </li>
                 
             </ul>
@@ -376,34 +464,36 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 

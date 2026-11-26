@@ -2,61 +2,132 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="theme-color" content="#667eea">
 
+
+
+<title>ubuntu安装与日常运维配置 | 小兴365 - 个人技术博客</title>
 <meta name="description" content="Ubuntu安装与日常运维配置是Linux入门的必经之路。本文从VirtualBox创建虚拟机、挂载ISO镜像、安装系统讲到宿主机与虚拟机文件夹共享，接着整理tzselect设置时区、命令行与图形界面修改静态IP、ufw防火墙放行规则、密码有效期配置等基础操作，再用表格对比APT与Snap在依赖、更新、体积和适用场景上的差异，并解释s、t、i、a特殊权限和vi与vim的区别，最后按系统管理、磁盘、文档、网络等类别整理高频命令，适合新手系统上手。">
-
-
-
 <meta name="keywords" content="Ubuntu安装,VirtualBox,Linux命令,tzselect,ufw,APT与Snap,文件权限,系统运维">
+<meta name="robots" content="index,follow">
 
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
-
-<title>ubuntu安装与日常运维配置</title>
 <link rel="canonical" href="https://xiaoxing365.com/posts/ubuntu%E5%AE%89%E8%A3%85%E4%B8%8E%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E9%85%8D%E7%BD%AE/">
 
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="ubuntu安装与日常运维配置 | 小兴365 - 个人技术博客">
+<meta property="og:description" content="Ubuntu安装与日常运维配置是Linux入门的必经之路。本文从VirtualBox创建虚拟机、挂载ISO镜像、安装系统讲到宿主机与虚拟机文件夹共享，接着整理tzselect设置时区、命令行与图形界面修改静态IP、ufw防火墙放行规则、密码有效期配置等基础操作，再用表格对比APT与Snap在依赖、更新、体积和适用场景上的差异，并解释s、t、i、a特殊权限和vi与vim的区别，最后按系统管理、磁盘、文档、网络等类别整理高频命令，适合新手系统上手。">
+<meta property="og:url" content="https://xiaoxing365.com/posts/ubuntu%E5%AE%89%E8%A3%85%E4%B8%8E%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E9%85%8D%E7%BD%AE/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ubuntu安装与日常运维配置 | 小兴365 - 个人技术博客">
+<meta name="twitter:description" content="Ubuntu安装与日常运维配置是Linux入门的必经之路。本文从VirtualBox创建虚拟机、挂载ISO镜像、安装系统讲到宿主机与虚拟机文件夹共享，接着整理tzselect设置时区、命令行与图形界面修改静态IP、ufw防火墙放行规则、密码有效期配置等基础操作，再用表格对比APT与Snap在依赖、更新、体积和适用场景上的差异，并解释s、t、i、a特殊权限和vi与vim的区别，最后按系统管理、磁盘、文档、网络等类别整理高频命令，适合新手系统上手。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+<meta property="article:published_time" content="2025-01-01T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-20T08:30:00.000Z">
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
+
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ubuntu安装与日常运维配置",
+  "description": "Ubuntu安装与日常运维配置是Linux入门的必经之路。本文从VirtualBox创建虚拟机、挂载ISO镜像、安装系统讲到宿主机与虚拟机文件夹共享，接着整理tzselect设置时区、命令行与图形界面修改静态IP、ufw防火墙放行规则、密码有效期配置等基础操作，再用表格对比APT与Snap在依赖、更新、体积和适用场景上的差异，并解释s、t、i、a特殊权限和vi与vim的区别，最后按系统管理、磁盘、文档、网络等类别整理高频命令，适合新手系统上手。",
+  "datePublished": "2025-01-01T01:00:00.000Z",
+  "dateModified": "2026-11-20T08:30:00.000Z",
+  "author": { "@type": "Person", "name": "小兴365" },
+  "publisher": { "@type": "Organization", "name": "小兴365 - 个人技术博客" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://xiaoxing365.com/posts/ubuntu%E5%AE%89%E8%A3%85%E4%B8%8E%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4%E9%85%8D%E7%BD%AE/" }
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -65,26 +136,28 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#Linux"
+                        <a class="tag" href="/tags/Linux/"
                            title="Linux">Linux</a>
                         
-                        <a class="tag" href="/tags/#运维"
+                        <a class="tag" href="/tags/%E8%BF%90%E7%BB%B4/"
                            title="运维">运维</a>
                         
                     </div>
                     <h1>ubuntu安装与日常运维配置</h1>
-                    <h2 class="subheading"></h2>
+                    <h2 class="subheading" data-daily-quote data-quote-fallback="Coding Create Life." data-quote-api=""></h2>
                     <span class="meta">
                             Posted by 小兴365 on
                         2025-01-01
                         </span>
                 </div>
-                <!-- 非文章 -->
+                <!-- 首页 / 归档 / 标签 / 分类 / 普通页面：统一用站点标语 -->
                 
             </div>
         </div>
     </div>
 </header>
+
+
 
 <!-- Nav -->
 <!-- Navigation -->
@@ -92,8 +165,8 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -111,11 +184,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -124,6 +201,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <!-- Content -->
@@ -159,20 +237,24 @@
 <li>在 VirtualBox 中开启该文件夹的共享功能，并安装<strong>增强功能插件（Guest Additions）</strong>；</li>
 <li>在 Ubuntu 中访问挂载点即可读写共享目录。</li>
 </ul>
-<p>如果用的是 VMware，通常可以直接把文件拖拽进虚拟机，更省事。前提都是两台机器处于同一网段。</p>
+<p>如果用的是 VMware，通常可以直接把文件拖拽进虚拟机，更省事。这几种方式的前提都是虚拟机里装了增强功能（VirtualBox 叫 Guest Additions，VMware 叫 VMware Tools），跟两台机器是不是同一个网段没有关系，别被网上的说法绕进去。</p>
 <h2 id="二、基础配置：时区、IP、防火墙、密码策略"><a href="#二、基础配置：时区、IP、防火墙、密码策略" class="headerlink" title="二、基础配置：时区、IP、防火墙、密码策略"></a>二、基础配置：时区、IP、防火墙、密码策略</h2><h3 id="2-1-设置时区"><a href="#2-1-设置时区" class="headerlink" title="2.1 设置时区"></a>2.1 设置时区</h3><p>交互式设置用 <code>tzselect</code>，按提示选数字即可：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tzselect</span><br><span class="line"><span class="comment"># 依次输入：4（亚洲）→ 9（中国）→ 1（北京）→ 1（确认）</span></span><br></pre></td></tr></table></figure>
 
 <p>如果想直接指定，也可以复制时区文件：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/share/zoneinfo/Asia/Shanghai /etc/localtime   <span class="comment"># 设置为上海时区</span></span><br><span class="line"><span class="built_in">sudo</span> hwclock --systohc                                     <span class="comment"># 把系统时间写入硬件时钟</span></span><br><span class="line"><span class="built_in">date</span>                                                       <span class="comment"># 查看当前时间确认</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="2-2-修改-IP-地址"><a href="#2-2-修改-IP-地址" class="headerlink" title="2.2 修改 IP 地址"></a>2.2 修改 IP 地址</h3><p><strong>方法一：命令行修改</strong>。打开终端（<code>Ctrl + Alt + T</code>），编辑网络配置文件：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vim /etc/network/interfaces</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-修改-IP-地址"><a href="#2-2-修改-IP-地址" class="headerlink" title="2.2 修改 IP 地址"></a>2.2 修改 IP 地址</h3><p><strong>方法一：改配置文件</strong>。Ubuntu 从 17.10 起就把网络交给 <code>netplan</code> 管了，<code>/etc/network/interfaces</code> 这个文件在 22.04、24.04 上已经不起作用。很多老教程还在写它，照着改完重启会发现 IP 一动不动，然后开始怀疑人生。😅</p>
+<p>先看看 <code>/etc/netplan/</code> 下有哪些文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> /etc/netplan/</span><br><span class="line"><span class="built_in">sudo</span> vim /etc/netplan/01-netcfg.yaml</span><br></pre></td></tr></table></figure>
 
-<p>把对应网卡改成静态地址，例如网卡名是 <code>enp0s3</code>：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">auto enp0s3</span><br><span class="line">iface enp0s3 inet static</span><br><span class="line">address 192.168.1.17       # 想设置的静态 IP</span><br><span class="line">gateway 192.168.1.1        # 默认网关</span><br><span class="line">netmask 255.255.255.0      # 子网掩码</span><br></pre></td></tr></table></figure>
+<p>改成静态地址，以网卡 <code>enp0s3</code> 为例（YAML 只能用空格缩进，用 Tab 会直接报错）：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">network:</span></span><br><span class="line">  <span class="attr">version:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">renderer:</span> <span class="string">networkd</span></span><br><span class="line">  <span class="attr">ethernets:</span></span><br><span class="line">    <span class="attr">enp0s3:</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">no</span></span><br><span class="line">      <span class="attr">addresses:</span> [<span class="number">192.168</span><span class="number">.1</span><span class="number">.17</span><span class="string">/24</span>]</span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">default</span></span><br><span class="line">          <span class="attr">via:</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span></span><br><span class="line">      <span class="attr">nameservers:</span></span><br><span class="line">        <span class="attr">addresses:</span> [<span class="number">223.5</span><span class="number">.5</span><span class="number">.5</span>, <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span>]</span><br></pre></td></tr></table></figure>
 
-<p>保存后重启系统，再用 <code>ifconfig</code> 或 <code>ip addr</code> 核对结果。</p>
+<p>保存后执行 <code>sudo netplan apply</code> 让配置生效，再用 <code>ip addr</code> 核对结果。</p>
+<blockquote>
+<p>只有 16.04 及更早的版本才是改 <code>/etc/network/interfaces</code>，改完还要 <code>sudo systemctl restart networking</code>。版本对不上就别硬套。</p>
+</blockquote>
 <p><strong>方法二：图形界面修改</strong>。点击右上角网络图标 → 有线设置 → 齿轮图标 → IPv4 → 选择”手动”，填入地址、网关和掩码，点击”应用”即可。两种方式设置的是同一份配置，按习惯选择就行。</p>
 <h3 id="2-3-ufw-防火墙"><a href="#2-3-ufw-防火墙" class="headerlink" title="2.3 ufw 防火墙"></a>2.3 ufw 防火墙</h3><p><code>ufw</code> 是 Ubuntu 上简化版的防火墙管理工具，命令很好记：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> ufw <span class="built_in">enable</span>                  <span class="comment"># 开启防火墙</span></span><br><span class="line"><span class="built_in">sudo</span> ufw <span class="built_in">disable</span>                 <span class="comment"># 关闭防火墙</span></span><br><span class="line"><span class="built_in">sudo</span> ufw status                  <span class="comment"># 查看状态与已放行的规则</span></span><br><span class="line"><span class="built_in">sudo</span> ufw allow from 127.0.0.1     <span class="comment"># 允许本机访问</span></span><br><span class="line"><span class="built_in">sudo</span> ufw allow from 192.168.0.200 <span class="comment"># 允许指定 IP 的主机访问</span></span><br><span class="line"><span class="built_in">sudo</span> ufw allow 3306/tcp          <span class="comment"># 放行 TCP 协议的 3306 端口</span></span><br></pre></td></tr></table></figure>
@@ -184,6 +266,9 @@
 <p>关键参数：</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PASS_MAX_DAYS   30    # 密码最长使用天数</span><br><span class="line">PASS_MIN_DAYS   1     # 两次修改之间的最小间隔</span><br><span class="line">PASS_WARN_AGE   3     # 过期前多少天提醒</span><br></pre></td></tr></table></figure>
 
+<blockquote>
+<p>这几项是全局默认值，<strong>只对之后新建的用户生效</strong>。已经存在的账号要单独改，比如 <code>sudo chage -M 30 用户名</code>，在 login.defs 里改是没用的。</p>
+</blockquote>
 <p>查看系统信息的几条命令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">uname</span> -a          <span class="comment"># 查看内核版本与系统信息</span></span><br><span class="line"><span class="built_in">cat</span> /etc/lsb-release   <span class="comment"># 查看发行版版本</span></span><br><span class="line">apt-cache stats        <span class="comment"># 查看本机软件包统计信息</span></span><br></pre></td></tr></table></figure>
 
@@ -263,8 +348,8 @@
 <tbody><tr>
 <td>s</td>
 <td>setuid &#x2F; setgid</td>
-<td>以文件所有者（常为 root）身份执行</td>
-<td><code>chmod u+s 文件</code></td>
+<td>setuid：以文件<strong>所有者</strong>身份执行；setgid：以文件<strong>所属组</strong>身份执行</td>
+<td><code>chmod u+s 文件</code> &#x2F; <code>chmod g+s 文件</code></td>
 </tr>
 <tr>
 <td>t</td>
@@ -285,6 +370,9 @@
 <td><code>chattr +a 文件</code></td>
 </tr>
 </tbody></table>
+<blockquote>
+<p>setgid 加在<strong>目录</strong>上还有另一个作用：目录里新建的文件会自动继承该目录的属组，团队共享目录经常这么做。</p>
+</blockquote>
 <p>几个要点：</p>
 <ul>
 <li>设置 <code>s</code> 权限前必须先有 <code>x</code> 权限，否则不生效。未生效时显示为大写 <code>S</code>，生效时为小写 <code>s</code>。</li>
@@ -314,8 +402,8 @@
 </tr>
 <tr>
 <td>外部命令交互</td>
-<td>不支持</td>
-<td>支持 <code>:!</code> 调用外部命令</td>
+<td>支持但功能有限</td>
+<td>支持 <code>:!</code>、<code>:r !</code> 等完整用法</td>
 </tr>
 <tr>
 <td>图形界面</td>
@@ -373,17 +461,27 @@
 
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Ubuntu 上手的关键路径是：先用 VirtualBox 装好系统并打通共享文件夹，再用 <code>tzselect</code>、静态 IP、<code>ufw</code> 完成基础配置，然后理解 APT 与 Snap 各自的适用场景，最后按类别积累常用命令。权限部分重点记住 <code>s</code>（提权执行）、<code>t</code>（防误删）、<code>i</code>（不可改）、<code>a</code>（只追加）这四个特殊标记，排查文件”改不了、删不掉”时就能想到它们。命令不用死记，按分类建份自己的速查表，用得多了自然熟练。</p>
 
+
+            <!-- 广告位：正文末尾（明确标注，不与正文混淆） -->
             
-            <!-- Pager -->
+
+
+
+            <!--
+                文章页上一篇 / 下一篇
+                Hexo 按日期倒序排文章，所以：
+                  page.prev —— 更新的那篇（左边，←）
+                  page.next —— 更早的那篇（右边，→）
+            -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/tcpip%E5%8D%8F%E8%AE%AE%E4%B8%8E%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" >&larr; Previous Post</a>
+                    <a href="/posts/tcpip%E5%8D%8F%E8%AE%AE%E4%B8%8E%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" >&larr; Newer Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/windows%E7%BD%91%E7%BB%9C%E5%91%BD%E4%BB%A4%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/" >Next Post &rarr;</a>
+                    <a href="/posts/windows%E7%BD%91%E7%BB%9C%E5%91%BD%E4%BB%A4%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/" >Older Post &rarr;</a>
                 </li>
                 
             </ul>
@@ -418,34 +516,36 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 

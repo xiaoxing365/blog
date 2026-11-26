@@ -1,5 +1,5 @@
-User-agent:*
-Allow:/
+User-agent: *
+Allow: /
 Disallow: /404.html
 
 User-agent: ClaudeBot
@@ -11,4 +11,4 @@ Disallow: /
 User-agent: Claude-SearchBot
 Disallow: /
 
-Sitemap:https://xiaoxing365.com/sitemap.xml
+Sitemap: https://xiaoxing365.com/sitemap.xml

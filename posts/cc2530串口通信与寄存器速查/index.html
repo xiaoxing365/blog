@@ -2,61 +2,132 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="theme-color" content="#667eea">
 
+
+
+<title>cc2530串口通信与寄存器速查 | 小兴365 - 个人技术博客</title>
 <meta name="description" content="CC2530 串口通信是物联网设备与电脑、模组交换数据的基础通道。本文从并行通信与串行通信的差异讲起，说明 USART0 与 USART1 在两种引脚位置下的映射关系，逐项解析 UxCSR、UxUCR、UxGCR、UxDBUF、UxBAUD 五个寄存器的作用，给出波特率计算公式与常用组合以及可运行的收发例程。后半部分按功能模块整理常用寄存器的中英文对照速查表，保留英文原名，方便对照芯片数据手册查阅，是 CC2530 开发过程中的实用参考。">
-
-
-
 <meta name="keywords" content="CC2530,串口通信,USART,UART,PERCFG,波特率,UxDBUF,寄存器速查">
+<meta name="robots" content="index,follow">
 
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
-
-<title>cc2530串口通信与寄存器速查</title>
 <link rel="canonical" href="https://xiaoxing365.com/posts/cc2530%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%80%9F%E6%9F%A5/">
 
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="cc2530串口通信与寄存器速查 | 小兴365 - 个人技术博客">
+<meta property="og:description" content="CC2530 串口通信是物联网设备与电脑、模组交换数据的基础通道。本文从并行通信与串行通信的差异讲起，说明 USART0 与 USART1 在两种引脚位置下的映射关系，逐项解析 UxCSR、UxUCR、UxGCR、UxDBUF、UxBAUD 五个寄存器的作用，给出波特率计算公式与常用组合以及可运行的收发例程。后半部分按功能模块整理常用寄存器的中英文对照速查表，保留英文原名，方便对照芯片数据手册查阅，是 CC2530 开发过程中的实用参考。">
+<meta property="og:url" content="https://xiaoxing365.com/posts/cc2530%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%80%9F%E6%9F%A5/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="cc2530串口通信与寄存器速查 | 小兴365 - 个人技术博客">
+<meta name="twitter:description" content="CC2530 串口通信是物联网设备与电脑、模组交换数据的基础通道。本文从并行通信与串行通信的差异讲起，说明 USART0 与 USART1 在两种引脚位置下的映射关系，逐项解析 UxCSR、UxUCR、UxGCR、UxDBUF、UxBAUD 五个寄存器的作用，给出波特率计算公式与常用组合以及可运行的收发例程。后半部分按功能模块整理常用寄存器的中英文对照速查表，保留英文原名，方便对照芯片数据手册查阅，是 CC2530 开发过程中的实用参考。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+<meta property="article:published_time" content="2025-07-19T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-20T08:30:00.000Z">
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
+
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "cc2530串口通信与寄存器速查",
+  "description": "CC2530 串口通信是物联网设备与电脑、模组交换数据的基础通道。本文从并行通信与串行通信的差异讲起，说明 USART0 与 USART1 在两种引脚位置下的映射关系，逐项解析 UxCSR、UxUCR、UxGCR、UxDBUF、UxBAUD 五个寄存器的作用，给出波特率计算公式与常用组合以及可运行的收发例程。后半部分按功能模块整理常用寄存器的中英文对照速查表，保留英文原名，方便对照芯片数据手册查阅，是 CC2530 开发过程中的实用参考。",
+  "datePublished": "2025-07-19T01:00:00.000Z",
+  "dateModified": "2026-11-20T08:30:00.000Z",
+  "author": { "@type": "Person", "name": "小兴365" },
+  "publisher": { "@type": "Organization", "name": "小兴365 - 个人技术博客" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://xiaoxing365.com/posts/cc2530%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%80%9F%E6%9F%A5/" }
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -65,26 +136,28 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#CC2530"
+                        <a class="tag" href="/tags/CC2530/"
                            title="CC2530">CC2530</a>
                         
-                        <a class="tag" href="/tags/#单片机"
+                        <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA/"
                            title="单片机">单片机</a>
                         
                     </div>
                     <h1>cc2530串口通信与寄存器速查</h1>
-                    <h2 class="subheading"></h2>
+                    <h2 class="subheading" data-daily-quote data-quote-fallback="Coding Create Life." data-quote-api=""></h2>
                     <span class="meta">
                             Posted by 小兴365 on
                         2025-07-19
                         </span>
                 </div>
-                <!-- 非文章 -->
+                <!-- 首页 / 归档 / 标签 / 分类 / 普通页面：统一用站点标语 -->
                 
             </div>
         </div>
     </div>
 </header>
+
+
 
 <!-- Nav -->
 <!-- Navigation -->
@@ -92,8 +165,8 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -111,11 +184,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -124,6 +201,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <!-- Content -->
@@ -234,7 +312,7 @@
 <td>设置波特率尾数，与 UxGCR 共同决定波特率</td>
 </tr>
 </tbody></table>
-<p>UxCSR 的几个常用位：MODE（第 7 位）为 1 选 UART、为 0 选 SPI；RE（第 6 位）为 1 使能接收；RX_BYTE（第 0 位）为 1 表示收到一个字节。UxDBUF 是双缓冲结构，写入一个字节后硬件立即开始发送，同时允许把下一个字节装入缓冲，因此连续发送时效率较高。</p>
+<p>UxCSR 的几个常用位：MODE（第 7 位）为 1 选 UART、为 0 选 SPI；RE（第 6 位）为 1 使能接收；RX_BYTE（第 2 位）为 1 表示收到一个字节。UxDBUF 是双缓冲结构，写入一个字节后硬件立即开始发送，同时允许把下一个字节装入缓冲，因此连续发送时效率较高。</p>
 <h2 id="TTL-与-RS232-电平及波特率"><a href="#TTL-与-RS232-电平及波特率" class="headerlink" title="TTL 与 RS232 电平及波特率"></a>TTL 与 RS232 电平及波特率</h2><p>电脑的串口遵循 RS-232 标准，而 CC2530 的 UART 引脚输出的是 TTL 电平，两者电气规范不同，直接相连会损坏芯片，必须经过电平转换，常用 MAX232 这类芯片完成转换。两种电平的定义如下：</p>
 <table>
 <thead>
@@ -560,17 +638,27 @@
 </tbody></table>
 <p>把这几张表打印出来贴在桌边，调试寄存器时按”先选功能、再定方向、后设参数、最后清标志”的顺序操作，绝大多数串口和端口问题都能快速定位。串口打通之后，设备就能和电脑、NB-IoT 模组乃至云平台交换数据了；下一章以 NB-IoT 模组为例，完整走一遍通过 AT 指令联网拨号的过程。</p>
 
+
+            <!-- 广告位：正文末尾（明确标注，不与正文混淆） -->
             
-            <!-- Pager -->
+
+
+
+            <!--
+                文章页上一篇 / 下一篇
+                Hexo 按日期倒序排文章，所以：
+                  page.prev —— 更新的那篇（左边，←）
+                  page.next —— 更早的那篇（右边，→）
+            -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/hello-world/" >&larr; Previous Post</a>
+                    <a href="/posts/hello-world/" >&larr; Newer Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/nbiot%E6%A8%A1%E7%BB%84at%E6%8C%87%E4%BB%A4%E8%81%94%E7%BD%91/" >Next Post &rarr;</a>
+                    <a href="/posts/nbiot%E6%A8%A1%E7%BB%84at%E6%8C%87%E4%BB%A4%E8%81%94%E7%BD%91/" >Older Post &rarr;</a>
                 </li>
                 
             </ul>
@@ -605,34 +693,36 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 

@@ -2,61 +2,132 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="theme-color" content="#667eea">
 
+
+
+<title>hadoop与mysql与hive三节点搭建 | 小兴365 - 个人技术博客</title>
 <meta name="description" content="Hadoop三节点搭建入门教程：先讲vim阅读约定与PATH恢复，再完成主机名、JDK、Hadoop、Hive、MySQL环境变量与SSH免密同步；给出core-site.xml、hdfs-site.xml等配置写法、NameNode格式化与jps排查，并覆盖MySQL授权建库、Hive初始化0x8报错、Flume采集及数据清洗命令。">
-
-
-
 <meta name="keywords" content="Hadoop三节点集群,Hive环境搭建,MySQL安装配置,SSH免密登录,Hadoop核心配置,hdfs namenode format,Flume数据采集,数据清洗命令">
+<meta name="robots" content="index,follow">
 
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
-
-<title>hadoop与mysql与hive三节点搭建</title>
 <link rel="canonical" href="https://xiaoxing365.com/posts/hadoop%E4%B8%8Emysql%E4%B8%8Ehive%E4%B8%89%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/">
 
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="hadoop与mysql与hive三节点搭建 | 小兴365 - 个人技术博客">
+<meta property="og:description" content="Hadoop三节点搭建入门教程：先讲vim阅读约定与PATH恢复，再完成主机名、JDK、Hadoop、Hive、MySQL环境变量与SSH免密同步；给出core-site.xml、hdfs-site.xml等配置写法、NameNode格式化与jps排查，并覆盖MySQL授权建库、Hive初始化0x8报错、Flume采集及数据清洗命令。">
+<meta property="og:url" content="https://xiaoxing365.com/posts/hadoop%E4%B8%8Emysql%E4%B8%8Ehive%E4%B8%89%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hadoop与mysql与hive三节点搭建 | 小兴365 - 个人技术博客">
+<meta name="twitter:description" content="Hadoop三节点搭建入门教程：先讲vim阅读约定与PATH恢复，再完成主机名、JDK、Hadoop、Hive、MySQL环境变量与SSH免密同步；给出core-site.xml、hdfs-site.xml等配置写法、NameNode格式化与jps排查，并覆盖MySQL授权建库、Hive初始化0x8报错、Flume采集及数据清洗命令。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+<meta property="article:published_time" content="2025-01-01T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-20T08:30:00.000Z">
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
+
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "hadoop与mysql与hive三节点搭建",
+  "description": "Hadoop三节点搭建入门教程：先讲vim阅读约定与PATH恢复，再完成主机名、JDK、Hadoop、Hive、MySQL环境变量与SSH免密同步；给出core-site.xml、hdfs-site.xml等配置写法、NameNode格式化与jps排查，并覆盖MySQL授权建库、Hive初始化0x8报错、Flume采集及数据清洗命令。",
+  "datePublished": "2025-01-01T01:00:00.000Z",
+  "dateModified": "2026-11-20T08:30:00.000Z",
+  "author": { "@type": "Person", "name": "小兴365" },
+  "publisher": { "@type": "Organization", "name": "小兴365 - 个人技术博客" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://xiaoxing365.com/posts/hadoop%E4%B8%8Emysql%E4%B8%8Ehive%E4%B8%89%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/" }
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -65,26 +136,28 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#Hadoop"
+                        <a class="tag" href="/tags/Hadoop/"
                            title="Hadoop">Hadoop</a>
                         
-                        <a class="tag" href="/tags/#集群"
+                        <a class="tag" href="/tags/%E9%9B%86%E7%BE%A4/"
                            title="集群">集群</a>
                         
                     </div>
                     <h1>hadoop与mysql与hive三节点搭建</h1>
-                    <h2 class="subheading"></h2>
+                    <h2 class="subheading" data-daily-quote data-quote-fallback="Coding Create Life." data-quote-api=""></h2>
                     <span class="meta">
                             Posted by 小兴365 on
                         2025-01-01
                         </span>
                 </div>
-                <!-- 非文章 -->
+                <!-- 首页 / 归档 / 标签 / 分类 / 普通页面：统一用站点标语 -->
                 
             </div>
         </div>
     </div>
 </header>
+
+
 
 <!-- Nav -->
 <!-- Navigation -->
@@ -92,8 +165,8 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -111,11 +184,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -124,6 +201,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <!-- Content -->
@@ -217,7 +295,7 @@
 
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /opt/module/hadoop/data     <span class="comment"># 创建上一步配置的数据目录</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="hdfs-site-xml：NameNode-与数据目录"><a href="#hdfs-site-xml：NameNode-与数据目录" class="headerlink" title="hdfs-site.xml：NameNode 与数据目录"></a>hdfs-site.xml：NameNode 与数据目录</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.name.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/module/hadoop/data/name<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.secondary.http-address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>slave2:9868<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/module/hadoop/data/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.client.datanode.checkpoint.restart-timeout<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>30<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="hdfs-site-xml：NameNode-与数据目录"><a href="#hdfs-site-xml：NameNode-与数据目录" class="headerlink" title="hdfs-site.xml：NameNode 与数据目录"></a>hdfs-site.xml：NameNode 与数据目录</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.name.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/module/hadoop/data/name<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.secondary.http-address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>slave2:9868<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>/opt/module/hadoop/data/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="yarn-site-xml：资源管理器位置"><a href="#yarn-site-xml：资源管理器位置" class="headerlink" title="yarn-site.xml：资源管理器位置"></a>yarn-site.xml：资源管理器位置</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.hostname<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>slave1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
@@ -228,7 +306,7 @@
 <p>配置完成后，把整个 Hadoop 目录同步到两个从节点：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rsync -av /opt/module/hadoop/ slave1:/opt/module/hadoop/</span><br><span class="line">rsync -av /opt/module/hadoop/ slave2:/opt/module/hadoop/</span><br></pre></td></tr></table></figure>
 
-<h2 id="第五步：格式化-NameNode-并启动集群"><a href="#第五步：格式化-NameNode-并启动集群" class="headerlink" title="第五步：格式化 NameNode 并启动集群"></a>第五步：格式化 NameNode 并启动集群</h2><p>三台机器都执行一次格式化。注意 <code>-format</code> <strong>只有一个减号</strong>，写成两个会报错；看到 <code>formatted successfully</code> 就说明成功（它不一定在最后一行）：</p>
+<h2 id="第五步：格式化-NameNode-并启动集群"><a href="#第五步：格式化-NameNode-并启动集群" class="headerlink" title="第五步：格式化 NameNode 并启动集群"></a>第五步：格式化 NameNode 并启动集群</h2><p>只在 master 上执行一次格式化，<strong>千万不要三台都跑</strong>。每格式化一次就会生成一个新的 clusterID，如果 slave 上也格了一遍，它们的 clusterID 和 master 对不上，DataNode 起来就会因为”不属于这个集群”而退出。注意 <code>-format</code> <strong>只有一个减号</strong>，写成两个会报错；看到 <code>formatted successfully</code> 就说明成功（它不一定在最后一行）：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -format</span><br></pre></td></tr></table></figure>
 
 <p>在 master 上启动全部服务并用 <code>jps</code> 检查进程：</p>
@@ -263,7 +341,7 @@
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="attr">port</span>=<span class="number">3306</span>                          <span class="comment"># 服务端口</span></span><br><span class="line"><span class="attr">datadir</span>=/usr/local/mysql/data      <span class="comment"># 数据文件目录</span></span><br><span class="line"><span class="attr">basedir</span>=/usr/local/mysql           <span class="comment"># 安装根目录</span></span><br><span class="line"><span class="attr">lower_case_table_names</span>=<span class="number">1</span>           <span class="comment"># 忽略表名大小写</span></span><br><span class="line"><span class="attr">character-set-server</span>=utf8mb4       <span class="comment"># 用 utf8mb4 支持多字节字符</span></span><br><span class="line"><span class="attr">explicit_defaults_for_timestamp</span>=<span class="number">1</span>  <span class="comment"># 避免初始化时的时间戳报错</span></span><br></pre></td></tr></table></figure>
 
 <p>注意中括号里是 <code>mysqld</code> 而不是 <code>mysql</code>。接着初始化：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/local/mysql</span><br><span class="line"><span class="built_in">mkdir</span> data                                             <span class="comment"># 创建数据目录</span></span><br><span class="line"><span class="built_in">cp</span> supported-files/mysql.server /etc/init.d/mysqld     <span class="comment"># 注册为服务</span></span><br><span class="line">chkconfig --add mysqld                                 <span class="comment"># 注意是两个减号</span></span><br><span class="line">yum install -y numactl libaio                          <span class="comment"># 安装依赖库</span></span><br><span class="line">useradd mysql                                          <span class="comment"># 创建运行用户</span></span><br><span class="line"><span class="built_in">chown</span> -R root:mysql /usr/local/mysql                   <span class="comment"># 修改属主属组</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 以无密码方式初始化，成功会提示 root with an empty password</span></span><br><span class="line">mysqld --initialize-insecure --user=mysql --datadir=/usr/local/mysql/data --basedir=/usr/local/mysql</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/local/mysql</span><br><span class="line"><span class="built_in">mkdir</span> data                                             <span class="comment"># 创建数据目录</span></span><br><span class="line"><span class="built_in">cp</span> support-files/mysql.server /etc/init.d/mysqld       <span class="comment"># 注册为服务（目录名是 support-files，没有 d）</span></span><br><span class="line">chkconfig --add mysqld                                 <span class="comment"># 注意是两个减号</span></span><br><span class="line">yum install -y numactl libaio                          <span class="comment"># 安装依赖库</span></span><br><span class="line">useradd mysql                                          <span class="comment"># 创建运行用户</span></span><br><span class="line"><span class="built_in">chown</span> -R mysql:mysql /usr/local/mysql                  <span class="comment"># 属主属组都给 mysql，否则后面初始化写不进 data 目录</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 以无密码方式初始化，成功会提示 root with an empty password</span></span><br><span class="line">mysqld --initialize-insecure --user=mysql --datadir=/usr/local/mysql/data --basedir=/usr/local/mysql</span><br></pre></td></tr></table></figure>
 
 <p>如果初始化失败，先把 data 目录删掉重建再重试：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -rf /usr/local/mysql/data</span><br><span class="line"><span class="built_in">mkdir</span> data</span><br></pre></td></tr></table></figure>
@@ -274,9 +352,9 @@
 <p>进入 MySQL 后执行：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">grant</span> <span class="keyword">all</span> <span class="keyword">on</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">to</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span> identified <span class="keyword">by</span> <span class="string">&#x27;&lt;密码&gt;&#x27;</span>;  <span class="comment">-- 允许 root 从任意主机登录</span></span><br><span class="line">flush privileges;                                       <span class="comment">-- 刷新权限使其生效</span></span><br><span class="line"><span class="keyword">create</span> database hive;                                   <span class="comment">-- 创建存放元数据的库</span></span><br></pre></td></tr></table></figure>
 
-<p>小提醒：<code>identified</code> 不要拼成 <code>indentified</code>。</p>
+<p>小提醒：<code>identified</code> 不要拼成 <code>indentified</code>。这句语法只适用于 5.7；如果你装的是 8.0，<code>grant ... identified by</code> 已经被砍掉了，得先 <code>create user &#39;root&#39;@&#39;%&#39; identified by &#39;&lt;密码&gt;&#39;;</code> 再 <code>grant all on *.* to &#39;root&#39;@&#39;%&#39;;</code>。</p>
 <h2 id="第七步：Hive-配置与元数据初始化"><a href="#第七步：Hive-配置与元数据初始化" class="headerlink" title="第七步：Hive 配置与元数据初始化"></a>第七步：Hive 配置与元数据初始化</h2><p>进入 Hive 配置目录，复制一份默认配置再修改：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /opt/module/hive/conf</span><br><span class="line"><span class="built_in">cp</span> hive-default.xml hive-site.xml</span><br><span class="line">vim hive-site.xml</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /opt/module/hive/conf</span><br><span class="line"><span class="built_in">cp</span> hive-default.xml.template hive-site.xml   <span class="comment"># 模板文件名带 .template，直接 cp hive-default.xml 会报找不到文件</span></span><br><span class="line">vim hive-site.xml</span><br></pre></td></tr></table></figure>
 
 <p>在 vim 里用搜索定位下面4项并改值：</p>
 <table>
@@ -300,7 +378,7 @@
 <tr>
 <td><code>/DriverName</code></td>
 <td><code>javax.jdo.option.ConnectionDriverName</code></td>
-<td><code>com.mysql.jdbc.Driver</code></td>
+<td><code>com.mysql.jdbc.Driver</code>（5.1 驱动；用 8.x 驱动要改成 <code>com.mysql.cj.jdbc.Driver</code>）</td>
 </tr>
 <tr>
 <td><code>/Password</code></td>
@@ -369,21 +447,31 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">head</span> -n 1 data.txt                              <span class="comment"># 看第一行，常用于确认表头</span></span><br><span class="line">awk -F <span class="string">&#x27;,&#x27;</span> <span class="string">&#x27;&#123;print NF&#125;&#x27;</span> data.txt | <span class="built_in">head</span> -2      <span class="comment"># 看每行列数，确认分隔是否正确</span></span><br><span class="line">awk -F <span class="string">&#x27;,&#x27;</span> <span class="string">&#x27;&#123;print $1,$2&#125;&#x27;</span> data.txt             <span class="comment"># 打印逗号分隔的前两列</span></span><br><span class="line"><span class="built_in">cut</span> -d <span class="string">&#x27;,&#x27;</span> -f 3- data.txt &gt; result.txt          <span class="comment"># 截取第3列到结尾，写入新文件</span></span><br><span class="line">sed -i <span class="string">&#x27;1d&#x27;</span> result.txt                          <span class="comment"># 删除第一行（通常是表头）</span></span><br><span class="line"><span class="built_in">cat</span> data.txt | grep 采集 | <span class="built_in">wc</span> -l                <span class="comment"># 统计包含关键字的行数</span></span><br></pre></td></tr></table></figure>
 
 <p>清洗完成后上传到 HDFS 供后续计算：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfs -<span class="built_in">mkdir</span> -p /source/sms/sms_so_failure_logs/        <span class="comment"># 创建 HDFS 目录</span></span><br><span class="line">hdfs dfs -put ./sms_so_failure_logs_shell.txt /source/sms/ <span class="comment"># 上传本地文件</span></span><br><span class="line">hdfs dfs -<span class="built_in">cat</span> /source/sms/sms_so_failure_logs/*.txt | <span class="built_in">head</span> -3  <span class="comment"># 抽查前3行</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfs -<span class="built_in">mkdir</span> -p /source/sms/sms_so_failure_logs/        <span class="comment"># 创建 HDFS 目录</span></span><br><span class="line">hdfs dfs -put ./sms_so_failure_logs_shell.txt /source/sms/sms_so_failure_logs/  <span class="comment"># 传到刚建好的目录里</span></span><br><span class="line">hdfs dfs -<span class="built_in">cat</span> /source/sms/sms_so_failure_logs/*.txt | <span class="built_in">head</span> -3  <span class="comment"># 抽查前3行</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到这里，一套完整的三节点大数据环境就搭起来了：三台机器通过主机名和免密登录连成整体，Hadoop 负责分布式存储与计算，MySQL 保管 Hive 元数据，Hive 提供类 SQL 查询，Flume 负责日志采集，几个文本命令完成了数据清洗。回顾整个过程，最容易出错的地方集中在三处——环境变量 PATH、Hadoop 核心配置文件的 XML 结构、以及 MySQL 初始化参数。遇到问题时按”先看进程（<code>jps</code>）、再看日志、最后核对配置”的顺序排查，绝大多数故障都能定位。基础环境准备好之后，想进一步了解如何让集群避免单点故障，可以继续阅读《hadoop高可用集群搭建》一文。</p>
 
+
+            <!-- 广告位：正文末尾（明确标注，不与正文混淆） -->
             
-            <!-- Pager -->
+
+
+
+            <!--
+                文章页上一篇 / 下一篇
+                Hexo 按日期倒序排文章，所以：
+                  page.prev —— 更新的那篇（左边，←）
+                  page.next —— 更早的那篇（右边，→）
+            -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/" >&larr; Previous Post</a>
+                    <a href="/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/" >&larr; Newer Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/hadoop%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/" >Next Post &rarr;</a>
+                    <a href="/posts/hadoop%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/" >Older Post &rarr;</a>
                 </li>
                 
             </ul>
@@ -418,34 +506,36 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 

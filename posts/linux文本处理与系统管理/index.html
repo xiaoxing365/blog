@@ -2,61 +2,132 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="theme-color" content="#667eea">
 
+
+
+<title>linux文本处理与系统管理 | 小兴365 - 个人技术博客</title>
 <meta name="description" content="这份Linux文本处理与系统管理指南，先用场景+命令+结果三段式讲透vim、sed、awk、sort、uniq的用法，再覆盖systemctl服务管理、crontab五字段定时任务格式、/var/log与journalctl日志查看，最后梳理Shell环境变量、输入输出重定向和管道符，帮你把零散命令串成真正可用的自动化技能。">
-
-
-
 <meta name="keywords" content="Linux文本处理,vim快捷键,sed命令,awk命令,systemctl,crontab,journalctl,Shell管道">
+<meta name="robots" content="index,follow">
 
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
-
-<title>linux文本处理与系统管理</title>
 <link rel="canonical" href="https://xiaoxing365.com/posts/linux%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%8E%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/">
 
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux文本处理与系统管理 | 小兴365 - 个人技术博客">
+<meta property="og:description" content="这份Linux文本处理与系统管理指南，先用场景+命令+结果三段式讲透vim、sed、awk、sort、uniq的用法，再覆盖systemctl服务管理、crontab五字段定时任务格式、/var/log与journalctl日志查看，最后梳理Shell环境变量、输入输出重定向和管道符，帮你把零散命令串成真正可用的自动化技能。">
+<meta property="og:url" content="https://xiaoxing365.com/posts/linux%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%8E%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux文本处理与系统管理 | 小兴365 - 个人技术博客">
+<meta name="twitter:description" content="这份Linux文本处理与系统管理指南，先用场景+命令+结果三段式讲透vim、sed、awk、sort、uniq的用法，再覆盖systemctl服务管理、crontab五字段定时任务格式、/var/log与journalctl日志查看，最后梳理Shell环境变量、输入输出重定向和管道符，帮你把零散命令串成真正可用的自动化技能。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+<meta property="article:published_time" content="2025-01-01T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-20T08:30:00.000Z">
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
+
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "linux文本处理与系统管理",
+  "description": "这份Linux文本处理与系统管理指南，先用场景+命令+结果三段式讲透vim、sed、awk、sort、uniq的用法，再覆盖systemctl服务管理、crontab五字段定时任务格式、/var/log与journalctl日志查看，最后梳理Shell环境变量、输入输出重定向和管道符，帮你把零散命令串成真正可用的自动化技能。",
+  "datePublished": "2025-01-01T01:00:00.000Z",
+  "dateModified": "2026-11-20T08:30:00.000Z",
+  "author": { "@type": "Person", "name": "小兴365" },
+  "publisher": { "@type": "Organization", "name": "小兴365 - 个人技术博客" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://xiaoxing365.com/posts/linux%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%8E%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/" }
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -65,26 +136,28 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#Linux"
+                        <a class="tag" href="/tags/Linux/"
                            title="Linux">Linux</a>
                         
-                        <a class="tag" href="/tags/#系统"
+                        <a class="tag" href="/tags/%E7%B3%BB%E7%BB%9F/"
                            title="系统">系统</a>
                         
                     </div>
                     <h1>linux文本处理与系统管理</h1>
-                    <h2 class="subheading"></h2>
+                    <h2 class="subheading" data-daily-quote data-quote-fallback="Coding Create Life." data-quote-api=""></h2>
                     <span class="meta">
                             Posted by 小兴365 on
                         2025-01-01
                         </span>
                 </div>
-                <!-- 非文章 -->
+                <!-- 首页 / 归档 / 标签 / 分类 / 普通页面：统一用站点标语 -->
                 
             </div>
         </div>
     </div>
 </header>
+
+
 
 <!-- Nav -->
 <!-- Navigation -->
@@ -92,8 +165,8 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -111,11 +184,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -124,6 +201,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <!-- Content -->
@@ -435,7 +513,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/home/alice/scripts</span><br></pre></td></tr></table></figure>
 
 <p><strong>结果</strong>：该目录加入命令搜索路径，你可以直接运行里面的脚本。用 <code>$PATH</code> 追加而不是覆盖，能保留原有路径。要永久生效，把这一行写进 <code>~/.bashrc</code>，再执行 <code>source ~/.bashrc</code>。</p>
-<h3 id="输入输出重定向"><a href="#输入输出重定向" class="headerlink" title="输入输出重定向"></a>输入输出重定向</h3><p>重定向用来改变命令的输入来源和输出去向，是处理文本和保存结果的基础。这部分的符号也叫左右移定向符。</p>
+<h3 id="输入输出重定向"><a href="#输入输出重定向" class="headerlink" title="输入输出重定向"></a>输入输出重定向</h3><p>重定向用来改变命令的输入来源和输出去向，是处理文本和保存结果的基础。这几个符号叫重定向符：<code>&gt;</code> 覆盖写入、<code>&gt;&gt;</code> 追加、<code>&lt;</code> 读入、<code>2&gt;</code> 接错误输出。</p>
 <table>
 <thead>
 <tr>
@@ -475,17 +553,27 @@
 <p><strong>结果</strong>：终端只显示文件名里包含 <code>mysql</code> 的条目。<code>ls</code> 的输出本来会直接显示在屏幕上，加上管道后，这些内容转而交给 <code>grep</code> 去过滤。前面统计 IP 的那条命令，就是把 <code>awk</code>、<code>sort</code>、<code>uniq</code>、<code>head</code> 用管道串起来的例子。管道符是 Linux 组合命令的核心，掌握它，你就能把一个个简单工具拼出复杂功能。</p>
 <p>从 vim 改配置，到用 sed、awk 批处理文本，再到用 systemctl 管服务、crontab 定时、日志排查问题，最后用环境变量、重定向和管道把命令串起来——这些技能拼在一起，就是你从”会敲命令”走向”能自动化运维”的完整路径。剩下的，就是在真实场景里反复用、反复练。</p>
 
+
+            <!-- 广告位：正文末尾（明确标注，不与正文混淆） -->
             
-            <!-- Pager -->
+
+
+
+            <!--
+                文章页上一篇 / 下一篇
+                Hexo 按日期倒序排文章，所以：
+                  page.prev —— 更新的那篇（左边，←）
+                  page.next —— 更早的那篇（右边，→）
+            -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E6%9D%83%E9%99%90/" >&larr; Previous Post</a>
+                    <a href="/posts/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E6%9D%83%E9%99%90/" >&larr; Newer Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/mysql%E5%87%BD%E6%95%B0%E4%B8%8E%E8%A7%86%E5%9B%BE/" >Next Post &rarr;</a>
+                    <a href="/posts/mysql%E5%87%BD%E6%95%B0%E4%B8%8E%E8%A7%86%E5%9B%BE/" >Older Post &rarr;</a>
                 </li>
                 
             </ul>
@@ -520,34 +608,36 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 

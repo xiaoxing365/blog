@@ -770,11 +770,96 @@ footer .copyright a:focus {
     font-size: .9em;
 }
 
-/* 代码块：圆角 + 更柔和 */
+/* 代码块：圆角 + 更柔和（圆角只给外层，避免内外两层圆角叠加） */
 .post-container pre,
 .post-container .highlight {
     border-radius: 8px;
     box-shadow: 0 4px 16px rgba(20, 20, 30, 0.12);
+}
+
+/* 高亮块内部（gutter / code 两个 pre）不再重复圆角和阴影，
+   否则内层圆角会在四角露出后面的浅色单元格，形成「四个小白角」 */
+.post-container .highlight pre {
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* 高亮表格的行悬停底色必须清掉：
+   高亮块的背景是暗色，而内容表格有 tr:hover td 的浅色底色，
+   浅色会从内层 pre 的圆角缺口透出来，鼠标移上去就是四个白角。 */
+.post-container figure.highlight table tr td,
+.post-container figure.highlight table tr:hover td {
+    background: transparent;
+}
+
+/* ---------------------------------------------------------
+   代码块一键复制（GitHub 风格，右上角按钮）
+   结构由 source/js/script.js 在页面加载后注入：
+     <div class="code-block-wrap"> <figure.highlight|pre> <button> </div>
+   --------------------------------------------------------- */
+.code-block-wrap {
+    position: relative;
+    margin: 20px 0;
+}
+.code-block-wrap > pre,
+.code-block-wrap > .highlight {
+    margin: 0;
+}
+
+.code-copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #c5c8c6;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .15s ease, background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.code-block-wrap:hover .code-copy-btn,
+.code-copy-btn:focus-visible,
+.code-copy-btn.is-copied {
+    opacity: 1;
+}
+
+.code-copy-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+}
+
+.code-copy-btn.is-copied {
+    color: #8fd18f;
+    border-color: rgba(143, 209, 143, 0.45);
+}
+
+.code-copy-btn svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+/* 触屏设备没有 hover，按钮常显 */
+@media (hover: none) {
+    .code-copy-btn {
+        opacity: 1;
+    }
+}
+
+@media print {
+    .code-copy-btn {
+        display: none;
+    }
 }
 
 /* 上一篇/下一篇 pager */
@@ -842,5 +927,168 @@ footer .copyright a:focus {
         position: static;
         max-height: none;
         overflow: visible;
+    }
+}
+
+/* 独立页面（404、友链）：给固定导航栏留出空间 */
+.standalone-main {
+    padding-top: 70px;
+    min-height: 60vh;
+}
+
+/* 标签 / 分类总览 */
+.tag-cloud {
+    margin-top: 0;
+}
+
+.tag-cloud .tag {
+    margin: 0 8px 12px 0;
+    padding: 0 16px;
+    font-size: 14px;
+    line-height: 34px;
+}
+
+.tag-cloud .tag span {
+    opacity: 0.65;
+    margin-left: 2px;
+}
+
+/* AdSense 广告位：明确标注 + 预留高度减少布局抖动 */
+.ad-slot {
+    position: relative;
+    margin: 32px 0 24px;
+    padding: 12px 0 4px;
+    min-height: 100px;
+    border-top: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.ad-slot .ad-label {
+    position: absolute;
+    top: -9px;
+    left: 0;
+    padding: 0 6px;
+    font-size: 11px;
+    line-height: 18px;
+    letter-spacing: 0.5px;
+    color: #9aa0a6;
+    background: #fff;
+}
+
+.ad-slot ins.adsbygoogle {
+    display: block;
+    width: 100%;
+}
+
+@media (max-width: 767px) {
+    .ad-slot {
+        margin: 24px 0 18px;
+    }
+}
+
+/* 社交链接（关于页，见 layout/_partial/social.ejs）
+   使用 Font Awesome 的圆形底 + 图标叠加，Bilibili 用内置 SVG。 */
+.social-links {
+    margin: 30px 0 0;
+    padding: 0;
+}
+
+.social-links li {
+    padding: 0 4px;
+}
+
+.social-links a {
+    display: inline-block;
+    text-decoration: none;
+}
+
+.social-links .fa-circle {
+    color: #e5e7eb;
+    transition: color 0.2s ease;
+}
+
+.social-links .fa-inverse {
+    color: #4b5563;
+    transition: color 0.2s ease;
+}
+
+.social-links .social-svg {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1em;
+    height: 1em;
+    transform: translate(-50%, -50%);
+    color: #4b5563;
+    transition: color 0.2s ease;
+}
+
+.social-links a:hover .fa-circle,
+.social-links a:focus-visible .fa-circle {
+    color: rgb(230, 97, 140);
+}
+
+.social-links a:hover .fa-inverse,
+.social-links a:hover .social-svg {
+    color: #fff;
+}
+
+/* ---------- 每日一言（页面副标题） ---------- */
+/* 句子从 quotes.js 注入，注入时轻轻淡入，别让人眼前一亮再一亮 */
+.intro-header .subheading[data-daily-quote] {
+    max-width: 46em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.intro-header .subheading.quote-on {
+    animation: quoteIn .35s ease both;
+}
+
+@keyframes quoteIn {
+    from { opacity: .3; transform: translateY(3px); }
+    to   { opacity: 1;  transform: none; }
+}
+
+/* 动效对晕动症用户不友好时按系统设置关掉 */
+@media (prefers-reduced-motion: reduce) {
+    .intro-header .subheading.quote-on { animation: none; }
+}
+
+/* 原来是固定标语或者干脆空着，贴着标题也无所谓；换成一句话后留点呼吸空间。
+   只作用于每日一言，文章自己写 subtitle 的保持原样（原来是 -5px）。 */
+.intro-header .post-heading .subheading[data-daily-quote] {
+    margin-top: 10px;
+}
+
+/* 句子比固定的标语长，文章页那 30px 的字号会撑成三四行，缩一点 */
+.intro-header .post-heading .subheading.quote-long {
+    font-size: 22px;
+    line-height: 1.6;
+}
+
+/* 「每日一言：」前缀。用伪元素而不是写进 HTML：句子是 JS 替换 textContent 的，
+   写在标签里会被一起清掉。关掉每日一言时 data 属性不输出，前缀也自动消失。 */
+.intro-header .subheading[data-daily-quote]::before {
+    content: "每日一言：";
+    font-size: .56em;
+    font-weight: normal;
+    letter-spacing: .04em;
+    opacity: .75;
+    margin-right: .35em;
+    vertical-align: .18em;
+    white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+    .intro-header .post-heading .subheading[data-daily-quote]::before {
+        font-size: .62em;
+        vertical-align: .1em;
+    }
+}
+
+@media (max-width: 767px) {
+    .intro-header .post-heading .subheading.quote-long {
+        font-size: 17px;
+        line-height: 1.55;
     }
 }

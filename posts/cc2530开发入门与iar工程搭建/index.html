@@ -2,61 +2,132 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="theme-color" content="#667eea">
 
+
+
+<title>cc2530开发入门与iar工程搭建 | 小兴365 - 个人技术博客</title>
 <meta name="description" content="CC2530 是物联网 Zigbee 开发中最常用的无线主控芯片之一。本文面向零基础读者，先用生活化例子说明芯片端口的作用，再逐条讲解 P0、P1、P2 端口中哪些引脚可以正常使用，随后完整演示 IAR Embedded Workbench for 8051 中工作区、工程的建立流程以及 eww、ewp、dep、ewd 文件的含义。文章重点纠正 SEL 寄存器的常见误解：SEL 只负责选择普通 IO 还是外设功能，真正决定输入方向的寄存器是 DIR。最后给出可直接运行的点灯例程，帮助读者快速上手 CC2530 开发。">
-
-
-
 <meta name="keywords" content="CC2530,Zigbee开发,IAR8051,SEL寄存器,DIR寄存器,INP寄存器,端口初始化,单片机入门">
+<meta name="robots" content="index,follow">
 
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
-
-<title>cc2530开发入门与iar工程搭建</title>
 <link rel="canonical" href="https://xiaoxing365.com/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/">
 
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="cc2530开发入门与iar工程搭建 | 小兴365 - 个人技术博客">
+<meta property="og:description" content="CC2530 是物联网 Zigbee 开发中最常用的无线主控芯片之一。本文面向零基础读者，先用生活化例子说明芯片端口的作用，再逐条讲解 P0、P1、P2 端口中哪些引脚可以正常使用，随后完整演示 IAR Embedded Workbench for 8051 中工作区、工程的建立流程以及 eww、ewp、dep、ewd 文件的含义。文章重点纠正 SEL 寄存器的常见误解：SEL 只负责选择普通 IO 还是外设功能，真正决定输入方向的寄存器是 DIR。最后给出可直接运行的点灯例程，帮助读者快速上手 CC2530 开发。">
+<meta property="og:url" content="https://xiaoxing365.com/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="cc2530开发入门与iar工程搭建 | 小兴365 - 个人技术博客">
+<meta name="twitter:description" content="CC2530 是物联网 Zigbee 开发中最常用的无线主控芯片之一。本文面向零基础读者，先用生活化例子说明芯片端口的作用，再逐条讲解 P0、P1、P2 端口中哪些引脚可以正常使用，随后完整演示 IAR Embedded Workbench for 8051 中工作区、工程的建立流程以及 eww、ewp、dep、ewd 文件的含义。文章重点纠正 SEL 寄存器的常见误解：SEL 只负责选择普通 IO 还是外设功能，真正决定输入方向的寄存器是 DIR。最后给出可直接运行的点灯例程，帮助读者快速上手 CC2530 开发。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+<meta property="article:published_time" content="2025-07-10T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-20T08:30:00.000Z">
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
+
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "cc2530开发入门与iar工程搭建",
+  "description": "CC2530 是物联网 Zigbee 开发中最常用的无线主控芯片之一。本文面向零基础读者，先用生活化例子说明芯片端口的作用，再逐条讲解 P0、P1、P2 端口中哪些引脚可以正常使用，随后完整演示 IAR Embedded Workbench for 8051 中工作区、工程的建立流程以及 eww、ewp、dep、ewd 文件的含义。文章重点纠正 SEL 寄存器的常见误解：SEL 只负责选择普通 IO 还是外设功能，真正决定输入方向的寄存器是 DIR。最后给出可直接运行的点灯例程，帮助读者快速上手 CC2530 开发。",
+  "datePublished": "2025-07-10T01:00:00.000Z",
+  "dateModified": "2026-11-20T08:30:00.000Z",
+  "author": { "@type": "Person", "name": "小兴365" },
+  "publisher": { "@type": "Organization", "name": "小兴365 - 个人技术博客" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://xiaoxing365.com/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/" }
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -65,26 +136,28 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#CC2530"
+                        <a class="tag" href="/tags/CC2530/"
                            title="CC2530">CC2530</a>
                         
-                        <a class="tag" href="/tags/#单片机"
+                        <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA/"
                            title="单片机">单片机</a>
                         
                     </div>
                     <h1>cc2530开发入门与iar工程搭建</h1>
-                    <h2 class="subheading"></h2>
+                    <h2 class="subheading" data-daily-quote data-quote-fallback="Coding Create Life." data-quote-api=""></h2>
                     <span class="meta">
                             Posted by 小兴365 on
                         2025-07-10
                         </span>
                 </div>
-                <!-- 非文章 -->
+                <!-- 首页 / 归档 / 标签 / 分类 / 普通页面：统一用站点标语 -->
                 
             </div>
         </div>
     </div>
 </header>
+
+
 
 <!-- Nav -->
 <!-- Navigation -->
@@ -92,8 +165,8 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -111,11 +184,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -124,6 +201,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <!-- Content -->
@@ -179,7 +257,7 @@
 <li>配置芯片型号：在工程选项里进入 General Options → Target → Device information，从 Texas Instruments 目录下选择 CC2530F256。这一步决定编译器按照哪颗芯片的资源来分配内存。</li>
 <li>配置仿真器：进入 Debugger → Setup → Driver，选择 Texas Instruments。这样下载程序时软件才能找到对应的调试驱动。</li>
 </ol>
-<h3 id="添加源文件并保存"><a href="#添加源文件并保存" class="headerlink" title="添加源文件并保存"></a>添加源文件并保存</h3><p>新建 C 源文件有两种方式：一种是在工程上右键选择 Add → Add Files，在弹出的对话框右下角把文件类型切换成”全部文件”，然后新建一个后缀为 .c 的文件并选中它，这相当于”创建并导入”一步完成；另一种是点工具栏的新建按钮写一个空文件，按 Ctrl+S 保存成 .c 文件——注意，这种方式<strong>还要再右键工程把它添加进来</strong>，否则它只是躺在磁盘上，不会参与编译。建议文件名用英文，避免编码问题引发奇怪的编译错误。添加成功后，工程目录里会出现一个 Debug 文件夹，用来存放编译生成的中间文件。</p>
+<h3 id="添加源文件并保存"><a href="#添加源文件并保存" class="headerlink" title="添加源文件并保存"></a>添加源文件并保存</h3><p>新建 C 源文件有两种方式：一种是在工程上右键选择 Add → Add Files，在弹出的对话框右下角把文件类型切换成”全部文件”，然后新建一个后缀为 .c 的文件并选中它，这相当于”创建并导入”一步完成；另一种是点工具栏的新建按钮写一个空文件，按 Ctrl+S 保存成 .c 文件——注意，这种方式<strong>还要再右键工程把它添加进来</strong>，否则它只是躺在磁盘上，不会参与编译。建议文件名用英文，避免编码问题引发奇怪的编译错误。编译过一次之后，工程目录下会多出一个 Debug 文件夹，用来存放编译生成的中间文件。</p>
 <p>最后选择 File → Save Workspace 保存工作区，会生成 .eww 文件。至此，磁盘上会出现四个后缀不同的文件，它们的分工如下：</p>
 <table>
 <thead>
@@ -244,17 +322,27 @@
 <p>预期效果：把程序下载到开发板后，四盏 LED 同时点亮并一直保持。如果灯不亮，先确认宏定义的引脚编号和板子电路图是否一致，再检查芯片型号是否选成了 CC2530F256。</p>
 <p>把”选功能、定方向、写电平”这三步走通，就已经掌握了 CC2530 端口编程的核心套路。后面的点灯闪烁、按键检测、外部中断，本质上都是在这三步之上叠加延时、读取和中断逻辑，并没有新的难点。</p>
 
+
+            <!-- 广告位：正文末尾（明确标注，不与正文混淆） -->
             
-            <!-- Pager -->
+
+
+
+            <!--
+                文章页上一篇 / 下一篇
+                Hexo 按日期倒序排文章，所以：
+                  page.prev —— 更新的那篇（左边，←）
+                  page.next —— 更早的那篇（右边，→）
+            -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/cc2530%E7%81%AF%E5%85%89%E4%B8%8E%E6%8C%89%E9%94%AEgpio%E5%AE%9E%E6%88%98/" >&larr; Previous Post</a>
+                    <a href="/posts/cc2530%E7%81%AF%E5%85%89%E4%B8%8E%E6%8C%89%E9%94%AEgpio%E5%AE%9E%E6%88%98/" >&larr; Newer Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/hadoop%E4%B8%8Emysql%E4%B8%8Ehive%E4%B8%89%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/" >Next Post &rarr;</a>
+                    <a href="/posts/hadoop%E4%B8%8Emysql%E4%B8%8Ehive%E4%B8%89%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/" >Older Post &rarr;</a>
                 </li>
                 
             </ul>
@@ -289,34 +377,36 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 

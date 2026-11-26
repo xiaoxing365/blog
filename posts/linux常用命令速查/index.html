@@ -2,61 +2,132 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="theme-color" content="#667eea">
 
+
+
+<title>linux常用命令速查 | 小兴365 - 个人技术博客</title>
 <meta name="description" content="这份Linux常用命令速查按真实使用场景组织，汇总pwd、ls、cd、mkdir、rm、cp、mv、cat、less、find、grep、tar、df、top、ps、ping、ss、yum、apt等高频命令，逐条给出语法、常用参数和可复制的例子，并附PATH配错恢复的踩坑小贴士，是Linux初学者和运维人员的随身参考手册。">
-
-
-
 <meta name="keywords" content="Linux命令,Linux命令速查,Linux文件操作命令,grep命令,tar命令,ps命令,yum与apt,PATH恢复">
+<meta name="robots" content="index,follow">
 
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
-
-<title>linux常用命令速查</title>
 <link rel="canonical" href="https://xiaoxing365.com/posts/linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5/">
 
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux常用命令速查 | 小兴365 - 个人技术博客">
+<meta property="og:description" content="这份Linux常用命令速查按真实使用场景组织，汇总pwd、ls、cd、mkdir、rm、cp、mv、cat、less、find、grep、tar、df、top、ps、ping、ss、yum、apt等高频命令，逐条给出语法、常用参数和可复制的例子，并附PATH配错恢复的踩坑小贴士，是Linux初学者和运维人员的随身参考手册。">
+<meta property="og:url" content="https://xiaoxing365.com/posts/linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux常用命令速查 | 小兴365 - 个人技术博客">
+<meta name="twitter:description" content="这份Linux常用命令速查按真实使用场景组织，汇总pwd、ls、cd、mkdir、rm、cp、mv、cat、less、find、grep、tar、df、top、ps、ping、ss、yum、apt等高频命令，逐条给出语法、常用参数和可复制的例子，并附PATH配错恢复的踩坑小贴士，是Linux初学者和运维人员的随身参考手册。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+<meta property="article:published_time" content="2025-01-01T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-20T08:30:00.000Z">
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
+
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "linux常用命令速查",
+  "description": "这份Linux常用命令速查按真实使用场景组织，汇总pwd、ls、cd、mkdir、rm、cp、mv、cat、less、find、grep、tar、df、top、ps、ping、ss、yum、apt等高频命令，逐条给出语法、常用参数和可复制的例子，并附PATH配错恢复的踩坑小贴士，是Linux初学者和运维人员的随身参考手册。",
+  "datePublished": "2025-01-01T01:00:00.000Z",
+  "dateModified": "2026-11-20T08:30:00.000Z",
+  "author": { "@type": "Person", "name": "小兴365" },
+  "publisher": { "@type": "Organization", "name": "小兴365 - 个人技术博客" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://xiaoxing365.com/posts/linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5/" }
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -65,26 +136,28 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#Linux"
+                        <a class="tag" href="/tags/Linux/"
                            title="Linux">Linux</a>
                         
-                        <a class="tag" href="/tags/#系统"
+                        <a class="tag" href="/tags/%E7%B3%BB%E7%BB%9F/"
                            title="系统">系统</a>
                         
                     </div>
                     <h1>linux常用命令速查</h1>
-                    <h2 class="subheading"></h2>
+                    <h2 class="subheading" data-daily-quote data-quote-fallback="Coding Create Life." data-quote-api=""></h2>
                     <span class="meta">
                             Posted by 小兴365 on
                         2025-01-01
                         </span>
                 </div>
-                <!-- 非文章 -->
+                <!-- 首页 / 归档 / 标签 / 分类 / 普通页面：统一用站点标语 -->
                 
             </div>
         </div>
     </div>
 </header>
+
+
 
 <!-- Nav -->
 <!-- Navigation -->
@@ -92,8 +165,8 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -111,11 +184,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -124,6 +201,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <!-- Content -->
@@ -413,23 +491,33 @@
 <p>一个常见疑问：为什么 <code>apt</code> 前要加 <code>sudo</code>？因为安装软件需要往系统目录写文件，必须临时提权。另外 <code>apt update</code> 只是刷新”软件清单”，真正升级要用 <code>apt upgrade</code>，两步别搞混。<strong>预期效果</strong>：一条命令完成安装，依赖自动满足，日后升级也统一管理。</p>
 <h2 id="踩坑小贴士：PATH-配错后的恢复"><a href="#踩坑小贴士：PATH-配错后的恢复" class="headerlink" title="踩坑小贴士：PATH 配错后的恢复"></a>踩坑小贴士：PATH 配错后的恢复</h2><p>修改环境变量时不小心把 <code>PATH</code> 写坏，是很常见的翻车现场：明明命令还在，系统却提示 <code>command not found</code>，连 <code>vi</code>、<code>sudo</code> 都用不了。别慌，<code>PATH</code> 只是告诉系统去哪里找命令，临时重设一下就能恢复。</p>
 <p><strong>要解决什么</strong>：PATH 被改错后，临时恢复出一个可用的命令搜索路径，先把终端救回来。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin</span><br></pre></td></tr></table></figure>
 
 <p>这条命令把几个标准目录重新拼成 PATH：<code>/bin</code>、<code>/sbin</code> 放系统基础命令，<code>/usr/bin</code>、<code>/usr/sbin</code> 放常规程序，<code>/usr/local/bin</code>、<code>/usr/local/sbin</code> 放本地安装的软件。执行后，常用命令立刻就能找到了。</p>
 <p>这里要提醒两点。第一，这是<strong>临时</strong>恢复，只对当前终端会话有效，关掉窗口就失效；要永久生效，得把正确配置写进 <code>~/.bashrc</code> 或 <code>~/.profile</code>，写之前一定先备份。第二，配置 PATH 时建议用 <code>$PATH</code> 追加而不是整体覆盖，比如 <code>export PATH=$PATH:/your/new/path</code>，这样就不会把系统原有路径弄丢。<strong>预期效果</strong>：终端从”什么命令都找不到”恢复到可用状态，你可以从容地去修正配置文件。</p>
 <p>把这份速查表按场景存下来，用到时对着查、照着敲，慢慢就会熟能生巧。命令不需要死记，重要的是知道每类问题该找哪个工具，以及关键参数怎么组合。等这些命令用顺了，再去学文本处理和 shell 编程，就会水到渠成。</p>
 
+
+            <!-- 广告位：正文末尾（明确标注，不与正文混淆） -->
             
-            <!-- Pager -->
+
+
+
+            <!--
+                文章页上一篇 / 下一篇
+                Hexo 按日期倒序排文章，所以：
+                  page.prev —— 更新的那篇（左边，←）
+                  page.next —— 更早的那篇（右边，→）
+            -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/linux%E5%85%A5%E9%97%A8%E4%B8%8Ewindows%E5%8C%BA%E5%88%AB/" >&larr; Previous Post</a>
+                    <a href="/posts/ip%E5%9C%B0%E5%9D%80%E4%B8%8E%E5%AD%90%E7%BD%91%E5%88%92%E5%88%86cidr/" >&larr; Newer Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E6%9D%83%E9%99%90/" >Next Post &rarr;</a>
+                    <a href="/posts/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E6%9D%83%E9%99%90/" >Older Post &rarr;</a>
                 </li>
                 
             </ul>
@@ -464,34 +552,36 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 

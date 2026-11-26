@@ -2,61 +2,132 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="theme-color" content="#667eea">
 
+
+
+<title>cc2530灯光与按键gpio实战 | 小兴365 - 个人技术博客</title>
 <meta name="description" content="CC2530 的通用 IO 端口是物联网开发最基础的外设。本文从输出和输入两条主线出发，先演示如何用宏定义把 LED 和按键与引脚绑定，再用对照表讲清按位与、按位或、按位取反在寄存器配置中的作用，随后深入 P1INP 与 P2INP 的上拉、下拉、三态配置差异。最后给出一个完整的按键检测例程，包含机械按键防抖和 LED 状态取反闪烁技巧，帮助读者把 GPIO 基础真正用起来。">
-
-
-
 <meta name="keywords" content="CC2530,GPIO,位运算,上拉电阻,按键防抖,LED闪烁,P1INP,宏定义">
+<meta name="robots" content="index,follow">
 
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
-
-<title>cc2530灯光与按键gpio实战</title>
 <link rel="canonical" href="https://xiaoxing365.com/posts/cc2530%E7%81%AF%E5%85%89%E4%B8%8E%E6%8C%89%E9%94%AEgpio%E5%AE%9E%E6%88%98/">
 
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="cc2530灯光与按键gpio实战 | 小兴365 - 个人技术博客">
+<meta property="og:description" content="CC2530 的通用 IO 端口是物联网开发最基础的外设。本文从输出和输入两条主线出发，先演示如何用宏定义把 LED 和按键与引脚绑定，再用对照表讲清按位与、按位或、按位取反在寄存器配置中的作用，随后深入 P1INP 与 P2INP 的上拉、下拉、三态配置差异。最后给出一个完整的按键检测例程，包含机械按键防抖和 LED 状态取反闪烁技巧，帮助读者把 GPIO 基础真正用起来。">
+<meta property="og:url" content="https://xiaoxing365.com/posts/cc2530%E7%81%AF%E5%85%89%E4%B8%8E%E6%8C%89%E9%94%AEgpio%E5%AE%9E%E6%88%98/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="cc2530灯光与按键gpio实战 | 小兴365 - 个人技术博客">
+<meta name="twitter:description" content="CC2530 的通用 IO 端口是物联网开发最基础的外设。本文从输出和输入两条主线出发，先演示如何用宏定义把 LED 和按键与引脚绑定，再用对照表讲清按位与、按位或、按位取反在寄存器配置中的作用，随后深入 P1INP 与 P2INP 的上拉、下拉、三态配置差异。最后给出一个完整的按键检测例程，包含机械按键防抖和 LED 状态取反闪烁技巧，帮助读者把 GPIO 基础真正用起来。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+<meta property="article:published_time" content="2025-07-11T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-20T08:30:00.000Z">
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
+
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "cc2530灯光与按键gpio实战",
+  "description": "CC2530 的通用 IO 端口是物联网开发最基础的外设。本文从输出和输入两条主线出发，先演示如何用宏定义把 LED 和按键与引脚绑定，再用对照表讲清按位与、按位或、按位取反在寄存器配置中的作用，随后深入 P1INP 与 P2INP 的上拉、下拉、三态配置差异。最后给出一个完整的按键检测例程，包含机械按键防抖和 LED 状态取反闪烁技巧，帮助读者把 GPIO 基础真正用起来。",
+  "datePublished": "2025-07-11T01:00:00.000Z",
+  "dateModified": "2026-11-20T08:30:00.000Z",
+  "author": { "@type": "Person", "name": "小兴365" },
+  "publisher": { "@type": "Organization", "name": "小兴365 - 个人技术博客" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://xiaoxing365.com/posts/cc2530%E7%81%AF%E5%85%89%E4%B8%8E%E6%8C%89%E9%94%AEgpio%E5%AE%9E%E6%88%98/" }
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -65,26 +136,28 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#CC2530"
+                        <a class="tag" href="/tags/CC2530/"
                            title="CC2530">CC2530</a>
                         
-                        <a class="tag" href="/tags/#单片机"
+                        <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA/"
                            title="单片机">单片机</a>
                         
                     </div>
                     <h1>cc2530灯光与按键gpio实战</h1>
-                    <h2 class="subheading"></h2>
+                    <h2 class="subheading" data-daily-quote data-quote-fallback="Coding Create Life." data-quote-api=""></h2>
                     <span class="meta">
                             Posted by 小兴365 on
                         2025-07-11
                         </span>
                 </div>
-                <!-- 非文章 -->
+                <!-- 首页 / 归档 / 标签 / 分类 / 普通页面：统一用站点标语 -->
                 
             </div>
         </div>
     </div>
 </header>
+
+
 
 <!-- Nav -->
 <!-- Navigation -->
@@ -92,8 +165,8 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -111,11 +184,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -124,6 +201,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <!-- Content -->
@@ -221,17 +299,27 @@
 <p>预期效果：每按一次 SW1，四盏 LED 的亮灭状态同时翻转；快速抖动或按住不放都不会造成误触发。</p>
 <p>从”写 1 点灯”到”读按键翻转灯”，GPIO 的输出与输入两条主线就走通了。接下来如果把”按键事件”换成”时间到了”或”信号变化了”这类外部事件，就自然进入中断的世界——那是下一章要解决的问题。</p>
 
+
+            <!-- 广告位：正文末尾（明确标注，不与正文混淆） -->
             
-            <!-- Pager -->
+
+
+
+            <!--
+                文章页上一篇 / 下一篇
+                Hexo 按日期倒序排文章，所以：
+                  page.prev —— 更新的那篇（左边，←）
+                  page.next —— 更早的那篇（右边，→）
+            -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/cc2530%E4%B8%AD%E6%96%AD%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD/" >&larr; Previous Post</a>
+                    <a href="/posts/cc2530%E4%B8%AD%E6%96%AD%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD/" >&larr; Newer Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/" >Next Post &rarr;</a>
+                    <a href="/posts/cc2530%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8%E4%B8%8Eiar%E5%B7%A5%E7%A8%8B%E6%90%AD%E5%BB%BA/" >Older Post &rarr;</a>
                 </li>
                 
             </ul>
@@ -266,34 +354,36 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 

@@ -2,61 +2,125 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
-<meta name="description" content="一个由Hexo驱动的个人技术博客，主要分享博主在编程、系统优化、常用软件使用中遇到的真实问题与解决思路。">
-
+<meta name="theme-color" content="#667eea">
 
 
-<meta name="keywords" content="blog, 小兴365, Hexo, 技术博客, 编程, 系统优化, 软件使用">
-
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
 
 <title>小兴365 - 个人技术博客</title>
-<link rel="canonical" href="https://xiaoxing365.com">
+<meta name="description" content="一个由Hexo驱动的个人技术博客，主要分享博主在编程、系统优化、常用软件使用中遇到的真实问题与解决思路。">
+<meta name="keywords" content="blog, 小兴365, Hexo, 技术博客, 编程, 系统优化, 软件使用">
+<meta name="robots" content="index,follow">
+
+<link rel="canonical" href="https://xiaoxing365.com/">
+
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="小兴365 - 个人技术博客">
+<meta property="og:description" content="一个由Hexo驱动的个人技术博客，主要分享博主在编程、系统优化、常用软件使用中遇到的真实问题与解决思路。">
+<meta property="og:url" content="https://xiaoxing365.com/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="小兴365 - 个人技术博客">
+<meta name="twitter:description" content="一个由Hexo驱动的个人技术博客，主要分享博主在编程、系统优化、常用软件使用中遇到的真实问题与解决思路。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
 
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "小兴365 - 个人技术博客",
+  "url": "https://xiaoxing365.com/",
+  "description": "一个由Hexo驱动的个人技术博客，主要分享博主在编程、系统优化、常用软件使用中遇到的真实问题与解决思路。"
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -66,7 +130,7 @@
 					
 					<h1 id="hitokoto">欢迎到我的数字角落</h1>
 					<span class="subheading">Coding Create Life.</span>
-					<span>&nbsp&nbsp&nbsp晚上好</span>
+					<span>&nbsp;&nbsp;&nbsp;中午好</span>
 				</div>
 				
             </div>
@@ -74,14 +138,16 @@
     </div>
 </header>
 
+
+
 <!-- Nav -->
 <!-- Navigation -->
 <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -99,11 +165,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -112,6 +182,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <div class="container">
@@ -128,35 +199,31 @@
             
 
             <div class="post-preview">
+                <!-- 标题和日期同一行：左边标题，右边日期（flex，见 home.css） -->
                 <div class="layout-top">
-                    <h5 class="post-subtitle">
+                    <h2 class="post-title">
+                        <a href="/posts/cc2530%E8%8A%AF%E7%89%87%E4%B8%8Egpio%E5%9F%BA%E7%A1%80/">cc2530芯片与gpio基础</a>
                         <span class="post-meta">2026-11-24 <i class="fa fa-bookmark"></i></span>
-                    </h5>
-                    <div class="clearfix"></div>
+                    </h2>
                 </div>
 
                 <div class="layout-bottom">
                     <div class="post-content-container">
                         <a href="/posts/cc2530%E8%8A%AF%E7%89%87%E4%B8%8Egpio%E5%9F%BA%E7%A1%80/">
-                            <h2 class="post-title">cc2530芯片与gpio基础</h2>
                             <div class="post-content">
 								
                                 <p class="post-excerpt">
-看之前建议先去学一点C语言基础，因为很多代码都是C语言的，如果不懂C语言，可能会看不懂，但是也没什么事，到时候我会顺便解释，但是过于基础的就不说了
+这篇是总览，负责把 CC2530 的脾气讲明白，顺便当个目录。真正的代码都在后面几篇里，新手按顺序点着看就行，别跳着看，跳了容易在第一章就懵。
 
-IAR与keil的区别IAR（IAR Embedded Workbench）IAR......</p>
+这块芯片到底是个啥CC2530 是 TI 家的芯片，内核是 8051（对，就是那个教了...</p>
                             </div>
                         </a>
 
                         <div class="tags">
                             
-                            <a class="tag" href="/tags/CC2530">CC2530</a>
+                            <a class="tag" href="/tags/CC2530/">CC2530</a>
                             
-                            <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA">单片机</a>
-                            
-                            <a class="tag" href="/tags/%E7%89%A9%E8%81%94%E7%BD%91">物联网</a>
-                            
-                            <a class="tag" href="/tags/%E7%A1%AC%E4%BB%B6">硬件</a>
+                            <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA/">单片机</a>
                             
                         </div>
                     </div>
@@ -167,17 +234,17 @@ IAR与keil的区别IAR（IAR Embedded Workbench）IAR......</p>
             
 
             <div class="post-preview">
+                <!-- 标题和日期同一行：左边标题，右边日期（flex，见 home.css） -->
                 <div class="layout-top">
-                    <h5 class="post-subtitle">
+                    <h2 class="post-title">
+                        <a href="/posts/ssd%E5%9B%BA%E6%80%81-%E6%9C%BA%E6%A2%B0%E6%AD%A3%E7%89%88%E9%AA%8C%E8%AF%81sn/">ssd固态-机械正版验证sn</a>
                         <span class="post-meta">2026-08-31 <i class="fa fa-bookmark"></i></span>
-                    </h5>
-                    <div class="clearfix"></div>
+                    </h2>
                 </div>
 
                 <div class="layout-bottom">
                     <div class="post-content-container">
                         <a href="/posts/ssd%E5%9B%BA%E6%80%81-%E6%9C%BA%E6%A2%B0%E6%AD%A3%E7%89%88%E9%AA%8C%E8%AF%81sn/">
-                            <h2 class="post-title">ssd固态-机械正版验证sn</h2>
                             <div class="post-content">
 								
                                 <p class="post-excerpt">SSD固态正版验证(SN)
@@ -193,13 +260,13 @@ IAR与keil的区别IAR（IAR Embedded Workbench）IAR......</p>
 
 
 三星（samsung）
-https://support-cn.samsung.com/p......</p>
+https://support-cn.samsung.com/p...</p>
                             </div>
                         </a>
 
                         <div class="tags">
                             
-                            <a class="tag" href="/tags/%E7%A1%AC%E4%BB%B6">硬件</a>
+                            <a class="tag" href="/tags/%E7%A1%AC%E4%BB%B6/">硬件</a>
                             
                         </div>
                     </div>
@@ -210,26 +277,28 @@ https://support-cn.samsung.com/p......</p>
             
 
             <div class="post-preview">
+                <!-- 标题和日期同一行：左边标题，右边日期（flex，见 home.css） -->
                 <div class="layout-top">
-                    <h5 class="post-subtitle">
+                    <h2 class="post-title">
+                        <a href="/posts/mem-reduct%E6%B2%A1%E6%9C%89%E6%89%98%E7%9B%98%E5%9B%BE%E6%A0%87/">mem-reduct没有托盘图标</a>
                         <span class="post-meta">2026-08-29 <i class="fa fa-bookmark"></i></span>
-                    </h5>
-                    <div class="clearfix"></div>
+                    </h2>
                 </div>
 
                 <div class="layout-bottom">
                     <div class="post-content-container">
                         <a href="/posts/mem-reduct%E6%B2%A1%E6%9C%89%E6%89%98%E7%9B%98%E5%9B%BE%E6%A0%87/">
-                            <h2 class="post-title">mem-reduct没有托盘图标</h2>
                             <div class="post-content">
 								
-                                <p class="post-excerpt">我电脑内存不是很大，又不想一直挂个任务管理器，就装了个mem reduct，结果最近发现他的图标不显示了，我要的不就是这个吗？于是重新装了一遍它，还是不行……得，开始搜寻解决方法最后在GitHub中和mem reduct毫不相关的is......</p>
+                                <p class="post-excerpt">我电脑内存不大，又不想一直开着任务管理器，就装了个 Mem Reduct 帮我看着内存。
+结果前段时间发现它图标不见了 —— 我要的不就是这个图标吗？🙃 重装了一遍，还是不出来。行吧，开始翻资料。
+最后在 GitHub 一个跟 Me...</p>
                             </div>
                         </a>
 
                         <div class="tags">
                             
-                            <a class="tag" href="/tags/%E5%B7%A5%E5%85%B7">工具</a>
+                            <a class="tag" href="/tags/%E5%B7%A5%E5%85%B7/">工具</a>
                             
                         </div>
                     </div>
@@ -240,30 +309,30 @@ https://support-cn.samsung.com/p......</p>
             
 
             <div class="post-preview">
+                <!-- 标题和日期同一行：左边标题，右边日期（flex，见 home.css） -->
                 <div class="layout-top">
-                    <h5 class="post-subtitle">
+                    <h2 class="post-title">
+                        <a href="/posts/visual-assistant-%E5%9C%A8vs2017%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">Visual Assist 在 VS2017 的安装与使用</a>
                         <span class="post-meta">2026-08-29 <i class="fa fa-bookmark"></i></span>
-                    </h5>
-                    <div class="clearfix"></div>
+                    </h2>
                 </div>
 
                 <div class="layout-bottom">
                     <div class="post-content-container">
                         <a href="/posts/visual-assistant-%E5%9C%A8vs2017%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">
-                            <h2 class="post-title">visual assistant 在vs2017的安装与使用</h2>
                             <div class="post-content">
 								
                                 <p class="post-excerpt">
 为什么这个年代了用VS2017？因为更高版本的我带不动（嘻嘻
 
 回归正题，如何在VS2017安装VA：插件下载链接：https://wwrd.lanzoum.com/idHLS2vs2oxg如果有更高版本的VA，欢迎讨论哦！
-1、安......</p>
+1、安...</p>
                             </div>
                         </a>
 
                         <div class="tags">
                             
-                            <a class="tag" href="/tags/%E5%B7%A5%E5%85%B7">工具</a>
+                            <a class="tag" href="/tags/%E5%B7%A5%E5%85%B7/">工具</a>
                             
                         </div>
                     </div>
@@ -274,29 +343,29 @@ https://support-cn.samsung.com/p......</p>
             
 
             <div class="post-preview">
+                <!-- 标题和日期同一行：左边标题，右边日期（flex，见 home.css） -->
                 <div class="layout-top">
-                    <h5 class="post-subtitle">小兴的技术博客 - 折腾记录与实用分享
+                    <h2 class="post-title">
+                        <a href="/posts/hello-world/">Hello World!</a>
                         <span class="post-meta">2026-08-29 <i class="fa fa-bookmark"></i></span>
-                    </h5>
-                    <div class="clearfix"></div>
+                    </h2>
                 </div>
 
                 <div class="layout-bottom">
                     <div class="post-content-container">
                         <a href="/posts/hello-world/">
-                            <h2 class="post-title">Hello World!</h2>
                             <div class="post-content">
 								
                                 <p class="post-excerpt">欢迎来到我的新博客！本博客由hexo+github pages驱动！
 主站点：xiaoxing365.com,工具站：xiaoxing365.top
 现在已经把我以前的笔记同步了过来，由于时间不同，会在本文下面显示哦~~~
-正在逐步完......</p>
+正在逐步完...</p>
                             </div>
                         </a>
 
                         <div class="tags">
                             
-                            <a class="tag" href="/tags/hello-world">hello-world</a>
+                            <a class="tag" href="/tags/hello-world/">hello-world</a>
                             
                         </div>
                     </div>
@@ -307,28 +376,28 @@ https://support-cn.samsung.com/p......</p>
             
 
             <div class="post-preview">
+                <!-- 标题和日期同一行：左边标题，右边日期（flex，见 home.css） -->
                 <div class="layout-top">
-                    <h5 class="post-subtitle">
+                    <h2 class="post-title">
+                        <a href="/posts/cc2530%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%80%9F%E6%9F%A5/">cc2530串口通信与寄存器速查</a>
                         <span class="post-meta">2025-07-19 <i class="fa fa-bookmark"></i></span>
-                    </h5>
-                    <div class="clearfix"></div>
+                    </h2>
                 </div>
 
                 <div class="layout-bottom">
                     <div class="post-content-container">
                         <a href="/posts/cc2530%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%AF%84%E5%AD%98%E5%99%A8%E9%80%9F%E6%9F%A5/">
-                            <h2 class="post-title">cc2530串口通信与寄存器速查</h2>
                             <div class="post-content">
 								
-                                <p class="post-excerpt">设备采集到温湿度、按键状态之后，怎么把数据送到电脑上查看？最常用、也最容易上手的方式就是串口。一根 USB 转 TTL 线，加上几行初始化代码，就能让开发板和电脑”对话”。这一章先把串口通信的原理和配置讲清楚，再把开发中经常要查的寄存......</p>
+                                <p class="post-excerpt">设备采集到温湿度、按键状态之后，怎么把数据送到电脑上查看？最常用、也最容易上手的方式就是串口。一根 USB 转 TTL 线，加上几行初始化代码，就能让开发板和电脑”对话”。这一章先把串口通信的原理和配置讲清楚，再把开发中经常要查的寄存...</p>
                             </div>
                         </a>
 
                         <div class="tags">
                             
-                            <a class="tag" href="/tags/CC2530">CC2530</a>
+                            <a class="tag" href="/tags/CC2530/">CC2530</a>
                             
-                            <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA">单片机</a>
+                            <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA/">单片机</a>
                             
                         </div>
                     </div>
@@ -339,28 +408,28 @@ https://support-cn.samsung.com/p......</p>
             
 
             <div class="post-preview">
+                <!-- 标题和日期同一行：左边标题，右边日期（flex，见 home.css） -->
                 <div class="layout-top">
-                    <h5 class="post-subtitle">
+                    <h2 class="post-title">
+                        <a href="/posts/nbiot%E6%A8%A1%E7%BB%84at%E6%8C%87%E4%BB%A4%E8%81%94%E7%BD%91/">nbiot模组at指令联网</a>
                         <span class="post-meta">2025-07-17 <i class="fa fa-bookmark"></i></span>
-                    </h5>
-                    <div class="clearfix"></div>
+                    </h2>
                 </div>
 
                 <div class="layout-bottom">
                     <div class="post-content-container">
                         <a href="/posts/nbiot%E6%A8%A1%E7%BB%84at%E6%8C%87%E4%BB%A4%E8%81%94%E7%BD%91/">
-                            <h2 class="post-title">nbiot模组at指令联网</h2>
                             <div class="post-content">
 								
-                                <p class="post-excerpt">智能水表、电表、烟感这些设备往往分布在地下室、管道井等信号不好的地方，还要靠电池工作好几年。NB-IoT（窄带物联网）正是为这类场景设计的：覆盖深、功耗低、连接多。主控芯片要让模组干活，靠的是一种非常古老却依然通用的语言——AT 指令......</p>
+                                <p class="post-excerpt">智能水表、电表、烟感这些设备往往分布在地下室、管道井等信号不好的地方，还要靠电池工作好几年。NB-IoT（窄带物联网）正是为这类场景设计的：覆盖深、功耗低、连接多。主控芯片要让模组干活，靠的是一种非常古老却依然通用的语言——AT 指令...</p>
                             </div>
                         </a>
 
                         <div class="tags">
                             
-                            <a class="tag" href="/tags/%E7%89%A9%E8%81%94%E7%BD%91">物联网</a>
+                            <a class="tag" href="/tags/%E7%BD%91%E7%BB%9C/">网络</a>
                             
-                            <a class="tag" href="/tags/%E7%BD%91%E7%BB%9C">网络</a>
+                            <a class="tag" href="/tags/%E7%89%A9%E8%81%94%E7%BD%91/">物联网</a>
                             
                         </div>
                     </div>
@@ -371,28 +440,28 @@ https://support-cn.samsung.com/p......</p>
             
 
             <div class="post-preview">
+                <!-- 标题和日期同一行：左边标题，右边日期（flex，见 home.css） -->
                 <div class="layout-top">
-                    <h5 class="post-subtitle">
+                    <h2 class="post-title">
+                        <a href="/posts/cc2530%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%8E%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/">cc2530定时器与定时器中断</a>
                         <span class="post-meta">2025-07-16 <i class="fa fa-bookmark"></i></span>
-                    </h5>
-                    <div class="clearfix"></div>
+                    </h2>
                 </div>
 
                 <div class="layout-bottom">
                     <div class="post-content-container">
                         <a href="/posts/cc2530%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%8E%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/">
-                            <h2 class="post-title">cc2530定时器与定时器中断</h2>
                             <div class="post-content">
 								
-                                <p class="post-excerpt">如果想让一盏灯精确地每秒闪烁一次，用前面学过的空循环延时也能凑合，但它有两个毛病：一是时间不准，循环次数受编译器和主频影响；二是 CPU 全程被占用，什么别的事都干不了。定时器就是芯片内部专门的”硬件闹钟”：设好时间它就自己数数，到点......</p>
+                                <p class="post-excerpt">如果想让一盏灯精确地每秒闪烁一次，用前面学过的空循环延时也能凑合，但它有两个毛病：一是时间不准，循环次数受编译器和主频影响；二是 CPU 全程被占用，什么别的事都干不了。定时器就是芯片内部专门的”硬件闹钟”：设好时间它就自己数数，到点...</p>
                             </div>
                         </a>
 
                         <div class="tags">
                             
-                            <a class="tag" href="/tags/CC2530">CC2530</a>
+                            <a class="tag" href="/tags/CC2530/">CC2530</a>
                             
-                            <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA">单片机</a>
+                            <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA/">单片机</a>
                             
                         </div>
                     </div>
@@ -403,28 +472,28 @@ https://support-cn.samsung.com/p......</p>
             
 
             <div class="post-preview">
+                <!-- 标题和日期同一行：左边标题，右边日期（flex，见 home.css） -->
                 <div class="layout-top">
-                    <h5 class="post-subtitle">
+                    <h2 class="post-title">
+                        <a href="/posts/cc2530%E4%B8%AD%E6%96%AD%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD/">cc2530中断系统与外部中断</a>
                         <span class="post-meta">2025-07-14 <i class="fa fa-bookmark"></i></span>
-                    </h5>
-                    <div class="clearfix"></div>
+                    </h2>
                 </div>
 
                 <div class="layout-bottom">
                     <div class="post-content-container">
                         <a href="/posts/cc2530%E4%B8%AD%E6%96%AD%E7%B3%BB%E7%BB%9F%E4%B8%8E%E5%A4%96%E9%83%A8%E4%B8%AD%E6%96%AD/">
-                            <h2 class="post-title">cc2530中断系统与外部中断</h2>
                             <div class="post-content">
 								
-                                <p class="post-excerpt">想象你正在看书，手机突然响了。你可以每读一页就抬头看一眼手机有没有消息——这叫轮询；也可以把手机调成响铃模式，来电话时它主动提醒你，你放下书去接，接完再回来接着看——这叫中断。CC2530 处理外部事件时，用的就是后一种思路：平时主程......</p>
+                                <p class="post-excerpt">想象你正在看书，手机突然响了。你可以每读一页就抬头看一眼手机有没有消息——这叫轮询；也可以把手机调成响铃模式，来电话时它主动提醒你，你放下书去接，接完再回来接着看——这叫中断。CC2530 处理外部事件时，用的就是后一种思路：平时主程...</p>
                             </div>
                         </a>
 
                         <div class="tags">
                             
-                            <a class="tag" href="/tags/CC2530">CC2530</a>
+                            <a class="tag" href="/tags/CC2530/">CC2530</a>
                             
-                            <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA">单片机</a>
+                            <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA/">单片机</a>
                             
                         </div>
                     </div>
@@ -435,28 +504,28 @@ https://support-cn.samsung.com/p......</p>
             
 
             <div class="post-preview">
+                <!-- 标题和日期同一行：左边标题，右边日期（flex，见 home.css） -->
                 <div class="layout-top">
-                    <h5 class="post-subtitle">
+                    <h2 class="post-title">
+                        <a href="/posts/cc2530%E7%81%AF%E5%85%89%E4%B8%8E%E6%8C%89%E9%94%AEgpio%E5%AE%9E%E6%88%98/">cc2530灯光与按键gpio实战</a>
                         <span class="post-meta">2025-07-11 <i class="fa fa-bookmark"></i></span>
-                    </h5>
-                    <div class="clearfix"></div>
+                    </h2>
                 </div>
 
                 <div class="layout-bottom">
                     <div class="post-content-container">
                         <a href="/posts/cc2530%E7%81%AF%E5%85%89%E4%B8%8E%E6%8C%89%E9%94%AEgpio%E5%AE%9E%E6%88%98/">
-                            <h2 class="post-title">cc2530灯光与按键gpio实战</h2>
                             <div class="post-content">
 								
-                                <p class="post-excerpt">让一盏灯亮起来，是接触任何一块开发板时最让人有成就感的瞬间；而按一下按键就能切换灯的状态，才算真正实现了”人机对话”。这两件事分别对应数字 IO 的两种基本能力——输出和输入。下面就用 CC2530 把这两个能力串起来，顺便把背后绕不......</p>
+                                <p class="post-excerpt">让一盏灯亮起来，是接触任何一块开发板时最让人有成就感的瞬间；而按一下按键就能切换灯的状态，才算真正实现了”人机对话”。这两件事分别对应数字 IO 的两种基本能力——输出和输入。下面就用 CC2530 把这两个能力串起来，顺便把背后绕不...</p>
                             </div>
                         </a>
 
                         <div class="tags">
                             
-                            <a class="tag" href="/tags/CC2530">CC2530</a>
+                            <a class="tag" href="/tags/CC2530/">CC2530</a>
                             
-                            <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA">单片机</a>
+                            <a class="tag" href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA/">单片机</a>
                             
                         </div>
                     </div>
@@ -467,12 +536,14 @@ https://support-cn.samsung.com/p......</p>
             
 
             <!-- Pager -->
-            <ul class="pager">
+            
+<ul class="pager">
     
     
-        <li class="next"><a href="/page/2/">Newer  &rarr;</a></li>
+        <li class="next"><a href="/page/2/">Older  &rarr;</a></li>
     
 </ul>
+
 
         </div>
 
@@ -494,29 +565,12 @@ https://support-cn.samsung.com/p......</p>
                         <span><i class="fa fa-angle-double-right"></i></span>
                         <a class="categoryName" data-category="物联网" data-toggle="collapse"
                            data-parent="#accordion"
-                           data-target="#cmwupv8e50004f0ukgclke2vn"
+                           data-target="#cmwx55ee70004cwukhzjxcvrc"
                            href="/categories/%E7%89%A9%E8%81%94%E7%BD%91/">
                             <h5>物联网 (9)</h5>
                         </a>
                     </div>
-                    <div class="collapse" id="cmwupv8e50004f0ukgclke2vn">
-                        <ul>
-                            
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="panel">
-                    <div class="category">
-                        <span><i class="fa fa-angle-double-right"></i></span>
-                        <a class="categoryName" data-category="大数据" data-toggle="collapse"
-                           data-parent="#accordion"
-                           data-target="#cmwupv8e9000sf0uka2a155d3"
-                           href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">
-                            <h5>大数据 (2)</h5>
-                        </a>
-                    </div>
-                    <div class="collapse" id="cmwupv8e9000sf0uka2a155d3">
+                    <div class="collapse" id="cmwx55ee70004cwukhzjxcvrc">
                         <ul>
                             
                         </ul>
@@ -528,12 +582,12 @@ https://support-cn.samsung.com/p......</p>
                         <span><i class="fa fa-angle-double-right"></i></span>
                         <a class="categoryName" data-category="分享" data-toggle="collapse"
                            data-parent="#accordion"
-                           data-target="#cmwupv8ea0017f0uk04zy44ey"
+                           data-target="#cmwx55eeb000tcwuk0r9w21bu"
                            href="/categories/%E5%88%86%E4%BA%AB/">
                             <h5>分享 (2)</h5>
                         </a>
                     </div>
-                    <div class="collapse" id="cmwupv8ea0017f0uk04zy44ey">
+                    <div class="collapse" id="cmwx55eeb000tcwuk0r9w21bu">
                         <ul>
                             
                         </ul>
@@ -543,14 +597,14 @@ https://support-cn.samsung.com/p......</p>
                 <div class="panel">
                     <div class="category">
                         <span><i class="fa fa-angle-double-right"></i></span>
-                        <a class="categoryName" data-category="网络基础" data-toggle="collapse"
+                        <a class="categoryName" data-category="大数据" data-toggle="collapse"
                            data-parent="#accordion"
-                           data-target="#cmwupv8eb001ef0uk4zlt3zuc"
-                           href="/categories/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80/">
-                            <h5>网络基础 (3)</h5>
+                           data-target="#cmwx55eec0013cwukf88c3jmm"
+                           href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">
+                            <h5>大数据 (2)</h5>
                         </a>
                     </div>
-                    <div class="collapse" id="cmwupv8eb001ef0uk4zlt3zuc">
+                    <div class="collapse" id="cmwx55eec0013cwukf88c3jmm">
                         <ul>
                             
                         </ul>
@@ -562,12 +616,29 @@ https://support-cn.samsung.com/p......</p>
                         <span><i class="fa fa-angle-double-right"></i></span>
                         <a class="categoryName" data-category="Linux" data-toggle="collapse"
                            data-parent="#accordion"
-                           data-target="#cmwupv8eb001kf0ukgngnb9jd"
+                           data-target="#cmwx55eed001gcwukedie025d"
                            href="/categories/Linux/">
                             <h5>Linux (4)</h5>
                         </a>
                     </div>
-                    <div class="collapse" id="cmwupv8eb001kf0ukgngnb9jd">
+                    <div class="collapse" id="cmwx55eed001gcwukedie025d">
+                        <ul>
+                            
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <div class="category">
+                        <span><i class="fa fa-angle-double-right"></i></span>
+                        <a class="categoryName" data-category="网络基础" data-toggle="collapse"
+                           data-parent="#accordion"
+                           data-target="#cmwx55eee001ncwukfuaqa79j"
+                           href="/categories/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80/">
+                            <h5>网络基础 (3)</h5>
+                        </a>
+                    </div>
+                    <div class="collapse" id="cmwx55eee001ncwukfuaqa79j">
                         <ul>
                             
                         </ul>
@@ -579,12 +650,12 @@ https://support-cn.samsung.com/p......</p>
                         <span><i class="fa fa-angle-double-right"></i></span>
                         <a class="categoryName" data-category="MySQL" data-toggle="collapse"
                            data-parent="#accordion"
-                           data-target="#cmwupv8ec001yf0ukfdvh23n5"
+                           data-target="#cmwx55eee0022cwuk4fx5a8n7"
                            href="/categories/MySQL/">
                             <h5>MySQL (4)</h5>
                         </a>
                     </div>
-                    <div class="collapse" id="cmwupv8ec001yf0ukfdvh23n5">
+                    <div class="collapse" id="cmwx55eee0022cwuk4fx5a8n7">
                         <ul>
                             
                         </ul>
@@ -596,12 +667,12 @@ https://support-cn.samsung.com/p......</p>
                         <span><i class="fa fa-angle-double-right"></i></span>
                         <a class="categoryName" data-category="教程" data-toggle="collapse"
                            data-parent="#accordion"
-                           data-target="#cmwupv8ec0024f0uk69sr7ucp"
+                           data-target="#cmwx55eee0029cwuk9rvl06it"
                            href="/categories/%E6%95%99%E7%A8%8B/">
                             <h5>教程 (2)</h5>
                         </a>
                     </div>
-                    <div class="collapse" id="cmwupv8ec0024f0uk69sr7ucp">
+                    <div class="collapse" id="cmwx55eee0029cwuk9rvl06it">
                         <ul>
                             
                         </ul>
@@ -613,12 +684,12 @@ https://support-cn.samsung.com/p......</p>
                         <span><i class="fa fa-angle-double-right"></i></span>
                         <a class="categoryName" data-category="Python" data-toggle="collapse"
                            data-parent="#accordion"
-                           data-target="#cmwupv8ef003if0uk304o6e90"
+                           data-target="#cmwx55eei003lcwuka2ik9uwh"
                            href="/categories/Python/">
                             <h5>Python (2)</h5>
                         </a>
                     </div>
-                    <div class="collapse" id="cmwupv8ef003if0uk304o6e90">
+                    <div class="collapse" id="cmwx55eei003lcwuka2ik9uwh">
                         <ul>
                             
                         </ul>
@@ -630,12 +701,12 @@ https://support-cn.samsung.com/p......</p>
                         <span><i class="fa fa-angle-double-right"></i></span>
                         <a class="categoryName" data-category="Ubuntu" data-toggle="collapse"
                            data-parent="#accordion"
-                           data-target="#cmwupv8eh003zf0uk6kmh9zd1"
+                           data-target="#cmwx55eej0041cwuk3yi0fefe"
                            href="/categories/Ubuntu/">
                             <h5>Ubuntu (1)</h5>
                         </a>
                     </div>
-                    <div class="collapse" id="cmwupv8eh003zf0uk6kmh9zd1">
+                    <div class="collapse" id="cmwx55eej0041cwuk3yi0fefe">
                         <ul>
                             
                         </ul>
@@ -647,12 +718,12 @@ https://support-cn.samsung.com/p......</p>
                         <span><i class="fa fa-angle-double-right"></i></span>
                         <a class="categoryName" data-category="正则表达式" data-toggle="collapse"
                            data-parent="#accordion"
-                           data-target="#cmwupv8eh0048f0uk7tke62d3"
+                           data-target="#cmwx55eek004acwukf4xvdupt"
                            href="/categories/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">
                             <h5>正则表达式 (1)</h5>
                         </a>
                     </div>
-                    <div class="collapse" id="cmwupv8eh0048f0uk7tke62d3">
+                    <div class="collapse" id="cmwx55eek004acwukf4xvdupt">
                         <ul>
                             
                         </ul>
@@ -675,13 +746,13 @@ https://support-cn.samsung.com/p......</p>
                     <div class="archive">
                         <span><i class="fa fa-angle-double-right"></i></span>
                         <a class="archiveName" data-archive="2025archive" data-toggle="collapse"
-                           data-parent="#accordion"
+                           data-parent="#archive"
                            data-target="#2025archive"
                            href="/archives/2025/">
                             <h5>2025 (25)</h5>
                         </a>
                     </div>
-                    <div class="collapse" id="/archives/2025/">
+                    <div class="collapse" id="2025archive">
                         <ul>
                             
                             
@@ -739,13 +810,13 @@ https://support-cn.samsung.com/p......</p>
                     <div class="archive">
                         <span><i class="fa fa-angle-double-right"></i></span>
                         <a class="archiveName" data-archive="2026archive" data-toggle="collapse"
-                           data-parent="#accordion"
+                           data-parent="#archive"
                            data-target="#2026archive"
                            href="/archives/2026/">
                             <h5>2026 (5)</h5>
                         </a>
                     </div>
-                    <div class="collapse" id="/archives/2026/">
+                    <div class="collapse" id="2026archive">
                         <ul>
                             
                             
@@ -818,12 +889,8 @@ https://support-cn.samsung.com/p......</p>
                    href="/tags/%E5%8D%95%E7%89%87%E6%9C%BA/">单片机 (6)</a>
                 
 
-                <a data-tag="物联网"
-                   href="/tags/%E7%89%A9%E8%81%94%E7%BD%91/">物联网 (4)</a>
-                
-
-                <a data-tag="硬件"
-                   href="/tags/%E7%A1%AC%E4%BB%B6/">硬件 (2)</a>
+                <a data-tag="hello-world"
+                   href="/tags/hello-world/">hello-world (1)</a>
                 
 
                 <a data-tag="Hadoop"
@@ -834,8 +901,12 @@ https://support-cn.samsung.com/p......</p>
                    href="/tags/%E9%9B%86%E7%BE%A4/">集群 (2)</a>
                 
 
-                <a data-tag="hello-world"
-                   href="/tags/hello-world/">hello-world (1)</a>
+                <a data-tag="Linux"
+                   href="/tags/Linux/">Linux (5)</a>
+                
+
+                <a data-tag="系统"
+                   href="/tags/%E7%B3%BB%E7%BB%9F/">系统 (4)</a>
                 
 
                 <a data-tag="网络"
@@ -844,14 +915,6 @@ https://support-cn.samsung.com/p......</p>
 
                 <a data-tag="网络协议"
                    href="/tags/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">网络协议 (2)</a>
-                
-
-                <a data-tag="Linux"
-                   href="/tags/Linux/">Linux (5)</a>
-                
-
-                <a data-tag="系统"
-                   href="/tags/%E7%B3%BB%E7%BB%9F/">系统 (4)</a>
                 
 
                 <a data-tag="MySQL"
@@ -864,6 +927,14 @@ https://support-cn.samsung.com/p......</p>
 
                 <a data-tag="工具"
                    href="/tags/%E5%B7%A5%E5%85%B7/">工具 (2)</a>
+                
+
+                <a data-tag="物联网"
+                   href="/tags/%E7%89%A9%E8%81%94%E7%BD%91/">物联网 (3)</a>
+                
+
+                <a data-tag="硬件"
+                   href="/tags/%E7%A1%AC%E4%BB%B6/">硬件 (1)</a>
                 
 
                 <a data-tag="Python"
@@ -889,40 +960,43 @@ https://support-cn.samsung.com/p......</p>
     </div>
 </div>
 
+
 <!-- Footer -->
 <!-- Footer -->
 <footer>
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 

@@ -11,18 +11,54 @@
     flex-flow: row;
 }
 
-.post-subtitle {
-    margin: 0;
-    color: grey;
+/* 标题与日期同一行：标题占剩下的宽度，日期固定靠右、不换行。
+   注意选择器必须带 .post-container，否则被 style.css 里
+   `.post-container h2 { margin-top: 1.8em }` 压过去，标题上方会空出 54px。 */
+.post-container .post-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 12px;
 }
 
-.post-title {
-    margin-top: 10px;
+/* 标题包在 a 里，别让它变成 Bootstrap 的蓝色链接 */
+.post-title > a {
+    color: inherit;
+    text-decoration: none;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .post-meta {
-    float: right;
-    margin-right: 110px;
+    flex: none;
+    margin: 0;
+    color: #a3a3a3;
+    font-size: 13px;
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+/* 卡片 hover 时标题变粉，日期不要跟着变 */
+.post-preview:hover .post-title .post-meta {
+    color: #a3a3a3;
+}
+
+/* 手机上标题和日期挤在一行会互相抢地方，把标题字号压小一点，仍然保持一行 */
+@media (max-width: 480px) {
+    .post-title {
+        gap: 10px;
+        align-items: flex-start;   /* 标题折行时，日期跟着第一行走，不要悬在中间 */
+    }
+
+    .post-title > a {
+        font-size: 22px;
+    }
+
+    .post-meta {
+        font-size: 12px;
+        line-height: 1.8;
+    }
 }
 
 .post-author {

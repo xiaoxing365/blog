@@ -2,61 +2,132 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="theme-color" content="#667eea">
 
+
+
+<title>mysql权限备份与性能诊断 | 小兴365 - 个人技术博客</title>
 <meta name="description" content="面向运维与开发人员的 MySQL 权限备份与性能诊断指南，涵盖 CREATE USER 建用户与加密插件切换、8.0 角色批量授权、GRANT/REVOKE/FLUSH PRIVILEGES、核心权限精简说明，以及 mysqldump/source/LOAD DATA LOCAL INFILE 导入导出、忘记 root 密码重置、存储引擎对比和 sys Schema 快速定位慢 SQL 的方法。">
-
-
-
 <meta name="keywords" content="MySQL权限管理,GRANT授权,mysqldump备份,忘记root密码,MySQL存储引擎,sys Schema,性能诊断">
+<meta name="robots" content="index,follow">
 
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
-
-<title>mysql权限备份与性能诊断</title>
 <link rel="canonical" href="https://xiaoxing365.com/posts/mysql%E6%9D%83%E9%99%90%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/">
 
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql权限备份与性能诊断 | 小兴365 - 个人技术博客">
+<meta property="og:description" content="面向运维与开发人员的 MySQL 权限备份与性能诊断指南，涵盖 CREATE USER 建用户与加密插件切换、8.0 角色批量授权、GRANT/REVOKE/FLUSH PRIVILEGES、核心权限精简说明，以及 mysqldump/source/LOAD DATA LOCAL INFILE 导入导出、忘记 root 密码重置、存储引擎对比和 sys Schema 快速定位慢 SQL 的方法。">
+<meta property="og:url" content="https://xiaoxing365.com/posts/mysql%E6%9D%83%E9%99%90%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mysql权限备份与性能诊断 | 小兴365 - 个人技术博客">
+<meta name="twitter:description" content="面向运维与开发人员的 MySQL 权限备份与性能诊断指南，涵盖 CREATE USER 建用户与加密插件切换、8.0 角色批量授权、GRANT/REVOKE/FLUSH PRIVILEGES、核心权限精简说明，以及 mysqldump/source/LOAD DATA LOCAL INFILE 导入导出、忘记 root 密码重置、存储引擎对比和 sys Schema 快速定位慢 SQL 的方法。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+<meta property="article:published_time" content="2025-01-01T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-20T08:30:00.000Z">
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
+
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "mysql权限备份与性能诊断",
+  "description": "面向运维与开发人员的 MySQL 权限备份与性能诊断指南，涵盖 CREATE USER 建用户与加密插件切换、8.0 角色批量授权、GRANT/REVOKE/FLUSH PRIVILEGES、核心权限精简说明，以及 mysqldump/source/LOAD DATA LOCAL INFILE 导入导出、忘记 root 密码重置、存储引擎对比和 sys Schema 快速定位慢 SQL 的方法。",
+  "datePublished": "2025-01-01T01:00:00.000Z",
+  "dateModified": "2026-11-20T08:30:00.000Z",
+  "author": { "@type": "Person", "name": "小兴365" },
+  "publisher": { "@type": "Organization", "name": "小兴365 - 个人技术博客" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://xiaoxing365.com/posts/mysql%E6%9D%83%E9%99%90%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/" }
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -65,26 +136,28 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#MySQL"
+                        <a class="tag" href="/tags/MySQL/"
                            title="MySQL">MySQL</a>
                         
-                        <a class="tag" href="/tags/#数据库"
+                        <a class="tag" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"
                            title="数据库">数据库</a>
                         
                     </div>
                     <h1>mysql权限备份与性能诊断</h1>
-                    <h2 class="subheading"></h2>
+                    <h2 class="subheading" data-daily-quote data-quote-fallback="Coding Create Life." data-quote-api=""></h2>
                     <span class="meta">
                             Posted by 小兴365 on
                         2025-01-01
                         </span>
                 </div>
-                <!-- 非文章 -->
+                <!-- 首页 / 归档 / 标签 / 分类 / 普通页面：统一用站点标语 -->
                 
             </div>
         </div>
     </div>
 </header>
+
+
 
 <!-- Nav -->
 <!-- Navigation -->
@@ -92,8 +165,8 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -111,11 +184,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -124,6 +201,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <!-- Content -->
@@ -287,8 +365,11 @@
 <p>库名和表名都可以用 <code>*</code> 通配，写法与 GRANT 一致。<code>REVOKE ALL PRIVILEGES</code> 可以一次性收回全部权限。</p>
 <h2 id="四、备份与导入导出"><a href="#四、备份与导入导出" class="headerlink" title="四、备份与导入导出"></a>四、备份与导入导出</h2><p>数据无价，备份是底线操作。下面这几条命令建议收藏。</p>
 <h3 id="4-1-用-mysqldump-备份"><a href="#4-1-用-mysqldump-备份" class="headerlink" title="4.1 用 mysqldump 备份"></a>4.1 用 mysqldump 备份</h3><p>mysqldump 是 MySQL 自带的逻辑备份工具，导出的是可读的 SQL 文件。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 备份整个 company 库</span></span><br><span class="line">mysqldump -u root -p company &gt; company_dump.sql</span><br><span class="line"><span class="comment"># 只备份某张表</span></span><br><span class="line">mysqldump -u root -p company employee &gt; employee_dump.sql</span><br><span class="line"><span class="comment"># 还原：把 SQL 文件导入到一个新库</span></span><br><span class="line">mysql -u root -p company_new &lt; company_dump.sql</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 备份整个 company 库</span></span><br><span class="line">mysqldump -u root -p company &gt; company_dump.sql</span><br><span class="line"><span class="comment"># 只备份某张表</span></span><br><span class="line">mysqldump -u root -p company employee &gt; employee_dump.sql</span><br><span class="line"><span class="comment"># 还原：先建一个空库（dump 里没有 CREATE DATABASE，不建会报 Unknown database）</span></span><br><span class="line">mysql -u root -p -e <span class="string">&quot;CREATE DATABASE company_new DEFAULT CHARSET utf8mb4;&quot;</span></span><br><span class="line">mysql -u root -p company_new &lt; company_dump.sql</span><br></pre></td></tr></table></figure>
 
+<blockquote>
+<p>不想分两步的话，备份时加 <code>--databases company</code>，导出的脚本里就会自带建库语句，还原时不用先建库。</p>
+</blockquote>
 <p><strong>预期效果</strong>：第一行生成包含建表语句和 INSERT 语句的脚本；最后一行把脚本重新执行，得到一份和原库结构、数据一致的新库。导出大库时可以加 <code>--single-transaction</code> 保证 InnoDB 数据一致性。</p>
 <h3 id="4-2-三种常用的导入方式"><a href="#4-2-三种常用的导入方式" class="headerlink" title="4.2 三种常用的导入方式"></a>4.2 三种常用的导入方式</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方式一：在命令行用重定向导入</span></span><br><span class="line">mysql -uroot -p company &lt; company_dump.sql</span><br></pre></td></tr></table></figure>
 
@@ -303,8 +384,11 @@
 <h3 id="5-1-Linux-下重置"><a href="#5-1-Linux-下重置" class="headerlink" title="5.1 Linux 下重置"></a>5.1 Linux 下重置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 停掉服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl stop mysql</span><br><span class="line"><span class="comment"># 2. 跳过权限表启动；--skip-networking 防止此时被远程无密码接入</span></span><br><span class="line"><span class="built_in">sudo</span> mysqld --skip-grant-tables --skip-networking --user=mysql &amp;</span><br><span class="line"><span class="comment"># 3. 直接登录，无需密码</span></span><br><span class="line">mysql</span><br></pre></td></tr></table></figure>
 
 <p>进入后按版本执行不同语句：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- MySQL 5.7 及以下：用 PASSWORD() 函数更新 authentication_string</span></span><br><span class="line"><span class="keyword">UPDATE</span> mysql.user <span class="keyword">SET</span> authentication_string <span class="operator">=</span> PASSWORD(<span class="string">&#x27;root&#x27;</span>)</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">User</span> <span class="operator">=</span> <span class="string">&#x27;root&#x27;</span> <span class="keyword">AND</span> Host <span class="operator">=</span> <span class="string">&#x27;localhost&#x27;</span>;</span><br><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- MySQL 5.7：确认列名是 authentication_string，用 PASSWORD() 写新密码</span></span><br><span class="line"><span class="keyword">UPDATE</span> mysql.user <span class="keyword">SET</span> authentication_string <span class="operator">=</span> PASSWORD(<span class="string">&#x27;root&#x27;</span>)</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">User</span> <span class="operator">=</span> <span class="string">&#x27;root&#x27;</span> <span class="keyword">AND</span> Host <span class="operator">=</span> <span class="string">&#x27;localhost&#x27;</span>;</span><br><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
 
+<blockquote>
+<p>更老的 5.6 及以前，密码列叫 <code>Password</code>，语句要换成 <code>SET Password = PASSWORD(&#39;root&#39;)</code>，别把两版的列名混着用。</p>
+</blockquote>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- MySQL 8.0 及以上：PASSWORD() 已被移除，改用 ALTER USER</span></span><br><span class="line">FLUSH PRIVILEGES;</span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">USER</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">&#x27;root&#x27;</span>;</span><br><span class="line"><span class="comment">-- 如需兼容旧客户端，再指定插件</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">USER</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span> IDENTIFIED <span class="keyword">WITH</span> mysql_native_password <span class="keyword">BY</span> <span class="string">&#x27;root&#x27;</span>;</span><br><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
 
 <p><strong>预期效果</strong>：root 密码被重置为 root。退出后杀掉跳过校验的进程，再 <code>sudo systemctl start mysql</code> 正常启动，用新密码登录验证。</p>
@@ -415,17 +499,27 @@
 <p>参考来源：用户与权限管理相关内容参考了 huangSir-devops 在博客园发表的文章《MySQL中用户及权限管理（mysql8.0版本）》<a target="_blank" rel="noopener" href="https://www.cnblogs.com/huangSir-devops/p/18856928">https://www.cnblogs.com/huangSir-devops/p/18856928</a> ，本文已按要求改写重述并精简为常用权限表，完整权限清单以 MySQL 官方文档 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html">https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html</a> 为准；sys Schema 部分参考 MySQL 5.7 官方参考手册 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.7/en/sys-schema.html">https://dev.mysql.com/doc/refman/5.7/en/sys-schema.html</a> 。</p>
 </blockquote>
 
+
+            <!-- 广告位：正文末尾（明确标注，不与正文混淆） -->
             
-            <!-- Pager -->
+
+
+
+            <!--
+                文章页上一篇 / 下一篇
+                Hexo 按日期倒序排文章，所以：
+                  page.prev —— 更新的那篇（左边，←）
+                  page.next —— 更早的那篇（右边，→）
+            -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/mysql%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96/" >&larr; Previous Post</a>
+                    <a href="/posts/mysql%E6%9F%A5%E8%AF%A2%E8%BF%9B%E9%98%B6/" >&larr; Newer Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/mysql%E6%9F%A5%E8%AF%A2%E8%BF%9B%E9%98%B6/" >Next Post &rarr;</a>
+                    <a href="/posts/python%E8%BF%9B%E9%98%B6%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96/" >Older Post &rarr;</a>
                 </li>
                 
             </ul>
@@ -460,34 +554,36 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 

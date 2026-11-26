@@ -2,61 +2,132 @@
 <html lang="zh-CN">
 
 <!-- Head -->
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
-<meta name="description" content="折腾半天重装无效？mem-reduct 托盘图标不显示的真正解法在这！无需复杂操作，一个 bat 文件管理员运行，一分钟搞定图标消失问题。">
-
+<meta name="theme-color" content="#667eea">
 
 
-<meta name="keywords" content="">
 
-<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<title>mem-reduct没有托盘图标 | 小兴365 - 个人技术博客</title>
+<meta name="description" content="Mem Reduct 的托盘图标突然不见了，重装也没用？记录一个从 GitHub 无关 issue 里翻出来的办法，一个 bat 跑一分钟就能把图标找回来。">
+<meta name="keywords" content="工具,blog, 小兴365, Hexo, 技术博客, 编程, 系统优化, 软件使用">
+<meta name="robots" content="index,follow">
 
-<title>mem-reduct没有托盘图标</title>
 <link rel="canonical" href="https://xiaoxing365.com/posts/mem-reduct%E6%B2%A1%E6%9C%89%E6%89%98%E7%9B%98%E5%9B%BE%E6%A0%87/">
 
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="mem-reduct没有托盘图标 | 小兴365 - 个人技术博客">
+<meta property="og:description" content="Mem Reduct 的托盘图标突然不见了，重装也没用？记录一个从 GitHub 无关 issue 里翻出来的办法，一个 bat 跑一分钟就能把图标找回来。">
+<meta property="og:url" content="https://xiaoxing365.com/posts/mem-reduct%E6%B2%A1%E6%9C%89%E6%89%98%E7%9B%98%E5%9B%BE%E6%A0%87/">
+<meta property="og:site_name" content="小兴365 - 个人技术博客">
+<meta property="og:locale" content="zh_CN">
+
+<meta property="og:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mem-reduct没有托盘图标 | 小兴365 - 个人技术博客">
+<meta name="twitter:description" content="Mem Reduct 的托盘图标突然不见了，重装也没用？记录一个从 GitHub 无关 issue 里翻出来的办法，一个 bat 跑一分钟就能把图标找回来。">
+
+<meta name="twitter:image" content="https://xiaoxing365.com/assets/image/cat.jpeg">
+
+
+
+<meta property="article:published_time" content="2026-08-29T12:20:35.000Z">
+<meta property="article:modified_time" content="2026-11-26T04:57:55.195Z">
+
+
+<link rel="shortcut icon" href="/assets/image/cat.jpeg">
+<link rel="apple-touch-icon" href="/assets/image/cat.jpeg">
+
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdmirror.com">
+
+
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+
+<link rel="preconnect" href="https://cloud.umami.is">
+
+
+<link rel="dns-prefetch" href="https://uapis.cn">
+
+
 <!-- Bootstrap Core CSS -->
-<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
 
-<!-- Custom Fonts -->
-<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<!-- Custom Fonts（Font Awesome 4.7，webfont 由它自己的 @font-face 按相对路径带出来） -->
+<link rel="stylesheet" href="https://cdn.jsdmirror.com/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<!-- Plugin CSS -->
+<!-- KaTeX（仅页面含公式时加载，字体同样跟随 CSS 所在目录） -->
+
+
+<!-- Analytics -->
+
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a02d6439-7f9f-4b59-8796-fcb8dd424de6"></script>
 
+
 <!-- Custom CSS -->
-<!-- ↓这是styles文件 -->
 
-<link rel="stylesheet" href="/./css/style.css">
-
-
-<link rel="stylesheet" href="/./css/home.css">
+<link rel="stylesheet" href="/css/style.css">
 
 
-<link rel="stylesheet" href="/./css/highlight.css">
+<link rel="stylesheet" href="/css/home.css">
 
 
-<link rel="stylesheet" href="/./css/toc.css">
+<link rel="stylesheet" href="/css/highlight.css">
 
 
-<!-- Google -->
+<link rel="stylesheet" href="/css/toc.css">
+
+
+<!-- Google AdSense -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8492689719510253"
   crossorigin="anonymous"></script>
 
-<script async src="https://www.googletagmanager.com/gtm.js?id=G-VKLNR41T5W"></script>
+
+<!-- Google Analytics 4 -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKLNR41T5W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());</script>
-<!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+  gtag('js', new Date());
+  gtag('config', 'G-VKLNR41T5W');
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "mem-reduct没有托盘图标",
+  "description": "Mem Reduct 的托盘图标突然不见了，重装也没用？记录一个从 GitHub 无关 issue 里翻出来的办法，一个 bat 跑一分钟就能把图标找回来。",
+  "datePublished": "2026-08-29T12:20:35.000Z",
+  "dateModified": "2026-11-26T04:57:55.195Z",
+  "author": { "@type": "Person", "name": "小兴365" },
+  "publisher": { "@type": "Organization", "name": "小兴365 - 个人技术博客" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://xiaoxing365.com/posts/mem-reduct%E6%B2%A1%E6%9C%89%E6%89%98%E7%9B%98%E5%9B%BE%E6%A0%87/" }
+}
+</script>
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
 
 <body>
 
+
 <!-- Header -->
 <!-- Post Header：渐变底图见 style.css；每日一图由 script.js 异步加载并淡入 -->
-<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily">
+
+<header class="intro-header" data-bing-image="https://uapis.cn/api/v1/image/bing-daily?resolution=1080">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -65,23 +136,25 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#工具"
+                        <a class="tag" href="/tags/%E5%B7%A5%E5%85%B7/"
                            title="工具">工具</a>
                         
                     </div>
                     <h1>mem-reduct没有托盘图标</h1>
-                    <h2 class="subheading"></h2>
+                    <h2 class="subheading" data-daily-quote data-quote-fallback="Coding Create Life." data-quote-api=""></h2>
                     <span class="meta">
                             Posted by 小兴365 on
                         2026-08-29
                         </span>
                 </div>
-                <!-- 非文章 -->
+                <!-- 首页 / 归档 / 标签 / 分类 / 普通页面：统一用站点标语 -->
                 
             </div>
         </div>
     </div>
 </header>
+
+
 
 <!-- Nav -->
 <!-- Navigation -->
@@ -89,8 +162,8 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" aria-label="切换导航" aria-expanded="false" aria-controls="huxblog_navbar">
+                <span class="sr-only">切换导航</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -108,11 +181,15 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     
-                    <li><a href="https://xiaoxing365.com/">主页</a></li>
+                    <li><a href="/">主页</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/about/">关于我</a></li>
+                    <li><a href="/archives/">归档</a></li>
                     
-                    <li><a href="https://xiaoxing365.com/友链/">友链</a></li>
+                    <li><a href="/tags/">标签</a></li>
+                    
+                    <li><a href="/about/">关于我</a></li>
+                    
+                    <li><a href="/%E5%8F%8B%E9%93%BE/">友链</a></li>
                     
                 </ul>
             </div>
@@ -121,6 +198,7 @@
     </div>
     <!-- /.container -->
 </nav>
+
 
 <!-- Content -->
 <!-- Content -->
@@ -136,30 +214,47 @@
                 post-container
             ">
 
-            <p>我电脑内存不是很大，又不想一直挂个任务管理器，就装了个mem reduct，结果最近发现他的图标不显示了，我要的不就是这个吗？于是重新装了一遍它，还是不行……得，开始搜寻解决方法<br>最后在GitHub中和mem reduct毫不相关的issue中找到了解决方法……</p>
+            <p>我电脑内存不大，又不想一直开着任务管理器，就装了个 Mem Reduct 帮我看着内存。</p>
+<p>结果前段时间发现它图标不见了 —— 我要的不就是这个图标吗？🙃 重装了一遍，还是不出来。行吧，开始翻资料。</p>
+<p>最后在 GitHub 一个跟 Mem Reduct 八竿子打不着的 issue 里找到了解决办法，只能说网友的力量是无穷的。</p>
 <blockquote>
-<p>原issue：<a target="_blank" rel="noopener" href="https://github.com/henrypp/simplewall/issues/1695">https://github.com/henrypp/simplewall/issues/1695</a></p>
+<p>原 issue：<a target="_blank" rel="noopener" href="https://github.com/henrypp/simplewall/issues/1695">https://github.com/henrypp/simplewall/issues/1695</a></p>
 <hr>
-<p>下载链接：<a target="_blank" rel="noopener" href="https://wwrd.lanzoum.com/is1kS37dlkza">https://wwrd.lanzoum.com/is1kS37dlkza</a></p>
+<p>修复工具下载：<a target="_blank" rel="noopener" href="https://wwrd.lanzoum.com/is1kS37dlkza">https://wwrd.lanzoum.com/is1kS37dlkza</a></p>
 </blockquote>
-<p>解压压缩包后，是一个批处理文件<br>在使用之前，重要的事情说三遍：</p>
+<p>解压之后里面是一个批处理文件。运行之前，重要的事情说三遍：</p>
 <p><strong>保存并关闭所有你现在开着的程序！！！</strong><br><strong>保存并关闭所有你现在开着的程序！！！</strong><br><strong>保存并关闭所有你现在开着的程序！！！</strong></p>
-<p>为避免发生意外，也可以先提前关闭所有安全管家</p>
-<p>确认全部已经关闭：<br>右键bat文件，以管理员身份运行，它会提醒你上面的事情（关闭所有你现在开着的程序）<br>然后随便前一个键（空格回车字母数字都行，别按关机。。。。。）<br>等待一分钟半左右，他会重启桌面，所以黑屏不要紧，一会就恢复了</p>
-<p>恢复后你就会发现图标以已经恢复了~~~</p>
-<p><img src="/posts/mem-reduct%E6%B2%A1%E6%9C%89%E6%89%98%E7%9B%98%E5%9B%BE%E6%A0%87/1.png" alt="image"></p>
+<p>稳妥起见，各类安全管家也先退出，不然它可能半路被拦下来。</p>
+<p>确认都关了以后：</p>
+<ol>
+<li>右键这个 bat 文件，选「以管理员身份运行」。</li>
+<li>它自己也会再提醒你一次关程序，看完随便按个键（空格、回车、字母数字都行，<strong>别按关机</strong>）。</li>
+<li>等一分钟半左右，屏幕会黑一下，桌面在重启，黑屏是正常的，别慌。</li>
+</ol>
+<p>等桌面回来，图标就出现了。</p>
+<p><img decoding="async" src="/posts/mem-reduct%E6%B2%A1%E6%9C%89%E6%89%98%E7%9B%98%E5%9B%BE%E6%A0%87/1.png" alt="image"></p>
 
+
+            <!-- 广告位：正文末尾（明确标注，不与正文混淆） -->
             
-            <!-- Pager -->
+
+
+
+            <!--
+                文章页上一篇 / 下一篇
+                Hexo 按日期倒序排文章，所以：
+                  page.prev —— 更新的那篇（左边，←）
+                  page.next —— 更早的那篇（右边，→）
+            -->
             <ul class="pager">
                 
                 <li class="previous">
-                    <a href="/posts/ssd%E5%9B%BA%E6%80%81-%E6%9C%BA%E6%A2%B0%E6%AD%A3%E7%89%88%E9%AA%8C%E8%AF%81sn/" >&larr; Previous Post</a>
+                    <a href="/posts/ssd%E5%9B%BA%E6%80%81-%E6%9C%BA%E6%A2%B0%E6%AD%A3%E7%89%88%E9%AA%8C%E8%AF%81sn/" >&larr; Newer Post</a>
                 </li>
                 
                 
                 <li class="next">
-                    <a href="/posts/visual-assistant-%E5%9C%A8vs2017%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/" >Next Post &rarr;</a>
+                    <a href="/posts/visual-assistant-%E5%9C%A8vs2017%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/" >Older Post &rarr;</a>
                 </li>
                 
             </ul>
@@ -194,34 +289,36 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <ul class="list-inline text-center">
-                
-
-                </ul>
                 <p class="copyright text-muted">
                     Copyright &copy; 小兴365 2026
                     <br>
-                    Theme by <a target="_blank" rel="noopener" href="http://beantech.org/">Bean Tech</a>
+                    Theme by <a href="https://beantech.org/" target="_blank" rel="noopener">Bean Tech</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
-                    re-Ported by <a href="https://xiaoxing365.com">小兴365</a>
+                    </span>
+                    Ported by <a href="https://xiaoxing365.com">小兴365</a>
                 </p>
             </div>
         </div>
     </div>
 </footer>
 
+
+
 <!-- jQuery -->
-    <script src="/assets/js/jquery.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/assets/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdmirror.com/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+<!-- 每日一言句子池（必须在 script.js 之前） -->
+
+<script src="/js/quotes.js"></script>
+
 
 <!-- Custom Theme JavaScript -->
 
-<script src="/./js/script.js"></script>
-
+<script src="/js/script.js"></script>
 
 
 
